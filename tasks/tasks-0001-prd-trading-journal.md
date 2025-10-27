@@ -121,18 +121,18 @@
   - [x] 1.9 Set up ESLint and Prettier for code quality
   - [x] 1.10 Create basic project structure (lib/, components/, app/ directories)
 
-- [ ] 2.0 Authentication System
-  - [ ] 2.1 Create User model in database schema with email, hashed password, timestamps
-  - [ ] 2.2 Implement password hashing utilities using bcryptjs in `lib/auth.ts`
-  - [ ] 2.3 Create user registration API endpoint (`app/api/auth/register/route.ts`)
-  - [ ] 2.4 Create user login API endpoint with JWT token generation (`app/api/auth/login/route.ts`)
-  - [ ] 2.5 Create logout API endpoint (`app/api/auth/logout/route.ts`)
-  - [ ] 2.6 Implement authentication middleware in `middleware.ts` to protect routes
-  - [ ] 2.7 Create session management utilities (verify token, get current user)
-  - [ ] 2.8 Build LoginForm component (`components/auth/LoginForm.tsx`)
-  - [ ] 2.9 Build RegisterForm component (`components/auth/RegisterForm.tsx`)
-  - [ ] 2.10 Create landing/login page (`app/page.tsx`)
-  - [ ] 2.11 Test authentication flow (register, login, protected route access)
+- [x] 2.0 Authentication System
+  - [x] 2.1 Create User model in database schema with email, hashed password, timestamps
+  - [x] 2.2 Implement password hashing utilities using bcryptjs in `lib/auth.ts`
+  - [x] 2.3 Create user registration API endpoint (`app/api/auth/register/route.ts`)
+  - [x] 2.4 Create user login API endpoint with JWT token generation (`app/api/auth/login/route.ts`)
+  - [x] 2.5 Create logout API endpoint (`app/api/auth/logout/route.ts`)
+  - [x] 2.6 Implement authentication middleware in `middleware.ts` to protect routes
+  - [x] 2.7 Create session management utilities (verify token, get current user)
+  - [x] 2.8 Build LoginForm component (`components/auth/LoginForm.tsx`)
+  - [x] 2.9 Build RegisterForm component (`components/auth/RegisterForm.tsx`)
+  - [x] 2.10 Create landing/login page (`app/page.tsx`)
+  - [x] 2.11 Test authentication flow (register, login, protected route access)
 
 - [ ] 3.0 Trade Management (CRUD Operations)
   - [ ] 3.1 Define Trade model in database schema with all required fields (symbol, asset type, currency, dates, prices, quantities, etc.)
