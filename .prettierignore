@@ -1,0 +1,24 @@
+# Dependencies
+node_modules
+package-lock.json
+
+# Build outputs
+.next
+out
+build
+dist
+
+# Environment files
+.env
+.env.*
+
+# Prisma
+prisma/migrations
+
+# Misc
+*.log
+.DS_Store
+coverage
+*.tsbuildinfo
+next-env.d.ts
+
