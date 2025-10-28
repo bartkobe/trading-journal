@@ -129,6 +129,7 @@ export function addCalculations(trade: Trade): TradeWithCalculations {
   return {
     ...trade,
     pnl,
+    grossPnl: pnl, // Alias for clarity
     pnlPercent,
     netPnl,
     netPnlPercent,
@@ -138,6 +139,9 @@ export function addCalculations(trade: Trade): TradeWithCalculations {
     actualRR,
   };
 }
+
+// Alias for consistency with naming in other parts of the app
+export const calculateTradeMetrics = addCalculations;
 
 /**
  * Add calculations to multiple trades

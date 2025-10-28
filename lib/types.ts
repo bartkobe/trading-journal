@@ -94,7 +94,8 @@ export type UpdateTradeInput = Partial<CreateTradeInput>;
 
 export interface TradeCalculations {
   // P&L calculations
-  pnl: number; // Profit/Loss in currency
+  pnl: number; // Profit/Loss in currency (gross)
+  grossPnl: number; // Alias for pnl (for clarity)
   pnlPercent: number; // P&L as percentage
   netPnl: number; // P&L after fees
   netPnlPercent: number; // Net P&L as percentage
