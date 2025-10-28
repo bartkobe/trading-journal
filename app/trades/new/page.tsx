@@ -48,7 +48,7 @@ export default async function NewTradePage() {
         </div>
 
         {/* Form */}
-        <TradeForm />
+        <TradeForm userId={user.id} />
       </div>
     </div>
   );
