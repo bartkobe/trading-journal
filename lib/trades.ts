@@ -68,7 +68,7 @@ export function calculateTradeMetrics(trade: Trade): TradeCalculations {
 /**
  * Add calculations to a trade object
  */
-export function enrichTradeWithCalculations(trade: any): TradeWithCalculations {
+export function enrichTradeWithCalculations(trade: Trade): TradeWithCalculations {
   const calculations = calculateTradeMetrics(trade);
 
   return {
