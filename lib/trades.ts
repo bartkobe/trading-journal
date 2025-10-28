@@ -359,7 +359,7 @@ export function generateEquityCurve(
   const equityCurve = sortedTrades.map((trade, index) => {
     cumulative += trade.calculations.netPnl;
     return {
-      date: new Date(trade.exitDate),
+      date: new Date(trade.exitDate || trade.entryDate),
       cumulativePnl: cumulative,
       tradeNumber: index + 1,
     };

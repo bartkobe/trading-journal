@@ -29,6 +29,10 @@ export type Tag = Prisma.TagGetPayload<{}>;
 // User type (without password)
 export type User = Omit<Prisma.UserGetPayload<{}>, 'password'>;
 
+// Enums from Prisma schema
+export type Direction = 'LONG' | 'SHORT';
+export type AssetType = 'STOCK' | 'FOREX' | 'CRYPTO' | 'OPTIONS';
+
 // ============================================================================
 // Calculated Trade Metrics
 // ============================================================================
@@ -47,15 +51,40 @@ export interface TradeCalculations {
   isBreakeven: boolean; // Is this a breakeven trade
 }
 
-export interface TradeWithCalculations extends Trade {
+// Define TradeWithCalculations interface explicitly to avoid conflicts with Prisma types
+export interface TradeWithCalculations {
+  // Base Trade properties (matching Prisma schema)
+  id: string;
+  userId: string;
+  symbol: string;
+  assetType: AssetType;
+  currency: string;
+  entryDate: Date;
+  entryPrice: number;
+  exitDate: Date | null;
+  exitPrice: number | null;
+  quantity: number;
+  direction: Direction;
+  setupType: string | null;
+  strategyName: string | null;
+  stopLoss: number | null;
+  takeProfit: number | null;
+  fees: number;
+  timeOfDay: string | null;
+  marketConditions: string | null;
+  emotionalStateEntry: string | null;
+  emotionalStateExit: string | null;
+  notes: string | null;
+  riskRewardRatio: number | null;
+  createdAt: Date;
+  updatedAt: Date;
+
+  // Additional properties
   calculations: TradeCalculations;
   screenshots: Screenshot[];
   tags: Array<{
     tag: Tag;
   }>;
-  // Explicitly include properties to ensure TypeScript recognizes them
-  entryDate: Date;
-  symbol: string;
 }
 
 // ============================================================================
