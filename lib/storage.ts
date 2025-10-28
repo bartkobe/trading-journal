@@ -7,18 +7,18 @@ type StorageProvider = 'cloudinary' | 's3' | 'none';
 // Determine which storage provider to use based on environment variables
 const getStorageProvider = (): StorageProvider => {
   if (
-    process.env.CLOUDINARY_CLOUD_NAME &&
-    process.env.CLOUDINARY_API_KEY &&
-    process.env.CLOUDINARY_API_SECRET
+    process.env['CLOUDINARY_CLOUD_NAME'] &&
+    process.env['CLOUDINARY_API_KEY'] &&
+    process.env['CLOUDINARY_API_SECRET']
   ) {
     return 'cloudinary';
   }
 
   if (
-    process.env.AWS_ACCESS_KEY_ID &&
-    process.env.AWS_SECRET_ACCESS_KEY &&
-    process.env.AWS_REGION &&
-    process.env.AWS_S3_BUCKET
+    process.env['AWS_ACCESS_KEY_ID'] &&
+    process.env['AWS_SECRET_ACCESS_KEY'] &&
+    process.env['AWS_REGION'] &&
+    process.env['AWS_S3_BUCKET']
   ) {
     return 's3';
   }
@@ -31,9 +31,9 @@ const STORAGE_PROVIDER = getStorageProvider();
 // Initialize Cloudinary
 if (STORAGE_PROVIDER === 'cloudinary') {
   cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
+    cloud_name: process.env['CLOUDINARY_CLOUD_NAME'],
+    api_key: process.env['CLOUDINARY_API_KEY'],
+    api_secret: process.env['CLOUDINARY_API_SECRET'],
   });
 }
 
@@ -41,10 +41,10 @@ if (STORAGE_PROVIDER === 'cloudinary') {
 let s3Client: S3Client | null = null;
 if (STORAGE_PROVIDER === 's3') {
   s3Client = new S3Client({
-    region: process.env.AWS_REGION!,
+    region: process.env['AWS_REGION']!,
     credentials: {
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+      accessKeyId: process.env['AWS_ACCESS_KEY_ID']!,
+      secretAccessKey: process.env['AWS_SECRET_ACCESS_KEY']!,
     },
   });
 }
@@ -184,7 +184,7 @@ async function uploadToS3(
     throw new Error('S3 client not initialized');
   }
 
-  const bucket = process.env.AWS_S3_BUCKET!;
+  const bucket = process.env['AWS_S3_BUCKET']!;
   const key = `${folder}/${Date.now()}-${filename}`;
 
   // Convert base64 string to Buffer if necessary
@@ -203,7 +203,7 @@ async function uploadToS3(
   await s3Client.send(command);
 
   // Generate public URL
-  const url = `https://${bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
+  const url = `https://${bucket}.s3.${process.env['AWS_REGION']}.amazonaws.com/${key}`;
 
   return {
     url,
@@ -221,7 +221,7 @@ async function deleteFromS3(key: string): Promise<boolean> {
 
   try {
     const command = new DeleteObjectCommand({
-      Bucket: process.env.AWS_S3_BUCKET!,
+      Bucket: process.env['AWS_S3_BUCKET']!,
       Key: key,
     });
 
