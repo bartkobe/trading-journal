@@ -5,7 +5,7 @@ import { verifyToken } from '@/lib/auth';
 const protectedRoutes = ['/dashboard', '/trades', '/analytics'];
 
 // Routes that should redirect to dashboard if already authenticated
-const authRoutes = ['/login', '/register'];
+const authRoutes = ['/'];
 
 export function middleware(request: NextRequest) {
   const token = request.cookies.get('auth-token')?.value;
@@ -13,14 +13,14 @@ export function middleware(request: NextRequest) {
 
   // Check if the route is protected
   const isProtectedRoute = protectedRoutes.some((route) => pathname.startsWith(route));
-  const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route));
+  const isAuthRoute = pathname === '/';
 
   // Verify token if present
   const isAuthenticated = token ? verifyToken(token) !== null : false;
 
   // Redirect to login if accessing protected route without auth
   if (isProtectedRoute && !isAuthenticated) {
-    const loginUrl = new URL('/login', request.url);
+    const loginUrl = new URL('/', request.url);
     loginUrl.searchParams.set('redirect', pathname);
     return NextResponse.redirect(loginUrl);
   }

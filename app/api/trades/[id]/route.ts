@@ -1,22 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/auth';
-import prisma from '@/lib/db';
 import { tradeSchema } from '@/lib/validation';
-import { addCalculations } from '@/lib/trades';
+import { enrichTradeWithCalculations } from '@/lib/trades';
+import prisma from '@/lib/db';
 
 /**
  * GET /api/trades/[id]
- * Get a single trade by ID
+ * Fetch a single trade by ID with all details
  */
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    // Require authentication
     const user = await requireAuth();
     const { id } = await params;
 
-    const trade = await prisma.trade.findFirst({
+    // Fetch the trade
+    const trade = await prisma.trade.findUnique({
       where: {
         id,
-        userId: user.id,
+        userId: user.id, // Ensure user owns this trade
       },
       include: {
         screenshots: true,
@@ -37,23 +39,24 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       );
     }
 
-    // Add calculations
-    const tradeWithCalculations = addCalculations(trade);
+    // Enrich with calculations
+    const enrichedTrade = enrichTradeWithCalculations(trade);
 
     return NextResponse.json({
-      success: true,
-      trade: tradeWithCalculations,
+      trade: enrichedTrade,
     });
   } catch (error) {
     console.error('Get trade error:', error);
 
-    if (error instanceof Error && error.message === 'Authentication required') {
-      return NextResponse.json(
-        {
-          error: 'Authentication required',
-        },
-        { status: 401 }
-      );
+    if (error instanceof Error) {
+      if (error.message === 'Authentication required') {
+        return NextResponse.json(
+          {
+            error: 'Authentication required',
+          },
+          { status: 401 }
+        );
+      }
     }
 
     return NextResponse.json(
@@ -71,12 +74,12 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
  */
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    // Require authentication
     const user = await requireAuth();
     const { id } = await params;
-    const body = await request.json();
 
-    // Check if trade exists and belongs to user
-    const existingTrade = await prisma.trade.findFirst({
+    // Check if trade exists and user owns it
+    const existingTrade = await prisma.trade.findUnique({
       where: {
         id,
         userId: user.id,
@@ -92,8 +95,10 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       );
     }
 
-    // Validate input (partial validation for update)
-    const validationResult = tradeSchema.partial().safeParse(body);
+    const body = await request.json();
+
+    // Validate input
+    const validationResult = tradeSchema.safeParse(body);
 
     if (!validationResult.success) {
       return NextResponse.json(
@@ -108,21 +113,19 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     const data = validationResult.data;
 
     // Extract tags from input
-    const { tags, ...tradeData } = data;
+    const tagNames = data.tags || [];
 
-    // Convert dates if provided
-    const updateData: any = { ...tradeData };
-    if (tradeData.entryDate) {
-      updateData.entryDate = new Date(tradeData.entryDate);
-    }
-    if (tradeData.exitDate) {
-      updateData.exitDate = new Date(tradeData.exitDate);
-    }
+    // Prepare trade data without tags
+    const { tags: _tags, ...tradeData } = data;
 
-    // Update trade
-    const trade = await prisma.trade.update({
+    // Update the trade
+    const updatedTrade = await prisma.trade.update({
       where: { id },
-      data: updateData,
+      data: {
+        ...tradeData,
+        entryDate: new Date(tradeData.entryDate),
+        exitDate: new Date(tradeData.exitDate),
+      },
       include: {
         screenshots: true,
         tags: {
@@ -133,39 +136,37 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       },
     });
 
-    // Handle tags if provided
-    if (tags !== undefined) {
-      // Delete existing trade-tag relationships
+    // Update tags if provided
+    if (tagNames.length >= 0) {
+      // Remove all existing tag associations
       await prisma.tradeTag.deleteMany({
         where: { tradeId: id },
       });
 
-      // Create new relationships
-      if (tags.length > 0) {
-        for (const tagName of tags) {
-          // Find or create tag
-          let tag = await prisma.tag.findUnique({
-            where: { name: tagName },
-          });
+      // Add new tag associations
+      for (const tagName of tagNames) {
+        // Find or create tag
+        let tag = await prisma.tag.findUnique({
+          where: { name: tagName },
+        });
 
-          if (!tag) {
-            tag = await prisma.tag.create({
-              data: { name: tagName },
-            });
-          }
-
-          // Create trade-tag relationship
-          await prisma.tradeTag.create({
-            data: {
-              tradeId: id,
-              tagId: tag.id,
-            },
+        if (!tag) {
+          tag = await prisma.tag.create({
+            data: { name: tagName },
           });
         }
+
+        // Connect tag to trade
+        await prisma.tradeTag.create({
+          data: {
+            tradeId: id,
+            tagId: tag.id,
+          },
+        });
       }
 
-      // Fetch updated trade with tags
-      const updatedTrade = await prisma.trade.findUnique({
+      // Refetch trade with updated tags
+      const tradeWithTags = await prisma.trade.findUnique({
         where: { id },
         include: {
           screenshots: true,
@@ -177,28 +178,35 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
         },
       });
 
-      return NextResponse.json({
-        success: true,
-        message: 'Trade updated successfully',
-        trade: updatedTrade,
-      });
+      if (tradeWithTags) {
+        const enrichedTrade = enrichTradeWithCalculations(tradeWithTags);
+
+        return NextResponse.json({
+          trade: enrichedTrade,
+          message: 'Trade updated successfully',
+        });
+      }
     }
 
+    // Return enriched trade
+    const enrichedTrade = enrichTradeWithCalculations(updatedTrade);
+
     return NextResponse.json({
-      success: true,
+      trade: enrichedTrade,
       message: 'Trade updated successfully',
-      trade,
     });
   } catch (error) {
     console.error('Update trade error:', error);
 
-    if (error instanceof Error && error.message === 'Authentication required') {
-      return NextResponse.json(
-        {
-          error: 'Authentication required',
-        },
-        { status: 401 }
-      );
+    if (error instanceof Error) {
+      if (error.message === 'Authentication required') {
+        return NextResponse.json(
+          {
+            error: 'Authentication required',
+          },
+          { status: 401 }
+        );
+      }
     }
 
     return NextResponse.json(
@@ -219,11 +227,12 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Require authentication
     const user = await requireAuth();
     const { id } = await params;
 
-    // Check if trade exists and belongs to user
-    const existingTrade = await prisma.trade.findFirst({
+    // Check if trade exists and user owns it
+    const existingTrade = await prisma.trade.findUnique({
       where: {
         id,
         userId: user.id,
@@ -239,7 +248,7 @@ export async function DELETE(
       );
     }
 
-    // Delete trade (cascades to screenshots and trade-tags)
+    // Delete the trade (cascade will delete screenshots and trade-tag relations)
     await prisma.trade.delete({
       where: { id },
     });
@@ -251,13 +260,15 @@ export async function DELETE(
   } catch (error) {
     console.error('Delete trade error:', error);
 
-    if (error instanceof Error && error.message === 'Authentication required') {
-      return NextResponse.json(
-        {
-          error: 'Authentication required',
-        },
-        { status: 401 }
-      );
+    if (error instanceof Error) {
+      if (error.message === 'Authentication required') {
+        return NextResponse.json(
+          {
+            error: 'Authentication required',
+          },
+          { status: 401 }
+        );
+      }
     }
 
     return NextResponse.json(
@@ -268,4 +279,3 @@ export async function DELETE(
     );
   }
 }
-

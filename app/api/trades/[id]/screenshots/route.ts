@@ -1,22 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/auth';
-import prisma from '@/lib/db';
 import { uploadImage, isValidImageType, isValidImageSize } from '@/lib/storage';
+import prisma from '@/lib/db';
 
 /**
  * POST /api/trades/[id]/screenshots
- * Upload a screenshot for a trade
+ * Upload screenshots for a trade
  */
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Require authentication
     const user = await requireAuth();
     const { id: tradeId } = await params;
 
-    // Check if trade exists and belongs to user
-    const trade = await prisma.trade.findFirst({
+    // Verify trade exists and user owns it
+    const trade = await prisma.trade.findUnique({
       where: {
         id: tradeId,
         userId: user.id,
@@ -32,9 +33,9 @@ export async function POST(
       );
     }
 
-    // Get form data
+    // Parse form data
     const formData = await request.formData();
-    const file = formData.get('file') as File;
+    const file = formData.get('file') as File | null;
 
     if (!file) {
       return NextResponse.json(
@@ -55,24 +56,24 @@ export async function POST(
       );
     }
 
-    // Validate file size (max 10MB)
+    // Validate file size (10MB max)
     if (!isValidImageSize(file.size)) {
       return NextResponse.json(
         {
-          error: 'File too large. Maximum file size is 10MB.',
+          error: 'File too large. Maximum size is 10MB.',
         },
         { status: 400 }
       );
     }
 
     // Convert file to buffer
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
 
     // Upload to cloud storage
-    const uploadResult = await uploadImage(buffer, file.name, `trades/${tradeId}`);
+    const uploadResult = await uploadImage(buffer, file.name, 'trades/screenshots');
 
-    // Save screenshot to database
+    // Save screenshot metadata to database
     const screenshot = await prisma.screenshot.create({
       data: {
         tradeId,
@@ -85,9 +86,8 @@ export async function POST(
 
     return NextResponse.json(
       {
-        success: true,
-        message: 'Screenshot uploaded successfully',
         screenshot,
+        message: 'Screenshot uploaded successfully',
       },
       { status: 201 }
     );
@@ -104,13 +104,13 @@ export async function POST(
         );
       }
 
-      if (error.message.includes('cloud storage')) {
+      // Handle storage errors
+      if (error.message.includes('No cloud storage provider configured')) {
         return NextResponse.json(
           {
-            error:
-              'Cloud storage not configured. Please set up Cloudinary or AWS S3 credentials.',
+            error: 'Cloud storage not configured. Please set up Cloudinary or AWS S3.',
           },
-          { status: 503 }
+          { status: 500 }
         );
       }
     }
@@ -125,60 +125,90 @@ export async function POST(
 }
 
 /**
- * GET /api/trades/[id]/screenshots
- * Get all screenshots for a trade
+ * DELETE /api/trades/[id]/screenshots
+ * Delete a screenshot (query param: screenshotId)
  */
-export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
+    // Require authentication
     const user = await requireAuth();
     const { id: tradeId } = await params;
 
-    // Check if trade exists and belongs to user
-    const trade = await prisma.trade.findFirst({
+    // Get screenshot ID from query params
+    const { searchParams } = new URL(request.url);
+    const screenshotId = searchParams.get('screenshotId');
+
+    if (!screenshotId) {
+      return NextResponse.json(
+        {
+          error: 'Screenshot ID is required',
+        },
+        { status: 400 }
+      );
+    }
+
+    // Verify screenshot exists and belongs to user's trade
+    const screenshot = await prisma.screenshot.findFirst({
       where: {
-        id: tradeId,
-        userId: user.id,
+        id: screenshotId,
+        tradeId,
+        trade: {
+          userId: user.id,
+        },
       },
     });
 
-    if (!trade) {
+    if (!screenshot) {
       return NextResponse.json(
         {
-          error: 'Trade not found',
+          error: 'Screenshot not found',
         },
         { status: 404 }
       );
     }
 
-    // Get all screenshots for the trade
-    const screenshots = await prisma.screenshot.findMany({
-      where: {
-        tradeId,
-      },
-      orderBy: {
-        uploadedAt: 'desc',
-      },
+    // Delete from cloud storage (best effort - don't fail if this fails)
+    try {
+      const { deleteImage } = await import('@/lib/storage');
+      if (screenshot.url) {
+        // Extract public ID from URL or use the full URL
+        const publicId = screenshot.url.split('/').pop()?.split('.')[0] || screenshot.url;
+        await deleteImage(publicId);
+      }
+    } catch (storageError) {
+      console.error('Failed to delete from cloud storage:', storageError);
+      // Continue with database deletion even if cloud deletion fails
+    }
+
+    // Delete from database
+    await prisma.screenshot.delete({
+      where: { id: screenshotId },
     });
 
     return NextResponse.json({
       success: true,
-      screenshots,
+      message: 'Screenshot deleted successfully',
     });
   } catch (error) {
-    console.error('Get screenshots error:', error);
+    console.error('Delete screenshot error:', error);
 
-    if (error instanceof Error && error.message === 'Authentication required') {
-      return NextResponse.json(
-        {
-          error: 'Authentication required',
-        },
-        { status: 401 }
-      );
+    if (error instanceof Error) {
+      if (error.message === 'Authentication required') {
+        return NextResponse.json(
+          {
+            error: 'Authentication required',
+          },
+          { status: 401 }
+        );
+      }
     }
 
     return NextResponse.json(
       {
-        error: 'Failed to fetch screenshots',
+        error: 'Failed to delete screenshot',
       },
       { status: 500 }
     );

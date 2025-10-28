@@ -1,21 +1,13 @@
 import { Prisma } from '@prisma/client';
 
 // ============================================================================
-// Database Model Types (from Prisma)
+// Prisma-based Types (from database schema)
 // ============================================================================
 
-export type User = Prisma.UserGetPayload<{
-  select: {
-    id: true;
-    email: true;
-    name: true;
-    createdAt: true;
-    updatedAt: true;
-  };
-}>;
-
-export type Trade = Prisma.TradeGetPayload<{
+// Trade with all relations
+export type TradeWithRelations = Prisma.TradeGetPayload<{
   include: {
+    user: true;
     screenshots: true;
     tags: {
       include: {
@@ -25,131 +17,105 @@ export type Trade = Prisma.TradeGetPayload<{
   };
 }>;
 
-export type TradeWithDetails = Trade;
+// Trade without relations
+export type Trade = Prisma.TradeGetPayload<{}>;
 
-export type Screenshot = Prisma.ScreenshotGetPayload<object>;
+// Screenshot type
+export type Screenshot = Prisma.ScreenshotGetPayload<{}>;
 
-export type Tag = Prisma.TagGetPayload<object>;
+// Tag type
+export type Tag = Prisma.TagGetPayload<{}>;
 
-export type TradeTag = Prisma.TradeTagGetPayload<{
-  include: {
-    tag: true;
-  };
-}>;
-
-// ============================================================================
-// Enum Types (from Prisma)
-// ============================================================================
-
-export type AssetType = 'STOCK' | 'FOREX' | 'CRYPTO' | 'OPTIONS';
-export type Direction = 'LONG' | 'SHORT';
-export type TimeOfDay = 'PRE_MARKET' | 'MARKET_OPEN' | 'MID_DAY' | 'MARKET_CLOSE' | 'AFTER_HOURS';
-export type MarketConditions = 'TRENDING' | 'RANGING' | 'VOLATILE' | 'CALM';
+// User type (without password)
+export type User = Omit<Prisma.UserGetPayload<{}>, 'password'>;
 
 // ============================================================================
-// Trade Creation/Update Types
-// ============================================================================
-
-export interface CreateTradeInput {
-  // Required fields
-  symbol: string;
-  assetType: AssetType;
-  currency?: string;
-  entryDate: Date | string;
-  entryPrice: number;
-  exitDate: Date | string;
-  exitPrice: number;
-  quantity: number;
-  direction: Direction;
-
-  // Optional metadata
-  setupType?: string;
-  strategyName?: string;
-  stopLoss?: number;
-  takeProfit?: number;
-  riskRewardRatio?: number;
-  actualRiskReward?: number;
-
-  // Fees
-  fees?: number;
-
-  // Context
-  timeOfDay?: TimeOfDay;
-  marketConditions?: MarketConditions;
-  emotionalStateEntry?: string;
-  emotionalStateExit?: string;
-
-  // Notes
-  notes?: string;
-
-  // Tags (array of tag names or IDs)
-  tags?: string[];
-}
-
-export type UpdateTradeInput = Partial<CreateTradeInput>;
-
-// ============================================================================
-// Trade Calculated Fields
+// Calculated Trade Metrics
 // ============================================================================
 
 export interface TradeCalculations {
-  // P&L calculations
-  pnl: number; // Profit/Loss in currency (gross)
-  grossPnl: number; // Alias for pnl (for clarity)
-  pnlPercent: number; // P&L as percentage
+  pnl: number; // Profit/Loss in trade currency
+  pnlPercent: number; // P&L as percentage of entry value
   netPnl: number; // P&L after fees
-  netPnlPercent: number; // Net P&L as percentage
-
-  // Trade outcome
-  outcome: 'winning' | 'losing' | 'breakeven';
-
-  // Position value
-  entryValue: number; // entryPrice * quantity
-  exitValue: number; // exitPrice * quantity
-
-  // Risk/Reward
-  actualRR?: number; // Actual risk/reward ratio
+  entryValue: number; // Entry price * quantity
+  exitValue: number; // Exit price * quantity
+  actualRiskReward?: number; // Actual R:R based on outcome
+  holdingPeriod: number; // Duration in hours
+  holdingPeriodDays: number; // Duration in days
+  isWinner: boolean; // Is this a winning trade
+  isLoser: boolean; // Is this a losing trade
+  isBreakeven: boolean; // Is this a breakeven trade
 }
 
-export type TradeWithCalculations = Trade & TradeCalculations;
-
-// ============================================================================
-// Trade Filter & Query Types
-// ============================================================================
-
-export interface TradeFilters {
-  // Date range
-  startDate?: Date | string;
-  endDate?: Date | string;
-
-  // Trade properties
-  symbol?: string;
-  assetType?: AssetType;
-  direction?: Direction;
-  strategyName?: string;
-  setupType?: string;
-
-  // Outcome
-  outcome?: 'winning' | 'losing' | 'breakeven';
-
-  // Tags
-  tags?: string[];
-
-  // Sorting
-  sortBy?: 'date' | 'pnl' | 'pnlPercent' | 'symbol';
-  sortOrder?: 'asc' | 'desc';
-
-  // Pagination
-  limit?: number;
-  offset?: number;
+export interface TradeWithCalculations extends Trade {
+  calculations: TradeCalculations;
+  screenshots: Screenshot[];
+  tags: Array<{
+    tag: Tag;
+  }>;
 }
+
+// ============================================================================
+// API Response Types
+// ============================================================================
 
 export interface TradeListResponse {
   trades: TradeWithCalculations[];
   total: number;
+  page: number;
+  limit: number;
+  hasMore: boolean;
+}
+
+export interface TradeDetailResponse {
+  trade: TradeWithCalculations;
+}
+
+export interface TradeCreateResponse {
+  trade: TradeWithCalculations;
+  message: string;
+}
+
+export interface TradeUpdateResponse {
+  trade: TradeWithCalculations;
+  message: string;
+}
+
+export interface TradeDeleteResponse {
+  success: boolean;
+  message: string;
+}
+
+// ============================================================================
+// Filter & Sort Types
+// ============================================================================
+
+export type TradeOutcome = 'winning' | 'losing' | 'breakeven';
+
+export type TradeSortField = 'date' | 'pnl' | 'pnlPercent' | 'symbol';
+
+export type SortOrder = 'asc' | 'desc';
+
+export interface TradeFilters {
+  startDate?: Date;
+  endDate?: Date;
+  assetType?: 'STOCK' | 'FOREX' | 'CRYPTO' | 'OPTIONS';
+  symbol?: string;
+  strategyName?: string;
+  setupType?: string;
+  tags?: string[];
+  outcome?: TradeOutcome;
+  search?: string; // Search in symbol, notes, strategy
+}
+
+export interface TradeSortOptions {
+  sortBy: TradeSortField;
+  sortOrder: SortOrder;
+}
+
+export interface TradePaginationOptions {
   limit: number;
   offset: number;
-  hasMore: boolean;
 }
 
 // ============================================================================
@@ -160,156 +126,141 @@ export interface DashboardMetrics {
   // Basic metrics
   totalTrades: number;
   totalPnl: number;
+  netPnl: number;
+  winRate: number;
+  lossRate: number;
+
+  // Win/Loss analysis
   winningTrades: number;
   losingTrades: number;
   breakevenTrades: number;
-
-  // Win rate
-  winRate: number; // percentage
-  lossRate: number; // percentage
-
-  // Average metrics
   averageWin: number;
   averageLoss: number;
-  averagePnl: number;
+  largestWin: number;
+  largestLoss: number;
 
-  // Advanced metrics
-  profitFactor: number; // gross profit / gross loss
-  expectancy: number; // average expected profit per trade
-  sharpeRatio: number;
-  maxDrawdown: number;
+  // Performance metrics
+  profitFactor: number; // Gross profit / Gross loss
+  expectancy: number; // Average expected profit per trade
+  sharpeRatio: number; // Risk-adjusted return
+  maxDrawdown: number; // Largest peak-to-trough decline
   averageDrawdown: number;
 
-  // Period
-  startDate?: Date;
-  endDate?: Date;
+  // Trading behavior
+  averageHoldingPeriod: number; // In hours
+  totalFees: number;
+  averageFees: number;
 }
 
 export interface PerformanceBreakdown {
-  // By symbol
-  bySymbol: Array<{
-    symbol: string;
-    trades: number;
-    pnl: number;
-    winRate: number;
-  }>;
-
-  // By asset type
-  byAssetType: Array<{
-    assetType: AssetType;
-    trades: number;
-    pnl: number;
-    winRate: number;
-  }>;
-
-  // By strategy
-  byStrategy: Array<{
-    strategyName: string;
-    trades: number;
-    pnl: number;
-    winRate: number;
-  }>;
-
-  // By setup type
-  bySetupType: Array<{
-    setupType: string;
-    trades: number;
-    pnl: number;
-    winRate: number;
-  }>;
-
-  // By time of day
-  byTimeOfDay: Array<{
-    timeOfDay: TimeOfDay;
-    trades: number;
-    pnl: number;
-    winRate: number;
-  }>;
-
-  // By day of week
-  byDayOfWeek: Array<{
-    dayOfWeek: number; // 0-6 (Sunday-Saturday)
-    dayName: string;
-    trades: number;
-    pnl: number;
-    winRate: number;
-  }>;
-
-  // By emotional state
-  byEmotionalState: Array<{
-    emotionalState: string;
-    trades: number;
-    pnl: number;
-    winRate: number;
-  }>;
+  byAssetType: Record<string, MetricsByCategory>;
+  byStrategy: Record<string, MetricsByCategory>;
+  bySetupType: Record<string, MetricsByCategory>;
+  bySymbol: Record<string, MetricsByCategory>;
+  byTimeOfDay: Record<string, MetricsByCategory>;
+  byDayOfWeek: Record<string, MetricsByCategory>;
+  byEmotionalState: Record<string, MetricsByCategory>;
 }
 
-export interface ChartData {
-  // Equity curve (cumulative P&L over time)
-  equityCurve: Array<{
-    date: Date | string;
-    cumulativePnl: number;
-    tradeCount: number;
-  }>;
+export interface MetricsByCategory {
+  trades: number;
+  pnl: number;
+  winRate: number;
+  averageWin: number;
+  averageLoss: number;
+  profitFactor: number;
+}
 
-  // Win/Loss distribution
-  pnlDistribution: Array<{
-    range: string; // e.g., "-500 to -400"
-    count: number;
-    pnl: number;
-  }>;
+export interface EquityCurvePoint {
+  date: Date;
+  cumulativePnl: number;
+  tradeNumber: number;
+  tradePnl: number;
+}
 
-  // Monthly performance
-  monthlyPerformance: Array<{
-    month: string; // e.g., "2025-01"
-    trades: number;
-    pnl: number;
-    winRate: number;
-  }>;
+export interface ChartDataPoint {
+  label: string;
+  value: number;
+  count?: number;
+}
+
+// ============================================================================
+// Form Types
+// ============================================================================
+
+export interface TradeFormData {
+  // Basic info
+  symbol: string;
+  assetType: 'STOCK' | 'FOREX' | 'CRYPTO' | 'OPTIONS';
+  currency: string;
+  direction: 'LONG' | 'SHORT';
+
+  // Entry
+  entryDate: Date | string;
+  entryPrice: number;
+  quantity: number;
+
+  // Exit
+  exitDate: Date | string;
+  exitPrice: number;
+
+  // Metadata
+  setupType?: string;
+  strategyName?: string;
+  stopLoss?: number;
+  takeProfit?: number;
+  riskRewardRatio?: number;
+  fees?: number;
+
+  // Context
+  timeOfDay?: 'PRE_MARKET' | 'MARKET_OPEN' | 'MID_DAY' | 'MARKET_CLOSE' | 'AFTER_HOURS';
+  marketConditions?: 'TRENDING' | 'RANGING' | 'VOLATILE' | 'CALM';
+  emotionalStateEntry?: string;
+  emotionalStateExit?: string;
+
+  // Notes
+  notes?: string;
+
+  // Tags (array of tag names)
+  tags?: string[];
 }
 
 // ============================================================================
 // Screenshot Upload Types
 // ============================================================================
 
-export interface ScreenshotUpload {
-  file: File | Buffer;
+export interface ScreenshotUploadData {
+  file: File | Blob;
   filename: string;
-  mimeType?: string;
 }
 
-export interface ScreenshotResult {
-  id?: string;
-  url: string;
-  filename: string;
-  fileSize?: number;
-  mimeType?: string;
+export interface ScreenshotUploadResponse {
+  screenshot: Screenshot;
+  message: string;
 }
 
 // ============================================================================
 // Tag Management Types
 // ============================================================================
 
-export interface CreateTagInput {
-  name: string;
-}
-
 export interface TagWithCount extends Tag {
-  _count?: {
+  _count: {
     trades: number;
   };
 }
 
-// ============================================================================
-// API Response Types
-// ============================================================================
-
-export interface ApiResponse<T = unknown> {
-  success: boolean;
-  data?: T;
-  error?: string;
-  message?: string;
+export interface TagListResponse {
+  tags: TagWithCount[];
 }
+
+export interface TagCreateResponse {
+  tag: Tag;
+  message: string;
+}
+
+// ============================================================================
+// Error Types
+// ============================================================================
 
 export interface ApiError {
   error: string;
@@ -318,20 +269,29 @@ export interface ApiError {
 }
 
 // ============================================================================
-// Utility Types
+// Export CSV Types
 // ============================================================================
 
-export type Outcome = 'winning' | 'losing' | 'breakeven';
-
-export interface DateRange {
-  startDate: Date | string;
-  endDate: Date | string;
+export interface TradeCSVRow {
+  symbol: string;
+  assetType: string;
+  currency: string;
+  direction: string;
+  entryDate: string;
+  entryPrice: number;
+  exitDate: string;
+  exitPrice: number;
+  quantity: number;
+  pnl: number;
+  pnlPercent: number;
+  fees: number;
+  netPnl: number;
+  strategyName: string;
+  setupType: string;
+  timeOfDay: string;
+  marketConditions: string;
+  emotionalStateEntry: string;
+  emotionalStateExit: string;
+  holdingPeriodDays: number;
+  tags: string;
 }
-
-export interface Pagination {
-  limit: number;
-  offset: number;
-  total: number;
-  hasMore: boolean;
-}
-

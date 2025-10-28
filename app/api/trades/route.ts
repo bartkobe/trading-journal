@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/auth';
-import prisma from '@/lib/db';
 import { tradeSchema, tradeFilterSchema } from '@/lib/validation';
-import { addCalculationsToAll } from '@/lib/trades';
+import { enrichTradeWithCalculations, sortTrades, filterByOutcome } from '@/lib/trades';
+import prisma from '@/lib/db';
 
 /**
  * POST /api/trades
@@ -10,7 +10,9 @@ import { addCalculationsToAll } from '@/lib/trades';
  */
 export async function POST(request: NextRequest) {
   try {
+    // Require authentication
     const user = await requireAuth();
+
     const body = await request.json();
 
     // Validate input
@@ -28,10 +30,13 @@ export async function POST(request: NextRequest) {
 
     const data = validationResult.data;
 
-    // Extract tags from input
-    const { tags, ...tradeData } = data;
+    // Extract tags from input (array of tag names)
+    const tagNames = data.tags || [];
 
-    // Create trade
+    // Prepare trade data without tags
+    const { tags: _tags, ...tradeData } = data;
+
+    // Create the trade
     const trade = await prisma.trade.create({
       data: {
         ...tradeData,
@@ -49,9 +54,10 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Handle tags if provided
-    if (tags && tags.length > 0) {
-      for (const tagName of tags) {
+    // Process tags if provided
+    if (tagNames.length > 0) {
+      // Create or connect tags
+      for (const tagName of tagNames) {
         // Find or create tag
         let tag = await prisma.tag.findUnique({
           where: { name: tagName },
@@ -63,7 +69,7 @@ export async function POST(request: NextRequest) {
           });
         }
 
-        // Create trade-tag relationship
+        // Connect tag to trade
         await prisma.tradeTag.create({
           data: {
             tradeId: trade.id,
@@ -72,7 +78,7 @@ export async function POST(request: NextRequest) {
         });
       }
 
-      // Fetch updated trade with tags
+      // Refetch trade with tags
       const updatedTrade = await prisma.trade.findUnique({
         where: { id: trade.id },
         include: {
@@ -85,34 +91,41 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      return NextResponse.json(
-        {
-          success: true,
-          message: 'Trade created successfully',
-          trade: updatedTrade,
-        },
-        { status: 201 }
-      );
+      if (updatedTrade) {
+        const enrichedTrade = enrichTradeWithCalculations(updatedTrade);
+
+        return NextResponse.json(
+          {
+            trade: enrichedTrade,
+            message: 'Trade created successfully',
+          },
+          { status: 201 }
+        );
+      }
     }
+
+    // Return enriched trade with calculations
+    const enrichedTrade = enrichTradeWithCalculations(trade);
 
     return NextResponse.json(
       {
-        success: true,
+        trade: enrichedTrade,
         message: 'Trade created successfully',
-        trade,
       },
       { status: 201 }
     );
   } catch (error) {
     console.error('Create trade error:', error);
 
-    if (error instanceof Error && error.message === 'Authentication required') {
-      return NextResponse.json(
-        {
-          error: 'Authentication required',
-        },
-        { status: 401 }
-      );
+    if (error instanceof Error) {
+      if (error.message === 'Authentication required') {
+        return NextResponse.json(
+          {
+            error: 'Authentication required',
+          },
+          { status: 401 }
+        );
+      }
     }
 
     return NextResponse.json(
@@ -126,14 +139,16 @@ export async function POST(request: NextRequest) {
 
 /**
  * GET /api/trades
- * List all trades with filtering and pagination
+ * List all trades with filtering, sorting, and pagination
  */
 export async function GET(request: NextRequest) {
   try {
+    // Require authentication
     const user = await requireAuth();
-    const { searchParams } = new URL(request.url);
 
     // Parse query parameters
+    const { searchParams } = new URL(request.url);
+
     const filterData = {
       startDate: searchParams.get('startDate') || undefined,
       endDate: searchParams.get('endDate') || undefined,
@@ -141,15 +156,15 @@ export async function GET(request: NextRequest) {
       symbol: searchParams.get('symbol') || undefined,
       strategyName: searchParams.get('strategyName') || undefined,
       setupType: searchParams.get('setupType') || undefined,
-      outcome: searchParams.get('outcome') || undefined,
       tags: searchParams.get('tags')?.split(',').filter(Boolean) || undefined,
+      outcome: searchParams.get('outcome') || undefined,
       sortBy: searchParams.get('sortBy') || 'date',
       sortOrder: searchParams.get('sortOrder') || 'desc',
-      limit: parseInt(searchParams.get('limit') || '50'),
-      offset: parseInt(searchParams.get('offset') || '0'),
+      limit: searchParams.get('limit') ? parseInt(searchParams.get('limit')!) : 50,
+      offset: searchParams.get('offset') ? parseInt(searchParams.get('offset')!) : 0,
     };
 
-    // Validate filters
+    // Validate filter data
     const validationResult = tradeFilterSchema.safeParse(filterData);
 
     if (!validationResult.success) {
@@ -170,11 +185,17 @@ export async function GET(request: NextRequest) {
     };
 
     if (filters.startDate) {
-      where.entryDate = { ...where.entryDate, gte: new Date(filters.startDate) };
+      where.entryDate = {
+        ...where.entryDate,
+        gte: filters.startDate,
+      };
     }
 
     if (filters.endDate) {
-      where.entryDate = { ...where.entryDate, lte: new Date(filters.endDate) };
+      where.entryDate = {
+        ...where.entryDate,
+        lte: filters.endDate,
+      };
     }
 
     if (filters.assetType) {
@@ -182,15 +203,24 @@ export async function GET(request: NextRequest) {
     }
 
     if (filters.symbol) {
-      where.symbol = { contains: filters.symbol, mode: 'insensitive' };
+      where.symbol = {
+        contains: filters.symbol,
+        mode: 'insensitive',
+      };
     }
 
     if (filters.strategyName) {
-      where.strategyName = { contains: filters.strategyName, mode: 'insensitive' };
+      where.strategyName = {
+        contains: filters.strategyName,
+        mode: 'insensitive',
+      };
     }
 
     if (filters.setupType) {
-      where.setupType = { contains: filters.setupType, mode: 'insensitive' };
+      where.setupType = {
+        contains: filters.setupType,
+        mode: 'insensitive',
+      };
     }
 
     if (filters.tags && filters.tags.length > 0) {
@@ -205,26 +235,10 @@ export async function GET(request: NextRequest) {
       };
     }
 
-    // Build order by
-    const orderBy: any = {};
-    switch (filters.sortBy) {
-      case 'date':
-        orderBy.entryDate = filters.sortOrder;
-        break;
-      case 'symbol':
-        orderBy.symbol = filters.sortOrder;
-        break;
-      default:
-        orderBy.entryDate = filters.sortOrder;
-    }
-
     // Fetch trades
     const [trades, total] = await Promise.all([
       prisma.trade.findMany({
         where,
-        orderBy,
-        take: filters.limit,
-        skip: filters.offset,
         include: {
           screenshots: true,
           tags: {
@@ -233,46 +247,52 @@ export async function GET(request: NextRequest) {
             },
           },
         },
+        skip: filters.offset,
+        take: filters.limit,
+        orderBy:
+          filters.sortBy === 'date'
+            ? { entryDate: filters.sortOrder }
+            : filters.sortBy === 'symbol'
+              ? { symbol: filters.sortOrder }
+              : { entryDate: filters.sortOrder }, // Default to date for pnl/pnlPercent (will sort in memory)
       }),
       prisma.trade.count({ where }),
     ]);
 
-    // Add calculations to trades
-    const tradesWithCalculations = addCalculationsToAll(trades);
+    // Enrich trades with calculations
+    let enrichedTrades = trades.map(enrichTradeWithCalculations);
 
-    // Filter by outcome if specified (calculated field)
-    let filteredTrades = tradesWithCalculations;
+    // Filter by outcome if specified (after calculations)
     if (filters.outcome) {
-      filteredTrades = tradesWithCalculations.filter((t) => t.outcome === filters.outcome);
+      enrichedTrades = filterByOutcome(enrichedTrades, filters.outcome);
     }
 
-    // Sort by P&L if specified (calculated field)
+    // Sort by pnl or pnlPercent if specified (requires calculations)
     if (filters.sortBy === 'pnl' || filters.sortBy === 'pnlPercent') {
-      filteredTrades = [...filteredTrades].sort((a, b) => {
-        const aValue = filters.sortBy === 'pnl' ? a.netPnl : a.netPnlPercent;
-        const bValue = filters.sortBy === 'pnl' ? b.netPnl : b.netPnlPercent;
-        return filters.sortOrder === 'asc' ? aValue - bValue : bValue - aValue;
-      });
+      enrichedTrades = sortTrades(enrichedTrades, filters.sortBy, filters.sortOrder);
     }
+
+    const hasMore = filters.offset + filters.limit < total;
 
     return NextResponse.json({
-      success: true,
-      trades: filteredTrades,
+      trades: enrichedTrades,
       total,
+      page: Math.floor(filters.offset / filters.limit) + 1,
       limit: filters.limit,
-      offset: filters.offset,
-      hasMore: filters.offset + filteredTrades.length < total,
+      hasMore,
     });
   } catch (error) {
     console.error('List trades error:', error);
 
-    if (error instanceof Error && error.message === 'Authentication required') {
-      return NextResponse.json(
-        {
-          error: 'Authentication required',
-        },
-        { status: 401 }
-      );
+    if (error instanceof Error) {
+      if (error.message === 'Authentication required') {
+        return NextResponse.json(
+          {
+            error: 'Authentication required',
+          },
+          { status: 401 }
+        );
+      }
     }
 
     return NextResponse.json(
@@ -283,4 +303,3 @@ export async function GET(request: NextRequest) {
     );
   }
 }
-

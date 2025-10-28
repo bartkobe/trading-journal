@@ -2,250 +2,343 @@
 
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import { useEffect } from 'react';
+import Placeholder from '@tiptap/extension-placeholder';
+import Link from '@tiptap/extension-link';
+import { forwardRef, useEffect, useImperativeHandle } from 'react';
 
 interface RichTextEditorProps {
   value?: string;
   onChange?: (value: string) => void;
   placeholder?: string;
   disabled?: boolean;
-  label?: string;
-  error?: string;
-  minHeight?: string;
 }
 
-export function RichTextEditor({
-  value = '',
-  onChange,
-  placeholder = 'Write your notes here...',
-  disabled = false,
-  label,
-  error,
-  minHeight = '200px',
-}: RichTextEditorProps) {
-  const editor = useEditor({
-    extensions: [
-      StarterKit.configure({
-        heading: {
-          levels: [1, 2, 3],
-        },
-      }),
-    ],
-    content: value,
-    editable: !disabled,
-    onUpdate: ({ editor }) => {
-      const html = editor.getHTML();
-      onChange?.(html);
-    },
-    editorProps: {
-      attributes: {
-        class: `prose prose-sm dark:prose-invert max-w-none focus:outline-none px-4 py-3`,
-        style: `min-height: ${minHeight}`,
+// Expose methods for react-hook-form integration
+export interface RichTextEditorRef {
+  focus: () => void;
+  getHTML: () => string;
+  setHTML: (content: string) => void;
+}
+
+export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>(
+  ({ value = '', onChange, placeholder = 'Write your trade notes...', disabled = false }, ref) => {
+    const editor = useEditor({
+      extensions: [
+        StarterKit.configure({
+          heading: {
+            levels: [1, 2, 3],
+          },
+        }),
+        Placeholder.configure({
+          placeholder,
+        }),
+        Link.configure({
+          openOnClick: false,
+          HTMLAttributes: {
+            class: 'text-blue-600 dark:text-blue-400 underline hover:text-blue-700 dark:hover:text-blue-300',
+          },
+        }),
+      ],
+      content: value,
+      editable: !disabled,
+      onUpdate: ({ editor }) => {
+        const html = editor.getHTML();
+        onChange?.(html);
       },
-    },
-  });
+    });
 
-  // Update editor content when value changes externally
-  useEffect(() => {
-    if (editor && value !== editor.getHTML()) {
-      editor.commands.setContent(value);
+    // Update editor content when value changes externally
+    useEffect(() => {
+      if (editor && value !== editor.getHTML()) {
+        editor.commands.setContent(value);
+      }
+    }, [value, editor]);
+
+    // Update disabled state
+    useEffect(() => {
+      if (editor) {
+        editor.setEditable(!disabled);
+      }
+    }, [disabled, editor]);
+
+    // Expose methods via ref for react-hook-form
+    useImperativeHandle(ref, () => ({
+      focus: () => editor?.commands.focus(),
+      getHTML: () => editor?.getHTML() || '',
+      setHTML: (content: string) => editor?.commands.setContent(content),
+    }));
+
+    if (!editor) {
+      return null;
     }
-  }, [value, editor]);
 
-  if (!editor) {
-    return null;
-  }
-
-  return (
-    <div>
-      {label && <label className="block text-sm font-medium mb-2">{label}</label>}
-
-      <div
-        className={`border rounded-lg overflow-hidden ${
-          error
-            ? 'border-red-500'
-            : 'border-gray-300 dark:border-gray-700 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent'
-        } ${disabled ? 'opacity-50 bg-gray-50 dark:bg-gray-900' : 'bg-white dark:bg-gray-900'}`}
+    const ToolbarButton = ({
+      onClick,
+      isActive,
+      disabled,
+      children,
+      title,
+    }: {
+      onClick: () => void;
+      isActive?: boolean;
+      disabled?: boolean;
+      children: React.ReactNode;
+      title: string;
+    }) => (
+      <button
+        type="button"
+        onClick={onClick}
+        disabled={disabled}
+        title={title}
+        className={`p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+          isActive ? 'bg-gray-200 dark:bg-gray-600' : ''
+        }`}
       >
+        {children}
+      </button>
+    );
+
+    const ToolbarDivider = () => (
+      <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1" />
+    );
+
+    return (
+      <div className="border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden">
         {/* Toolbar */}
-        {!disabled && (
-          <div className="border-b border-gray-200 dark:border-gray-700 p-2 flex flex-wrap gap-1 bg-gray-50 dark:bg-gray-800">
-            {/* Bold */}
-            <button
-              type="button"
-              onClick={() => editor.chain().focus().toggleBold().run()}
-              disabled={!editor.can().chain().focus().toggleBold().run()}
-              className={`p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors ${
-                editor.isActive('bold') ? 'bg-gray-200 dark:bg-gray-700' : ''
-              }`}
-              title="Bold (Ctrl+B)"
+        <div className="bg-gray-50 dark:bg-gray-800 border-b border-gray-300 dark:border-gray-700 p-2 flex items-center gap-1 flex-wrap">
+          {/* Text Formatting */}
+          <ToolbarButton
+            onClick={() => editor.chain().focus().toggleBold().run()}
+            isActive={editor.isActive('bold')}
+            disabled={disabled}
+            title="Bold (Ctrl+B)"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"
+              />
+            </svg>
+          </ToolbarButton>
+
+          <ToolbarButton
+            onClick={() => editor.chain().focus().toggleItalic().run()}
+            isActive={editor.isActive('italic')}
+            disabled={disabled}
+            title="Italic (Ctrl+I)"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M10 4h4M14 4L10 20M10 20h4"
+              />
+            </svg>
+          </ToolbarButton>
+
+          <ToolbarButton
+            onClick={() => editor.chain().focus().toggleStrike().run()}
+            isActive={editor.isActive('strike')}
+            disabled={disabled}
+            title="Strikethrough"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M3 12h18M9 5v14M15 5v14"
+              />
+            </svg>
+          </ToolbarButton>
+
+          <ToolbarDivider />
+
+          {/* Headings */}
+          <ToolbarButton
+            onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+            isActive={editor.isActive('heading', { level: 1 })}
+            disabled={disabled}
+            title="Heading 1"
+          >
+            <span className="font-bold">H1</span>
+          </ToolbarButton>
+
+          <ToolbarButton
+            onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+            isActive={editor.isActive('heading', { level: 2 })}
+            disabled={disabled}
+            title="Heading 2"
+          >
+            <span className="font-bold">H2</span>
+          </ToolbarButton>
+
+          <ToolbarButton
+            onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+            isActive={editor.isActive('heading', { level: 3 })}
+            disabled={disabled}
+            title="Heading 3"
+          >
+            <span className="font-bold">H3</span>
+          </ToolbarButton>
+
+          <ToolbarDivider />
+
+          {/* Lists */}
+          <ToolbarButton
+            onClick={() => editor.chain().focus().toggleBulletList().run()}
+            isActive={editor.isActive('bulletList')}
+            disabled={disabled}
+            title="Bullet List"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"
+              />
+            </svg>
+          </ToolbarButton>
+
+          <ToolbarButton
+            onClick={() => editor.chain().focus().toggleOrderedList().run()}
+            isActive={editor.isActive('orderedList')}
+            disabled={disabled}
+            title="Numbered List"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M7 8h10M7 12h10M7 16h10M3 8v-2m0 2v2m0-2h.01M3 12v-2m0 2v2m0-2h.01M3 16v-2m0 2v2m0-2h.01"
+              />
+            </svg>
+          </ToolbarButton>
+
+          <ToolbarDivider />
+
+          {/* Quote & Code */}
+          <ToolbarButton
+            onClick={() => editor.chain().focus().toggleBlockquote().run()}
+            isActive={editor.isActive('blockquote')}
+            disabled={disabled}
+            title="Quote"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+              />
+            </svg>
+          </ToolbarButton>
+
+          <ToolbarButton
+            onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+            isActive={editor.isActive('codeBlock')}
+            disabled={disabled}
+            title="Code Block"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
+              />
+            </svg>
+          </ToolbarButton>
+
+          <ToolbarDivider />
+
+          {/* Link */}
+          <ToolbarButton
+            onClick={() => {
+              const url = window.prompt('Enter URL:');
+              if (url) {
+                editor.chain().focus().setLink({ href: url }).run();
+              }
+            }}
+            isActive={editor.isActive('link')}
+            disabled={disabled}
+            title="Add Link"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+              />
+            </svg>
+          </ToolbarButton>
+
+          {editor.isActive('link') && (
+            <ToolbarButton
+              onClick={() => editor.chain().focus().unsetLink().run()}
+              disabled={disabled}
+              title="Remove Link"
             >
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M15.6 10.79c.97-.67 1.65-1.77 1.65-2.79 0-2.26-1.75-4-4-4H7v14h7.04c2.09 0 3.71-1.7 3.71-3.79 0-1.52-.86-2.82-2.15-3.42zM10 6.5h3c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-3v-3zm3.5 9H10v-3h3.5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5z" />
-              </svg>
-            </button>
-
-            {/* Italic */}
-            <button
-              type="button"
-              onClick={() => editor.chain().focus().toggleItalic().run()}
-              disabled={!editor.can().chain().focus().toggleItalic().run()}
-              className={`p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors ${
-                editor.isActive('italic') ? 'bg-gray-200 dark:bg-gray-700' : ''
-              }`}
-              title="Italic (Ctrl+I)"
-            >
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M10 4v3h2.21l-3.42 8H6v3h8v-3h-2.21l3.42-8H18V4z" />
-              </svg>
-            </button>
-
-            {/* Divider */}
-            <div className="w-px bg-gray-300 dark:bg-gray-600 mx-1" />
-
-            {/* Heading 1 */}
-            <button
-              type="button"
-              onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-              className={`px-2 py-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-sm font-semibold ${
-                editor.isActive('heading', { level: 1 }) ? 'bg-gray-200 dark:bg-gray-700' : ''
-              }`}
-              title="Heading 1"
-            >
-              H1
-            </button>
-
-            {/* Heading 2 */}
-            <button
-              type="button"
-              onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-              className={`px-2 py-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-sm font-semibold ${
-                editor.isActive('heading', { level: 2 }) ? 'bg-gray-200 dark:bg-gray-700' : ''
-              }`}
-              title="Heading 2"
-            >
-              H2
-            </button>
-
-            {/* Heading 3 */}
-            <button
-              type="button"
-              onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-              className={`px-2 py-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-sm font-semibold ${
-                editor.isActive('heading', { level: 3 }) ? 'bg-gray-200 dark:bg-gray-700' : ''
-              }`}
-              title="Heading 3"
-            >
-              H3
-            </button>
-
-            {/* Divider */}
-            <div className="w-px bg-gray-300 dark:bg-gray-600 mx-1" />
-
-            {/* Bullet List */}
-            <button
-              type="button"
-              onClick={() => editor.chain().focus().toggleBulletList().run()}
-              className={`p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors ${
-                editor.isActive('bulletList') ? 'bg-gray-200 dark:bg-gray-700' : ''
-              }`}
-              title="Bullet List"
-            >
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M4 10.5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5zm0-6c-.83 0-1.5.67-1.5 1.5S3.17 7.5 4 7.5 5.5 6.83 5.5 6 4.83 4.5 4 4.5zm0 12c-.83 0-1.5.68-1.5 1.5s.68 1.5 1.5 1.5 1.5-.68 1.5-1.5-.67-1.5-1.5-1.5zM7 19h14v-2H7v2zm0-6h14v-2H7v2zm0-8v2h14V5H7z" />
-              </svg>
-            </button>
-
-            {/* Numbered List */}
-            <button
-              type="button"
-              onClick={() => editor.chain().focus().toggleOrderedList().run()}
-              className={`p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors ${
-                editor.isActive('orderedList') ? 'bg-gray-200 dark:bg-gray-700' : ''
-              }`}
-              title="Numbered List"
-            >
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M2 17h2v.5H3v1h1v.5H2v1h3v-4H2v1zm1-9h1V4H2v1h1v3zm-1 3h1.8L2 13.1v.9h3v-1H3.2L5 10.9V10H2v1zm5-6v2h14V5H7zm0 14h14v-2H7v2zm0-6h14v-2H7v2z" />
-              </svg>
-            </button>
-
-            {/* Blockquote */}
-            <button
-              type="button"
-              onClick={() => editor.chain().focus().toggleBlockquote().run()}
-              className={`p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors ${
-                editor.isActive('blockquote') ? 'bg-gray-200 dark:bg-gray-700' : ''
-              }`}
-              title="Blockquote"
-            >
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M6 17h3l2-4V7H5v6h3zm8 0h3l2-4V7h-6v6h3z" />
-              </svg>
-            </button>
-
-            {/* Divider */}
-            <div className="w-px bg-gray-300 dark:bg-gray-600 mx-1" />
-
-            {/* Undo */}
-            <button
-              type="button"
-              onClick={() => editor.chain().focus().undo().run()}
-              disabled={!editor.can().chain().focus().undo().run()}
-              className="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              title="Undo (Ctrl+Z)"
-            >
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"
+                  d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
                 />
               </svg>
-            </button>
+            </ToolbarButton>
+          )}
 
-            {/* Redo */}
-            <button
-              type="button"
-              onClick={() => editor.chain().focus().redo().run()}
-              disabled={!editor.can().chain().focus().redo().run()}
-              className="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              title="Redo (Ctrl+Shift+Z)"
-            >
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 10h-10a8 8 0 00-8 8v2M21 10l-6 6m6-6l-6-6"
-                />
-              </svg>
-            </button>
-          </div>
-        )}
+          <ToolbarDivider />
+
+          {/* Undo/Redo */}
+          <ToolbarButton
+            onClick={() => editor.chain().focus().undo().run()}
+            disabled={disabled || !editor.can().undo()}
+            title="Undo (Ctrl+Z)"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"
+              />
+            </svg>
+          </ToolbarButton>
+
+          <ToolbarButton
+            onClick={() => editor.chain().focus().redo().run()}
+            disabled={disabled || !editor.can().redo()}
+            title="Redo (Ctrl+Y)"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M21 10H11a8 8 0 00-8 8v2m18-10l-6 6m6-6l-6-6"
+              />
+            </svg>
+          </ToolbarButton>
+        </div>
 
         {/* Editor Content */}
-        <div className="overflow-y-auto" style={{ maxHeight: '500px' }}>
-          <EditorContent editor={editor} />
-          {!value && !editor.isFocused && (
-            <div className="absolute top-14 left-4 text-gray-400 pointer-events-none">
-              {placeholder}
-            </div>
-          )}
-        </div>
+        <EditorContent
+          editor={editor}
+          className="prose prose-sm dark:prose-invert max-w-none p-4 min-h-[200px] focus:outline-none"
+        />
       </div>
+    );
+  }
+);
 
-      {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
-
-      {/* Helper text */}
-      {!error && !disabled && (
-        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-          Use the toolbar above to format your text. Supports bold, italic, headings, lists, and
-          more.
-        </p>
-      )}
-    </div>
-  );
-}
+RichTextEditor.displayName = 'RichTextEditor';
 

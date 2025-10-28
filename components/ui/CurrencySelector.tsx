@@ -2,7 +2,7 @@
 
 import { forwardRef } from 'react';
 
-// Major currencies supported in the trading journal (FR-1)
+// Major currencies with symbols
 export const CURRENCIES = [
   { code: 'USD', name: 'US Dollar', symbol: '$' },
   { code: 'EUR', name: 'Euro', symbol: '€' },
@@ -11,6 +11,9 @@ export const CURRENCIES = [
   { code: 'CAD', name: 'Canadian Dollar', symbol: 'C$' },
   { code: 'AUD', name: 'Australian Dollar', symbol: 'A$' },
   { code: 'CHF', name: 'Swiss Franc', symbol: 'CHF' },
+  { code: 'CNY', name: 'Chinese Yuan', symbol: '¥' },
+  { code: 'SEK', name: 'Swedish Krona', symbol: 'kr' },
+  { code: 'NZD', name: 'New Zealand Dollar', symbol: 'NZ$' },
 ] as const;
 
 export type CurrencyCode = (typeof CURRENCIES)[number]['code'];
@@ -22,11 +25,27 @@ interface CurrencySelectorProps {
   error?: string;
   label?: string;
   required?: boolean;
+  showSymbol?: boolean;
   className?: string;
+  name?: string;
 }
 
 export const CurrencySelector = forwardRef<HTMLSelectElement, CurrencySelectorProps>(
-  ({ value, onChange, disabled, error, label, required, className = '', ...props }, ref) => {
+  (
+    {
+      value,
+      onChange,
+      disabled = false,
+      error,
+      label = 'Currency',
+      required = false,
+      showSymbol = true,
+      className = '',
+      name,
+      ...props
+    },
+    ref
+  ) => {
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
       if (onChange) {
         onChange(e.target.value);
@@ -36,22 +55,25 @@ export const CurrencySelector = forwardRef<HTMLSelectElement, CurrencySelectorPr
     return (
       <div className={className}>
         {label && (
-          <label className="block text-sm font-medium mb-2">
+          <label htmlFor="currency" className="block text-sm font-medium mb-2">
             {label}
             {required && <span className="text-red-500 ml-1">*</span>}
           </label>
         )}
         <select
           ref={ref}
+          id="currency"
+          name={name || 'currency'}
           value={value}
           onChange={handleChange}
           disabled={disabled}
-          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
           {...props}
         >
           {CURRENCIES.map((currency) => (
             <option key={currency.code} value={currency.code}>
-              {currency.code} - {currency.name} ({currency.symbol})
+              {currency.code} - {currency.name}
+              {showSymbol && ` (${currency.symbol})`}
             </option>
           ))}
         </select>
@@ -63,41 +85,27 @@ export const CurrencySelector = forwardRef<HTMLSelectElement, CurrencySelectorPr
 
 CurrencySelector.displayName = 'CurrencySelector';
 
-/**
- * Get currency symbol by code
- */
+// Helper function to get currency symbol
 export function getCurrencySymbol(code: string): string {
   const currency = CURRENCIES.find((c) => c.code === code);
   return currency?.symbol || code;
 }
 
-/**
- * Get currency name by code
- */
-export function getCurrencyName(code: string): string {
-  const currency = CURRENCIES.find((c) => c.code === code);
-  return currency?.name || code;
-}
-
-/**
- * Format amount with currency
- */
+// Helper function to format amount with currency
 export function formatCurrencyAmount(amount: number, currencyCode: string): string {
-  const symbol = getCurrencySymbol(currencyCode);
-  
-  // Format with 2 decimal places
-  const formatted = Math.abs(amount).toFixed(2);
-  
-  // Add thousands separator
-  const parts = formatted.split('.');
-  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-  
-  const formattedAmount = parts.join('.');
-  
-  // Add sign and symbol
-  if (amount < 0) {
-    return `-${symbol}${formattedAmount}`;
+  const currency = CURRENCIES.find((c) => c.code === currencyCode);
+
+  try {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: currencyCode,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(amount);
+  } catch (error) {
+    // Fallback if currency code is not supported by Intl
+    const symbol = currency?.symbol || currencyCode;
+    return `${symbol}${amount.toFixed(2)}`;
   }
-  return `${symbol}${formattedAmount}`;
 }
 

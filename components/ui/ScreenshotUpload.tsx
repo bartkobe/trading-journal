@@ -1,197 +1,177 @@
 'use client';
 
-import { useState, useRef, DragEvent, ChangeEvent } from 'react';
-import Image from 'next/image';
+import { useState, useRef, DragEvent } from 'react';
 
 interface Screenshot {
   id?: string;
   url: string;
   filename: string;
   fileSize?: number;
-  preview?: string; // Local preview URL
-  file?: File; // For new uploads
 }
 
 interface ScreenshotUploadProps {
   tradeId?: string;
-  existingScreenshots?: Screenshot[];
-  onUploadComplete?: (screenshot: Screenshot) => void;
+  screenshots?: Screenshot[];
+  onUploadSuccess?: (screenshot: Screenshot) => void;
   onDeleteSuccess?: (screenshotId: string) => void;
-  disabled?: boolean;
   maxFiles?: number;
   maxSizeMB?: number;
+  disabled?: boolean;
 }
 
 export function ScreenshotUpload({
   tradeId,
-  existingScreenshots = [],
-  onUploadComplete,
+  screenshots = [],
+  onUploadSuccess,
   onDeleteSuccess,
-  disabled = false,
   maxFiles = 10,
   maxSizeMB = 10,
+  disabled = false,
 }: ScreenshotUploadProps) {
-  const [screenshots, setScreenshots] = useState<Screenshot[]>(existingScreenshots);
-  const [uploading, setUploading] = useState(false);
-  const [dragActive, setDragActive] = useState(false);
+  const [uploadingFiles, setUploadingFiles] = useState<string[]>([]);
   const [error, setError] = useState<string>('');
+  const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const maxSizeBytes = maxSizeMB * 1024 * 1024;
-
-  // Validate file
   const validateFile = (file: File): string | null => {
+    // Check file type
     const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-    
     if (!validTypes.includes(file.type)) {
-      return `${file.name}: Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.`;
+      return 'Invalid file type. Only JPEG, PNG, GIF, and WebP images are allowed.';
     }
 
+    // Check file size
+    const maxSizeBytes = maxSizeMB * 1024 * 1024;
     if (file.size > maxSizeBytes) {
-      return `${file.name}: File too large. Maximum size is ${maxSizeMB}MB.`;
+      return `File too large. Maximum size is ${maxSizeMB}MB.`;
     }
 
     return null;
   };
 
-  // Handle file selection
-  const handleFiles = async (files: FileList | null) => {
-    if (!files || files.length === 0) return;
+  const uploadFile = async (file: File) => {
+    if (!tradeId) {
+      setError('Trade ID is required to upload screenshots');
+      return;
+    }
 
-    setError('');
+    const validationError = validateFile(file);
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
 
-    // Check max files
-    if (screenshots.length + files.length > maxFiles) {
+    // Check max files limit
+    if (screenshots.length + uploadingFiles.length >= maxFiles) {
       setError(`Maximum ${maxFiles} screenshots allowed`);
       return;
     }
 
-    const filesArray = Array.from(files);
+    try {
+      setUploadingFiles((prev) => [...prev, file.name]);
+      setError('');
 
-    // Validate all files
-    for (const file of filesArray) {
-      const validationError = validateFile(file);
-      if (validationError) {
-        setError(validationError);
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch(`/api/trades/${tradeId}/screenshots`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        setError(result.error || 'Failed to upload screenshot');
         return;
       }
-    }
 
-    // If tradeId is provided, upload immediately
-    if (tradeId) {
-      await uploadFiles(filesArray);
-    } else {
-      // Otherwise, just show previews (for new trade form)
-      const newScreenshots: Screenshot[] = filesArray.map((file) => ({
-        url: URL.createObjectURL(file),
-        filename: file.name,
-        fileSize: file.size,
-        preview: URL.createObjectURL(file),
-        file,
-      }));
-
-      setScreenshots([...screenshots, ...newScreenshots]);
-    }
-  };
-
-  // Upload files to server
-  const uploadFiles = async (files: File[]) => {
-    setUploading(true);
-    setError('');
-
-    try {
-      for (const file of files) {
-        const formData = new FormData();
-        formData.append('file', file);
-
-        const response = await fetch(`/api/trades/${tradeId}/screenshots`, {
-          method: 'POST',
-          body: formData,
-        });
-
-        if (!response.ok) {
-          const data = await response.json();
-          throw new Error(data.error || 'Upload failed');
-        }
-
-        const data = await response.json();
-        const newScreenshot: Screenshot = data.screenshot;
-
-        setScreenshots((prev) => [...prev, newScreenshot]);
-
-        if (onUploadComplete) {
-          onUploadComplete(newScreenshot);
-        }
+      // Success
+      if (onUploadSuccess) {
+        onUploadSuccess(result.screenshot);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to upload screenshot');
       console.error('Upload error:', err);
+      setError('An unexpected error occurred during upload');
     } finally {
-      setUploading(false);
+      setUploadingFiles((prev) => prev.filter((name) => name !== file.name));
     }
   };
 
-  // Delete screenshot
-  const deleteScreenshot = async (screenshot: Screenshot, index: number) => {
-    if (!screenshot.id) {
-      // Just remove from preview (not uploaded yet)
-      setScreenshots((prev) => prev.filter((_, i) => i !== index));
-      if (screenshot.preview) {
-        URL.revokeObjectURL(screenshot.preview);
-      }
+  const handleFiles = async (files: FileList | File[]) => {
+    const fileArray = Array.from(files);
+
+    // Upload files sequentially
+    for (const file of fileArray) {
+      await uploadFile(file);
+    }
+  };
+
+  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      handleFiles(e.target.files);
+    }
+  };
+
+  const handleDragEnter = (e: DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDragOver = (e: DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e: DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    if (e.dataTransfer.files) {
+      handleFiles(e.dataTransfer.files);
+    }
+  };
+
+  const handleDelete = async (screenshotId: string) => {
+    if (!tradeId) return;
+
+    if (!confirm('Are you sure you want to delete this screenshot?')) {
       return;
     }
 
     try {
-      // TODO: Implement delete endpoint
-      // For now, just remove from UI
-      setScreenshots((prev) => prev.filter((_, i) => i !== index));
+      const response = await fetch(
+        `/api/trades/${tradeId}/screenshots?screenshotId=${screenshotId}`,
+        {
+          method: 'DELETE',
+        }
+      );
 
+      const result = await response.json();
+
+      if (!response.ok) {
+        setError(result.error || 'Failed to delete screenshot');
+        return;
+      }
+
+      // Success
       if (onDeleteSuccess) {
-        onDeleteSuccess(screenshot.id);
+        onDeleteSuccess(screenshotId);
       }
     } catch (err) {
-      setError('Failed to delete screenshot');
       console.error('Delete error:', err);
+      setError('Failed to delete screenshot');
     }
   };
 
-  // Drag and drop handlers
-  const handleDrag = (e: DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    if (e.type === 'dragenter' || e.type === 'dragover') {
-      setDragActive(true);
-    } else if (e.type === 'dragleave') {
-      setDragActive(false);
-    }
-  };
-
-  const handleDrop = (e: DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-
-    if (disabled) return;
-
-    const { files } = e.dataTransfer;
-    handleFiles(files);
-  };
-
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    e.preventDefault();
-    if (disabled) return;
-    handleFiles(e.target.files);
-  };
-
-  const openFilePicker = () => {
-    if (!disabled && fileInputRef.current) {
-      fileInputRef.current.click();
-    }
-  };
-
-  // Format file size
   const formatFileSize = (bytes?: number): string => {
     if (!bytes) return '';
     if (bytes < 1024) return `${bytes} B`;
@@ -199,132 +179,179 @@ export function ScreenshotUpload({
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
+  const canUploadMore = screenshots.length + uploadingFiles.length < maxFiles;
+
   return (
     <div className="space-y-4">
       {/* Upload Area */}
-      <div
-        onDragEnter={handleDrag}
-        onDragOver={handleDrag}
-        onDragLeave={handleDrag}
-        onDrop={handleDrop}
-        onClick={openFilePicker}
-        className={`
-          border-2 border-dashed rounded-lg p-8 text-center cursor-pointer
-          transition-colors duration-200
-          ${dragActive
-            ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-            : 'border-gray-300 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-600'
-          }
-          ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
-        `}
-      >
-        <input
-          ref={fileInputRef}
-          type="file"
-          multiple
-          accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
-          onChange={handleChange}
-          className="hidden"
-          disabled={disabled || screenshots.length >= maxFiles}
-        />
+      {canUploadMore && !disabled && tradeId && (
+        <div
+          onDragEnter={handleDragEnter}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+            isDragging
+              ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+              : 'border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-600'
+          }`}
+        >
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+            multiple
+            onChange={handleFileInput}
+            className="hidden"
+            disabled={disabled}
+          />
 
-        <div className="space-y-2">
-          <svg
-            className="mx-auto h-12 w-12 text-gray-400"
-            stroke="currentColor"
-            fill="none"
-            viewBox="0 0 48 48"
-            aria-hidden="true"
-          >
-            <path
-              d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-              strokeWidth={2}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          <div className="space-y-2">
+            <svg
+              className="mx-auto h-12 w-12 text-gray-400"
+              stroke="currentColor"
+              fill="none"
+              viewBox="0 0 48 48"
+              aria-hidden="true"
+            >
+              <path
+                d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
 
-          <div className="text-sm text-gray-600 dark:text-gray-400">
-            {uploading ? (
-              <p className="font-medium">Uploading...</p>
-            ) : (
-              <>
-                <p className="font-medium">
-                  {dragActive ? 'Drop files here' : 'Click to upload or drag and drop'}
-                </p>
-                <p className="text-xs mt-1">
-                  JPEG, PNG, GIF, WebP up to {maxSizeMB}MB (max {maxFiles} files)
-                </p>
-              </>
-            )}
+            <div className="text-sm text-gray-600 dark:text-gray-400">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="font-medium text-blue-600 hover:text-blue-500"
+              >
+                Upload screenshots
+              </button>
+              <span className="pl-1">or drag and drop</span>
+            </div>
+
+            <p className="text-xs text-gray-500">
+              PNG, JPG, GIF, WebP up to {maxSizeMB}MB
+            </p>
+
+            <p className="text-xs text-gray-500">
+              {screenshots.length + uploadingFiles.length} / {maxFiles} screenshots
+            </p>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Error Message */}
       {error && (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg text-sm">
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg">
           {error}
         </div>
       )}
 
-      {/* Screenshot Previews */}
+      {/* Uploading Files */}
+      {uploadingFiles.length > 0 && (
+        <div className="space-y-2">
+          {uploadingFiles.map((filename) => (
+            <div
+              key={filename}
+              className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+            >
+              <div className="flex-1">
+                <p className="text-sm font-medium">{filename}</p>
+                <p className="text-xs text-gray-500">Uploading...</p>
+              </div>
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Screenshot Grid */}
       {screenshots.length > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {screenshots.map((screenshot, index) => (
+          {screenshots.map((screenshot) => (
             <div
-              key={screenshot.id || screenshot.preview || index}
-              className="relative group aspect-video bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden"
+              key={screenshot.id || screenshot.url}
+              className="relative group aspect-square rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700"
             >
-              <Image
-                src={screenshot.preview || screenshot.url}
+              {/* Image */}
+              <img
+                src={screenshot.url}
                 alt={screenshot.filename}
-                fill
-                className="object-cover"
+                className="w-full h-full object-cover"
               />
 
-              {/* Overlay with filename and delete button */}
-              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-60 transition-all duration-200 flex flex-col justify-between p-2">
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    deleteScreenshot(screenshot, index);
-                  }}
-                  className="self-end opacity-0 group-hover:opacity-100 bg-red-600 hover:bg-red-700 text-white rounded-full p-1 transition-opacity"
-                  aria-label="Delete screenshot"
-                >
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+              {/* Overlay with actions */}
+              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-opacity flex items-center justify-center">
+                <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
+                  {/* View Full Size */}
+                  <a
+                    href={screenshot.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 bg-white dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                    title="View full size"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"
+                      />
+                    </svg>
+                  </a>
 
-                <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                  <p className="text-white text-xs truncate">{screenshot.filename}</p>
-                  {screenshot.fileSize && (
-                    <p className="text-white text-xs">{formatFileSize(screenshot.fileSize)}</p>
+                  {/* Delete */}
+                  {!disabled && screenshot.id && (
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(screenshot.id!)}
+                      className="p-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                      title="Delete screenshot"
+                    >
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                        />
+                      </svg>
+                    </button>
                   )}
                 </div>
+              </div>
+
+              {/* File info */}
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-2">
+                <p className="text-xs text-white truncate">{screenshot.filename}</p>
+                {screenshot.fileSize && (
+                  <p className="text-xs text-gray-300">{formatFileSize(screenshot.fileSize)}</p>
+                )}
               </div>
             </div>
           ))}
         </div>
       )}
 
-      {/* Screenshot count */}
-      {screenshots.length > 0 && (
-        <p className="text-sm text-gray-500 dark:text-gray-400">
-          {screenshots.length} / {maxFiles} screenshot{screenshots.length !== 1 ? 's' : ''}
+      {/* No Screenshots Message */}
+      {screenshots.length === 0 && uploadingFiles.length === 0 && !tradeId && (
+        <p className="text-sm text-gray-500 text-center py-4">
+          Save the trade first to upload screenshots
         </p>
       )}
     </div>

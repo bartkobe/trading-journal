@@ -1,541 +1,503 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Trade, Screenshot } from '@/lib/types';
-import { AssetType, Direction, TimeOfDay, MarketConditions } from '@prisma/client';
 import { tradeSchema, type TradeInput } from '@/lib/validation';
-import { CurrencySelector } from '@/components/ui/CurrencySelector';
-import { TagInput } from '@/components/ui/TagInput';
-import { ScreenshotUpload } from '@/components/ui/ScreenshotUpload';
-import { RichTextEditor } from '@/components/ui/RichTextEditor';
 
 interface TradeFormProps {
-  trade?: Trade;
-  userId: string;
+  tradeId?: string;
+  initialData?: Partial<TradeInput>;
   onSuccess?: () => void;
 }
 
-export function TradeForm({ trade, userId, onSuccess }: TradeFormProps) {
+export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
   const router = useRouter();
+  const [error, setError] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const isEditMode = !!tradeId;
+
   const {
     register,
     handleSubmit,
-    control,
+    formState: { errors },
     watch,
-    setValue,
-    formState: { errors, isSubmitting },
   } = useForm({
-    resolver: zodResolver(tradeSchema),
-    defaultValues: trade
-      ? {
-          symbol: trade.symbol,
-          assetType: trade.assetType,
-          currency: trade.currency,
-          direction: trade.direction,
-          entryDate: trade.entryDate ? new Date(trade.entryDate) : undefined,
-          entryPrice: trade.entryPrice,
-          exitDate: trade.exitDate ? new Date(trade.exitDate) : undefined,
-          exitPrice: trade.exitPrice,
-          quantity: trade.quantity,
-          fees: trade.fees || 0,
-          setupType: trade.setupType || '',
-          strategyName: trade.strategyName || '',
-          stopLoss: trade.stopLoss || undefined,
-          takeProfit: trade.takeProfit || undefined,
-          riskRewardRatio: trade.riskRewardRatio || undefined,
-          timeOfDay: trade.timeOfDay || undefined,
-          marketConditions: trade.marketConditions || undefined,
-          emotionalStateEntry: trade.emotionalStateEntry || '',
-          emotionalStateExit: trade.emotionalStateExit || '',
-          notes: trade.notes || '',
-          tags: trade.tags?.map((tt) => tt.tag.name) || [],
-        }
-      : {
-          currency: 'USD',
-          direction: Direction.LONG,
-          assetType: AssetType.STOCK,
-          fees: 0,
-          tags: [],
-        },
+    resolver: zodResolver(tradeSchema) as any,
+    defaultValues: initialData || {
+      currency: 'USD',
+      direction: 'LONG',
+      assetType: 'STOCK',
+      fees: 0,
+    },
   });
 
-  const [selectedTags, setSelectedTags] = useState<string[]>(
-    trade?.tags?.map((tt) => tt.tag.name) || []
-  );
-  const [localScreenshots, setLocalScreenshots] = useState<Screenshot[]>(
-    (trade?.screenshots as Screenshot[]) || []
-  );
-  const [error, setError] = useState<string | null>(null);
-
-  const isEditing = !!trade;
-
-  useEffect(() => {
-    setValue('tags', selectedTags);
-  }, [selectedTags, setValue]);
-
-  const handleScreenshotUpload = (newScreenshot: Screenshot) => {
-    setLocalScreenshots((prev) => [...prev, newScreenshot]);
-  };
-
-  const handleScreenshotDelete = (screenshotId: string) => {
-    setLocalScreenshots((prev) => prev.filter((s) => s.id !== screenshotId));
-  };
-
-  const onSubmit = async (data: TradeInput) => {
+  const onSubmit = async (data: any) => {
     try {
-      setError(null);
+      setIsLoading(true);
+      setError('');
 
-      const method = isEditing ? 'PUT' : 'POST';
-      const url = isEditing ? `/api/trades/${trade.id}` : '/api/trades';
-
-      const payload = {
-        ...data,
-        userId,
-        entryDate: data.entryDate?.toISOString(),
-        exitDate: data.exitDate?.toISOString(),
-        tags: selectedTags,
-        screenshots: localScreenshots.map((s) => ({
-          id: s.id,
-          url: s.url,
-          filename: s.filename,
-          mimeType: s.mimeType,
-          fileSize: s.fileSize,
-        })),
-      };
+      const url = isEditMode ? `/api/trades/${tradeId}` : '/api/trades';
+      const method = isEditMode ? 'PUT' : 'POST';
 
       const response = await fetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(data),
       });
 
+      const result = await response.json();
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || `Failed to ${isEditing ? 'update' : 'create'} trade`);
+        setError(result.error || 'Failed to save trade');
+        return;
       }
 
+      // Call success callback or redirect
       if (onSuccess) {
         onSuccess();
-      } else if (isEditing) {
-        router.push(`/trades/${trade.id}`);
-        router.refresh();
       } else {
-        router.push('/trades');
+        router.push(`/trades/${result.trade.id}`);
         router.refresh();
       }
-    } catch (err: any) {
-      setError(err.message || 'An unexpected error occurred');
-      console.error('Form submission error:', err);
+    } catch (err) {
+      setError('An unexpected error occurred');
+      console.error('Save trade error:', err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
       {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg">
           {error}
         </div>
       )}
 
-      {/* Basic Trade Information */}
-      <section className="rounded-lg bg-card p-6 shadow-sm">
-        <h2 className="mb-4 text-2xl font-semibold text-foreground">Basic Trade Information</h2>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+      {/* Basic Information Section */}
+      <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+        <h2 className="text-lg font-semibold mb-4">Basic Information</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Symbol */}
           <div>
-            <label htmlFor="symbol" className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">
+            <label htmlFor="symbol" className="block text-sm font-medium mb-2">
               Symbol/Ticker <span className="text-red-500">*</span>
             </label>
             <input
               id="symbol"
               type="text"
               {...register('symbol')}
-              className="w-full rounded-md border border-gray-300 bg-background px-3 py-2 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800"
-              placeholder="AAPL"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800"
+              placeholder="AAPL, EUR/USD, BTC, etc."
+              disabled={isLoading}
             />
-            {errors.symbol && <p className="mt-1 text-sm text-red-500">{errors.symbol.message}</p>}
+            {errors.symbol && <p className="mt-1 text-sm text-red-600">{errors.symbol.message}</p>}
           </div>
 
           {/* Asset Type */}
           <div>
-            <label htmlFor="assetType" className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">
+            <label htmlFor="assetType" className="block text-sm font-medium mb-2">
               Asset Type <span className="text-red-500">*</span>
             </label>
             <select
               id="assetType"
               {...register('assetType')}
-              className="w-full rounded-md border border-gray-300 bg-background px-3 py-2 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800"
+              disabled={isLoading}
             >
-              {Object.values(AssetType).map((type) => (
-                <option key={type} value={type}>
-                  {type}
-                </option>
-              ))}
+              <option value="STOCK">Stock</option>
+              <option value="FOREX">Forex</option>
+              <option value="CRYPTO">Crypto</option>
+              <option value="OPTIONS">Options/Derivatives</option>
             </select>
-            {errors.assetType && <p className="mt-1 text-sm text-red-500">{errors.assetType.message}</p>}
+            {errors.assetType && (
+              <p className="mt-1 text-sm text-red-600">{errors.assetType.message}</p>
+            )}
           </div>
 
           {/* Currency */}
-          <Controller
-            name="currency"
-            control={control}
-            render={({ field }) => (
-              <CurrencySelector {...field} label="Currency" error={errors.currency?.message} />
+          <div>
+            <label htmlFor="currency" className="block text-sm font-medium mb-2">
+              Currency
+            </label>
+            <select
+              id="currency"
+              {...register('currency')}
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800"
+              disabled={isLoading}
+            >
+              <option value="USD">USD - US Dollar</option>
+              <option value="EUR">EUR - Euro</option>
+              <option value="GBP">GBP - British Pound</option>
+              <option value="JPY">JPY - Japanese Yen</option>
+              <option value="CAD">CAD - Canadian Dollar</option>
+              <option value="AUD">AUD - Australian Dollar</option>
+              <option value="CHF">CHF - Swiss Franc</option>
+            </select>
+            {errors.currency && (
+              <p className="mt-1 text-sm text-red-600">{errors.currency.message}</p>
             )}
-          />
+          </div>
 
           {/* Direction */}
           <div>
-            <label htmlFor="direction" className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">
+            <label htmlFor="direction" className="block text-sm font-medium mb-2">
               Direction <span className="text-red-500">*</span>
             </label>
             <select
               id="direction"
               {...register('direction')}
-              className="w-full rounded-md border border-gray-300 bg-background px-3 py-2 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800"
+              disabled={isLoading}
             >
-              {Object.values(Direction).map((dir) => (
-                <option key={dir} value={dir}>
-                  {dir}
-                </option>
-              ))}
+              <option value="LONG">Long</option>
+              <option value="SHORT">Short</option>
             </select>
-            {errors.direction && <p className="mt-1 text-sm text-red-500">{errors.direction.message}</p>}
+            {errors.direction && (
+              <p className="mt-1 text-sm text-red-600">{errors.direction.message}</p>
+            )}
           </div>
+        </div>
+      </div>
 
-          {/* Entry Date & Time */}
+      {/* Entry Details Section */}
+      <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+        <h2 className="text-lg font-semibold mb-4">Entry Details</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label htmlFor="entryDate" className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">
+            <label htmlFor="entryDate" className="block text-sm font-medium mb-2">
               Entry Date & Time <span className="text-red-500">*</span>
             </label>
             <input
               id="entryDate"
               type="datetime-local"
-              {...register('entryDate', { valueAsDate: true })}
-              className="w-full rounded-md border border-gray-300 bg-background px-3 py-2 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800"
+              {...register('entryDate')}
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800"
+              disabled={isLoading}
             />
-            {errors.entryDate && <p className="mt-1 text-sm text-red-500">{errors.entryDate.message}</p>}
+            {errors.entryDate && (
+              <p className="mt-1 text-sm text-red-600">{errors.entryDate.message}</p>
+            )}
           </div>
 
-          {/* Entry Price */}
           <div>
-            <label htmlFor="entryPrice" className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">
+            <label htmlFor="entryPrice" className="block text-sm font-medium mb-2">
               Entry Price <span className="text-red-500">*</span>
             </label>
             <input
               id="entryPrice"
               type="number"
-              step="any"
+              step="0.01"
               {...register('entryPrice', { valueAsNumber: true })}
-              className="w-full rounded-md border border-gray-300 bg-background px-3 py-2 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800"
-              placeholder="100.00"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800"
+              placeholder="0.00"
+              disabled={isLoading}
             />
-            {errors.entryPrice && <p className="mt-1 text-sm text-red-500">{errors.entryPrice.message}</p>}
+            {errors.entryPrice && (
+              <p className="mt-1 text-sm text-red-600">{errors.entryPrice.message}</p>
+            )}
           </div>
 
-          {/* Exit Date & Time */}
           <div>
-            <label htmlFor="exitDate" className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">
+            <label htmlFor="quantity" className="block text-sm font-medium mb-2">
+              Quantity <span className="text-red-500">*</span>
+            </label>
+            <input
+              id="quantity"
+              type="number"
+              step="0.01"
+              {...register('quantity', { valueAsNumber: true })}
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800"
+              placeholder="0"
+              disabled={isLoading}
+            />
+            {errors.quantity && (
+              <p className="mt-1 text-sm text-red-600">{errors.quantity.message}</p>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Exit Details Section */}
+      <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+        <h2 className="text-lg font-semibold mb-4">Exit Details</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="exitDate" className="block text-sm font-medium mb-2">
               Exit Date & Time <span className="text-red-500">*</span>
             </label>
             <input
               id="exitDate"
               type="datetime-local"
-              {...register('exitDate', { valueAsDate: true })}
-              className="w-full rounded-md border border-gray-300 bg-background px-3 py-2 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800"
+              {...register('exitDate')}
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800"
+              disabled={isLoading}
             />
-            {errors.exitDate && <p className="mt-1 text-sm text-red-500">{errors.exitDate.message}</p>}
+            {errors.exitDate && (
+              <p className="mt-1 text-sm text-red-600">{errors.exitDate.message}</p>
+            )}
           </div>
 
-          {/* Exit Price */}
           <div>
-            <label htmlFor="exitPrice" className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">
+            <label htmlFor="exitPrice" className="block text-sm font-medium mb-2">
               Exit Price <span className="text-red-500">*</span>
             </label>
             <input
               id="exitPrice"
               type="number"
-              step="any"
+              step="0.01"
               {...register('exitPrice', { valueAsNumber: true })}
-              className="w-full rounded-md border border-gray-300 bg-background px-3 py-2 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800"
-              placeholder="105.00"
-            />
-            {errors.exitPrice && <p className="mt-1 text-sm text-red-500">{errors.exitPrice.message}</p>}
-          </div>
-
-          {/* Quantity */}
-          <div>
-            <label htmlFor="quantity" className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">
-              Quantity/Position Size <span className="text-red-500">*</span>
-            </label>
-            <input
-              id="quantity"
-              type="number"
-              step="any"
-              {...register('quantity', { valueAsNumber: true })}
-              className="w-full rounded-md border border-gray-300 bg-background px-3 py-2 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800"
-              placeholder="100"
-            />
-            {errors.quantity && <p className="mt-1 text-sm text-red-500">{errors.quantity.message}</p>}
-          </div>
-
-          {/* Fees */}
-          <div>
-            <label htmlFor="fees" className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">
-              Fees/Commissions
-            </label>
-            <input
-              id="fees"
-              type="number"
-              step="any"
-              {...register('fees', { valueAsNumber: true })}
-              className="w-full rounded-md border border-gray-300 bg-background px-3 py-2 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800"
               placeholder="0.00"
+              disabled={isLoading}
             />
-            {errors.fees && <p className="mt-1 text-sm text-red-500">{errors.fees.message}</p>}
+            {errors.exitPrice && (
+              <p className="mt-1 text-sm text-red-600">{errors.exitPrice.message}</p>
+            )}
           </div>
         </div>
-      </section>
+      </div>
 
-      {/* Trade Metadata */}
-      <section className="rounded-lg bg-card p-6 shadow-sm">
-        <h2 className="mb-4 text-2xl font-semibold text-foreground">Trade Metadata</h2>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          {/* Setup Type */}
+      {/* Trade Strategy Section */}
+      <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+        <h2 className="text-lg font-semibold mb-4">Strategy & Risk Management</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label htmlFor="setupType" className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">
-              Setup Type
-            </label>
-            <input
-              id="setupType"
-              type="text"
-              {...register('setupType')}
-              className="w-full rounded-md border border-gray-300 bg-background px-3 py-2 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800"
-              placeholder="e.g., breakout, pullback, reversal"
-            />
-            {errors.setupType && <p className="mt-1 text-sm text-red-500">{errors.setupType.message}</p>}
-          </div>
-
-          {/* Strategy Name */}
-          <div>
-            <label htmlFor="strategyName" className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">
+            <label htmlFor="strategyName" className="block text-sm font-medium mb-2">
               Strategy Name
             </label>
             <input
               id="strategyName"
               type="text"
               {...register('strategyName')}
-              className="w-full rounded-md border border-gray-300 bg-background px-3 py-2 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800"
-              placeholder="e.g., Momentum Play, Support Bounce"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800"
+              placeholder="e.g., Momentum Play, Breakout"
+              disabled={isLoading}
             />
-            {errors.strategyName && <p className="mt-1 text-sm text-red-500">{errors.strategyName.message}</p>}
+            {errors.strategyName && (
+              <p className="mt-1 text-sm text-red-600">{errors.strategyName.message}</p>
+            )}
           </div>
 
-          {/* Stop Loss */}
           <div>
-            <label htmlFor="stopLoss" className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">
-              Stop Loss Level
+            <label htmlFor="setupType" className="block text-sm font-medium mb-2">
+              Setup Type
+            </label>
+            <input
+              id="setupType"
+              type="text"
+              {...register('setupType')}
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800"
+              placeholder="e.g., Pullback, Reversal, Continuation"
+              disabled={isLoading}
+            />
+            {errors.setupType && (
+              <p className="mt-1 text-sm text-red-600">{errors.setupType.message}</p>
+            )}
+          </div>
+
+          <div>
+            <label htmlFor="stopLoss" className="block text-sm font-medium mb-2">
+              Stop Loss
             </label>
             <input
               id="stopLoss"
               type="number"
-              step="any"
+              step="0.01"
               {...register('stopLoss', { valueAsNumber: true })}
-              className="w-full rounded-md border border-gray-300 bg-background px-3 py-2 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800"
-              placeholder="95.00"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800"
+              placeholder="0.00"
+              disabled={isLoading}
             />
-            {errors.stopLoss && <p className="mt-1 text-sm text-red-500">{errors.stopLoss.message}</p>}
+            {errors.stopLoss && (
+              <p className="mt-1 text-sm text-red-600">{errors.stopLoss.message}</p>
+            )}
           </div>
 
-          {/* Take Profit */}
           <div>
-            <label htmlFor="takeProfit" className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">
+            <label htmlFor="takeProfit" className="block text-sm font-medium mb-2">
               Take Profit Target
             </label>
             <input
               id="takeProfit"
               type="number"
-              step="any"
+              step="0.01"
               {...register('takeProfit', { valueAsNumber: true })}
-              className="w-full rounded-md border border-gray-300 bg-background px-3 py-2 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800"
-              placeholder="110.00"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800"
+              placeholder="0.00"
+              disabled={isLoading}
             />
-            {errors.takeProfit && <p className="mt-1 text-sm text-red-500">{errors.takeProfit.message}</p>}
+            {errors.takeProfit && (
+              <p className="mt-1 text-sm text-red-600">{errors.takeProfit.message}</p>
+            )}
           </div>
 
-          {/* Risk/Reward Ratio */}
           <div>
-            <label htmlFor="riskRewardRatio" className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">
+            <label htmlFor="riskRewardRatio" className="block text-sm font-medium mb-2">
               Planned Risk/Reward Ratio
             </label>
             <input
               id="riskRewardRatio"
               type="number"
-              step="any"
+              step="0.1"
               {...register('riskRewardRatio', { valueAsNumber: true })}
-              className="w-full rounded-md border border-gray-300 bg-background px-3 py-2 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800"
-              placeholder="2.0"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800"
+              placeholder="e.g., 2.0"
+              disabled={isLoading}
             />
             {errors.riskRewardRatio && (
-              <p className="mt-1 text-sm text-red-500">{errors.riskRewardRatio.message}</p>
+              <p className="mt-1 text-sm text-red-600">{errors.riskRewardRatio.message}</p>
             )}
           </div>
-        </div>
-      </section>
 
-      {/* Context Information */}
-      <section className="rounded-lg bg-card p-6 shadow-sm">
-        <h2 className="mb-4 text-2xl font-semibold text-foreground">Context Information</h2>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          {/* Time of Day */}
           <div>
-            <label htmlFor="timeOfDay" className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">
+            <label htmlFor="fees" className="block text-sm font-medium mb-2">
+              Commissions/Fees
+            </label>
+            <input
+              id="fees"
+              type="number"
+              step="0.01"
+              {...register('fees', { valueAsNumber: true })}
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800"
+              placeholder="0.00"
+              disabled={isLoading}
+            />
+            {errors.fees && <p className="mt-1 text-sm text-red-600">{errors.fees.message}</p>}
+          </div>
+        </div>
+      </div>
+
+      {/* Context Section */}
+      <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+        <h2 className="text-lg font-semibold mb-4">Context & Conditions</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="timeOfDay" className="block text-sm font-medium mb-2">
               Time of Day
             </label>
             <select
               id="timeOfDay"
               {...register('timeOfDay')}
-              className="w-full rounded-md border border-gray-300 bg-background px-3 py-2 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800"
+              disabled={isLoading}
             >
-              <option value="">Select...</option>
-              {Object.values(TimeOfDay).map((time) => (
-                <option key={time} value={time}>
-                  {time.replace(/_/g, ' ')}
-                </option>
-              ))}
+              <option value="">Select time of day</option>
+              <option value="PRE_MARKET">Pre-Market</option>
+              <option value="MARKET_OPEN">Market Open</option>
+              <option value="MID_DAY">Mid-Day</option>
+              <option value="MARKET_CLOSE">Market Close</option>
+              <option value="AFTER_HOURS">After Hours</option>
             </select>
-            {errors.timeOfDay && <p className="mt-1 text-sm text-red-500">{errors.timeOfDay.message}</p>}
+            {errors.timeOfDay && (
+              <p className="mt-1 text-sm text-red-600">{errors.timeOfDay.message}</p>
+            )}
           </div>
 
-          {/* Market Conditions */}
           <div>
-            <label htmlFor="marketConditions" className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">
+            <label htmlFor="marketConditions" className="block text-sm font-medium mb-2">
               Market Conditions
             </label>
             <select
               id="marketConditions"
               {...register('marketConditions')}
-              className="w-full rounded-md border border-gray-300 bg-background px-3 py-2 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800"
+              disabled={isLoading}
             >
-              <option value="">Select...</option>
-              {Object.values(MarketConditions).map((condition) => (
-                <option key={condition} value={condition}>
-                  {condition}
-                </option>
-              ))}
+              <option value="">Select market conditions</option>
+              <option value="TRENDING">Trending</option>
+              <option value="RANGING">Ranging</option>
+              <option value="VOLATILE">Volatile</option>
+              <option value="CALM">Calm</option>
             </select>
             {errors.marketConditions && (
-              <p className="mt-1 text-sm text-red-500">{errors.marketConditions.message}</p>
+              <p className="mt-1 text-sm text-red-600">{errors.marketConditions.message}</p>
             )}
           </div>
 
-          {/* Emotional State at Entry */}
           <div>
-            <label htmlFor="emotionalStateEntry" className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">
+            <label htmlFor="emotionalStateEntry" className="block text-sm font-medium mb-2">
               Emotional State at Entry
             </label>
             <input
               id="emotionalStateEntry"
               type="text"
               {...register('emotionalStateEntry')}
-              className="w-full rounded-md border border-gray-300 bg-background px-3 py-2 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800"
-              placeholder="e.g., confident, fearful, FOMO, disciplined"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800"
+              placeholder="e.g., Confident, Fearful, FOMO, Disciplined"
+              disabled={isLoading}
             />
             {errors.emotionalStateEntry && (
-              <p className="mt-1 text-sm text-red-500">{errors.emotionalStateEntry.message}</p>
+              <p className="mt-1 text-sm text-red-600">{errors.emotionalStateEntry.message}</p>
             )}
           </div>
 
-          {/* Emotional State at Exit */}
           <div>
-            <label htmlFor="emotionalStateExit" className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">
+            <label htmlFor="emotionalStateExit" className="block text-sm font-medium mb-2">
               Emotional State at Exit
             </label>
             <input
               id="emotionalStateExit"
               type="text"
               {...register('emotionalStateExit')}
-              className="w-full rounded-md border border-gray-300 bg-background px-3 py-2 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800"
-              placeholder="e.g., satisfied, regret, relieved"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800"
+              placeholder="e.g., Satisfied, Regretful, Relieved"
+              disabled={isLoading}
             />
             {errors.emotionalStateExit && (
-              <p className="mt-1 text-sm text-red-500">{errors.emotionalStateExit.message}</p>
+              <p className="mt-1 text-sm text-red-600">{errors.emotionalStateExit.message}</p>
             )}
           </div>
         </div>
-      </section>
+      </div>
 
-      {/* Tags */}
-      <section className="rounded-lg bg-card p-6 shadow-sm">
-        <h2 className="mb-4 text-2xl font-semibold text-foreground">Tags</h2>
-        <Controller
-          name="tags"
-          control={control}
-          render={({ field }) => (
-            <TagInput
-              value={selectedTags}
-              onChange={setSelectedTags}
-              label="Custom Tags"
-              placeholder="Add tags (e.g., breakout, earnings-play)"
-              error={errors.tags?.message}
-            />
-          )}
-        />
-      </section>
-
-      {/* Screenshots */}
-      <section className="rounded-lg bg-card p-6 shadow-sm">
-        <h2 className="mb-4 text-2xl font-semibold text-foreground">Screenshots</h2>
-        <ScreenshotUpload
-          tradeId={trade?.id}
-          existingScreenshots={localScreenshots as any}
-          onUploadComplete={handleScreenshotUpload as any}
-          onDeleteSuccess={handleScreenshotDelete}
-        />
-      </section>
-
-      {/* Notes */}
-      <section className="rounded-lg bg-card p-6 shadow-sm">
-        <h2 className="mb-4 text-2xl font-semibold text-foreground">Trade Notes & Reflections</h2>
-        <Controller
-          name="notes"
-          control={control}
-          render={({ field }) => (
-            <RichTextEditor
-              value={field.value || ''}
-              onChange={field.onChange}
-              label="Detailed Journal Entry"
-              placeholder="Document your pre-trade analysis, post-trade reflections, and lessons learned..."
-              minHeight="250px"
-              error={errors.notes?.message}
-            />
-          )}
-        />
-      </section>
+      {/* Notes Section */}
+      <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+        <h2 className="text-lg font-semibold mb-4">Trade Notes & Journal</h2>
+        <div>
+          <label htmlFor="notes" className="block text-sm font-medium mb-2">
+            Notes
+          </label>
+          <textarea
+            id="notes"
+            {...register('notes')}
+            rows={8}
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800"
+            placeholder="Write about your analysis, reasoning, what you learned, etc."
+            disabled={isLoading}
+          />
+          {errors.notes && <p className="mt-1 text-sm text-red-600">{errors.notes.message}</p>}
+          <p className="mt-1 text-sm text-gray-500">
+            Document your pre-trade analysis, post-trade reflections, and lessons learned
+          </p>
+        </div>
+      </div>
 
       {/* Form Actions */}
       <div className="flex justify-end space-x-4">
         <button
           type="button"
           onClick={() => router.back()}
-          disabled={isSubmitting}
-          className="rounded-md border border-gray-300 bg-background px-6 py-2 text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800"
+          className="px-6 py-2 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+          disabled={isLoading}
         >
           Cancel
         </button>
         <button
           type="submit"
-          disabled={isSubmitting}
-          className="inline-flex items-center rounded-md bg-primary-600 px-6 py-2 text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50"
+          disabled={isLoading}
+          className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isSubmitting ? 'Saving...' : isEditing ? 'Update Trade' : 'Record Trade'}
+          {isLoading ? 'Saving...' : isEditMode ? 'Update Trade' : 'Create Trade'}
         </button>
       </div>
     </form>
   );
 }
+

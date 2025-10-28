@@ -1,184 +1,114 @@
-import {
-  Trade,
-  TradeCalculations,
-  TradeWithCalculations,
-  Outcome,
-  AssetType,
-  Direction,
-} from '@/lib/types';
+import { Trade } from '@prisma/client';
+import { TradeCalculations, TradeWithCalculations } from './types';
 
 // ============================================================================
 // Trade Calculations
 // ============================================================================
 
 /**
- * Calculate P&L (Profit/Loss) for a trade
- * @param trade - Trade object
- * @returns P&L in currency
+ * Calculate all metrics for a trade
  */
-export function calculatePnl(trade: Trade): number {
-  const { entryPrice, exitPrice, quantity, direction } = trade;
+export function calculateTradeMetrics(trade: Trade): TradeCalculations {
+  const { direction, entryPrice, exitPrice, quantity, fees, entryDate, exitDate } = trade;
 
+  // Handle null fees
+  const tradeFees = fees ?? 0;
+
+  // Entry and exit values
+  const entryValue = entryPrice * quantity;
+  const exitValue = exitPrice * quantity;
+
+  // Calculate P&L based on direction
+  let pnl: number;
   if (direction === 'LONG') {
-    // Long: profit when exit > entry
-    return (exitPrice - entryPrice) * quantity;
+    pnl = (exitPrice - entryPrice) * quantity;
   } else {
-    // Short: profit when exit < entry
-    return (entryPrice - exitPrice) * quantity;
+    // SHORT
+    pnl = (entryPrice - exitPrice) * quantity;
   }
-}
 
-/**
- * Calculate P&L percentage
- * @param trade - Trade object
- * @returns P&L as percentage
- */
-export function calculatePnlPercent(trade: Trade): number {
-  const { entryPrice, exitPrice, direction } = trade;
+  // P&L percentage (return on investment)
+  const pnlPercent = (pnl / entryValue) * 100;
 
-  if (direction === 'LONG') {
-    return ((exitPrice - entryPrice) / entryPrice) * 100;
-  } else {
-    return ((entryPrice - exitPrice) / entryPrice) * 100;
-  }
-}
+  // Net P&L after fees
+  const netPnl = pnl - tradeFees;
 
-/**
- * Calculate net P&L after fees
- * @param trade - Trade object
- * @returns Net P&L in currency
- */
-export function calculateNetPnl(trade: Trade): number {
-  const pnl = calculatePnl(trade);
-  const fees = trade.fees || 0;
-  return pnl - fees;
-}
+  // Actual Risk:Reward (if applicable)
+  const actualRiskReward =
+    trade.stopLoss && trade.stopLoss > 0
+      ? Math.abs(pnl / ((entryPrice - trade.stopLoss) * quantity))
+      : undefined;
 
-/**
- * Calculate net P&L percentage after fees
- * @param trade - Trade object
- * @returns Net P&L as percentage
- */
-export function calculateNetPnlPercent(trade: Trade): number {
-  const netPnl = calculateNetPnl(trade);
-  const entryValue = trade.entryPrice * trade.quantity;
-  return (netPnl / entryValue) * 100;
-}
+  // Holding period
+  const entryTime = new Date(entryDate).getTime();
+  const exitTime = new Date(exitDate).getTime();
+  const holdingPeriod = (exitTime - entryTime) / (1000 * 60 * 60); // hours
+  const holdingPeriodDays = holdingPeriod / 24; // days
 
-/**
- * Determine trade outcome
- * @param pnl - Trade P&L
- * @returns Outcome (winning, losing, or breakeven)
- */
-export function determineOutcome(pnl: number): Outcome {
-  if (pnl > 0) return 'winning';
-  if (pnl < 0) return 'losing';
-  return 'breakeven';
-}
-
-/**
- * Calculate entry value (position size)
- * @param trade - Trade object
- * @returns Entry value in currency
- */
-export function calculateEntryValue(trade: Trade): number {
-  return trade.entryPrice * trade.quantity;
-}
-
-/**
- * Calculate exit value
- * @param trade - Trade object
- * @returns Exit value in currency
- */
-export function calculateExitValue(trade: Trade): number {
-  return trade.exitPrice * trade.quantity;
-}
-
-/**
- * Calculate actual risk/reward ratio
- * @param trade - Trade object
- * @returns Actual R:R ratio or undefined
- */
-export function calculateActualRR(trade: Trade): number | undefined {
-  const { stopLoss, entryPrice, exitPrice, direction } = trade;
-
-  if (!stopLoss) return undefined;
-
-  const risk = Math.abs(entryPrice - stopLoss);
-  if (risk === 0) return undefined;
-
-  const reward = Math.abs(exitPrice - entryPrice);
-  return reward / risk;
-}
-
-/**
- * Add all calculated fields to a trade
- * @param trade - Trade object
- * @returns Trade with calculations
- */
-export function addCalculations(trade: Trade): TradeWithCalculations {
-  const pnl = calculatePnl(trade);
-  const pnlPercent = calculatePnlPercent(trade);
-  const netPnl = calculateNetPnl(trade);
-  const netPnlPercent = calculateNetPnlPercent(trade);
-  const outcome = determineOutcome(netPnl);
-  const entryValue = calculateEntryValue(trade);
-  const exitValue = calculateExitValue(trade);
-  const actualRR = calculateActualRR(trade);
+  // Trade outcome
+  const isWinner = netPnl > 0;
+  const isLoser = netPnl < 0;
+  const isBreakeven = netPnl === 0;
 
   return {
-    ...trade,
     pnl,
-    grossPnl: pnl, // Alias for clarity
     pnlPercent,
     netPnl,
-    netPnlPercent,
-    outcome,
     entryValue,
     exitValue,
-    actualRR,
+    actualRiskReward,
+    holdingPeriod,
+    holdingPeriodDays,
+    isWinner,
+    isLoser,
+    isBreakeven,
   };
 }
 
-// Alias for consistency with naming in other parts of the app
-export const calculateTradeMetrics = addCalculations;
+/**
+ * Add calculations to a trade object
+ */
+export function enrichTradeWithCalculations(trade: any): TradeWithCalculations {
+  const calculations = calculateTradeMetrics(trade);
+
+  return {
+    ...trade,
+    calculations,
+  };
+}
 
 /**
  * Add calculations to multiple trades
- * @param trades - Array of trades
- * @returns Trades with calculations
  */
-export function addCalculationsToAll(trades: Trade[]): TradeWithCalculations[] {
-  return trades.map((trade) => addCalculations(trade));
+export function enrichTradesWithCalculations(trades: Trade[]): TradeWithCalculations[] {
+  return trades.map((trade) => enrichTradeWithCalculations(trade));
 }
 
 // ============================================================================
-// Trade Filtering & Sorting
+// Filtering & Sorting
 // ============================================================================
 
 /**
- * Filter trades by outcome
- * @param trades - Array of trades with calculations
- * @param outcome - Desired outcome
- * @returns Filtered trades
+ * Filter trades based on outcome
  */
 export function filterByOutcome(
   trades: TradeWithCalculations[],
-  outcome: Outcome
+  outcome: 'winning' | 'losing' | 'breakeven'
 ): TradeWithCalculations[] {
-  return trades.filter((trade) => trade.outcome === outcome);
+  return trades.filter((trade) => {
+    if (outcome === 'winning') return trade.calculations.isWinner;
+    if (outcome === 'losing') return trade.calculations.isLoser;
+    if (outcome === 'breakeven') return trade.calculations.isBreakeven;
+    return true;
+  });
 }
 
 /**
- * Sort trades
- * @param trades - Array of trades with calculations
- * @param sortBy - Sort field
- * @param sortOrder - Sort direction
- * @returns Sorted trades
+ * Sort trades by various fields
  */
 export function sortTrades(
   trades: TradeWithCalculations[],
-  sortBy: 'date' | 'pnl' | 'pnlPercent' | 'symbol' = 'date',
+  sortBy: 'date' | 'pnl' | 'pnlPercent' | 'symbol',
   sortOrder: 'asc' | 'desc' = 'desc'
 ): TradeWithCalculations[] {
   const sorted = [...trades].sort((a, b) => {
@@ -189,10 +119,10 @@ export function sortTrades(
         comparison = new Date(a.entryDate).getTime() - new Date(b.entryDate).getTime();
         break;
       case 'pnl':
-        comparison = a.netPnl - b.netPnl;
+        comparison = a.calculations.pnl - b.calculations.pnl;
         break;
       case 'pnlPercent':
-        comparison = a.netPnlPercent - b.netPnlPercent;
+        comparison = a.calculations.pnlPercent - b.calculations.pnlPercent;
         break;
       case 'symbol':
         comparison = a.symbol.localeCompare(b.symbol);
@@ -206,58 +136,148 @@ export function sortTrades(
 }
 
 // ============================================================================
-// Trade Statistics
+// Formatting Helpers
+// ============================================================================
+
+/**
+ * Format currency value
+ */
+export function formatCurrency(value: number, currency: string = 'USD'): string {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: currency,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value);
+}
+
+/**
+ * Format percentage value
+ */
+export function formatPercent(value: number, decimals: number = 2): string {
+  return `${value >= 0 ? '+' : ''}${value.toFixed(decimals)}%`;
+}
+
+/**
+ * Format date
+ */
+export function formatDate(date: Date | string): string {
+  return new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  }).format(new Date(date));
+}
+
+/**
+ * Format datetime
+ */
+export function formatDateTime(date: Date | string): string {
+  return new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(new Date(date));
+}
+
+/**
+ * Format holding period
+ */
+export function formatHoldingPeriod(hours: number): string {
+  if (hours < 1) {
+    return `${Math.round(hours * 60)} minutes`;
+  } else if (hours < 24) {
+    return `${hours.toFixed(1)} hours`;
+  } else {
+    const days = hours / 24;
+    return `${days.toFixed(1)} days`;
+  }
+}
+
+// ============================================================================
+// Risk:Reward Helpers
+// ============================================================================
+
+/**
+ * Calculate planned Risk:Reward ratio
+ */
+export function calculatePlannedRR(
+  entryPrice: number,
+  stopLoss: number,
+  takeProfit: number,
+  direction: 'LONG' | 'SHORT'
+): number {
+  if (direction === 'LONG') {
+    const risk = entryPrice - stopLoss;
+    const reward = takeProfit - entryPrice;
+    return Math.abs(reward / risk);
+  } else {
+    // SHORT
+    const risk = stopLoss - entryPrice;
+    const reward = entryPrice - takeProfit;
+    return Math.abs(reward / risk);
+  }
+}
+
+/**
+ * Calculate position size based on risk amount
+ */
+export function calculatePositionSize(
+  accountSize: number,
+  riskPercent: number,
+  entryPrice: number,
+  stopLoss: number
+): number {
+  const riskAmount = accountSize * (riskPercent / 100);
+  const riskPerShare = Math.abs(entryPrice - stopLoss);
+  return riskAmount / riskPerShare;
+}
+
+// ============================================================================
+// Analytics Helpers
 // ============================================================================
 
 /**
  * Calculate win rate from trades
- * @param trades - Array of trades with calculations
- * @returns Win rate as percentage (0-100)
  */
 export function calculateWinRate(trades: TradeWithCalculations[]): number {
   if (trades.length === 0) return 0;
-  const winningTrades = trades.filter((t) => t.outcome === 'winning').length;
-  return (winningTrades / trades.length) * 100;
+  const winners = trades.filter((t) => t.calculations.isWinner).length;
+  return (winners / trades.length) * 100;
 }
 
 /**
  * Calculate average win
- * @param trades - Array of trades with calculations
- * @returns Average winning trade P&L
  */
 export function calculateAverageWin(trades: TradeWithCalculations[]): number {
-  const winningTrades = trades.filter((t) => t.outcome === 'winning');
-  if (winningTrades.length === 0) return 0;
-
-  const totalWin = winningTrades.reduce((sum, t) => sum + t.netPnl, 0);
-  return totalWin / winningTrades.length;
+  const winners = trades.filter((t) => t.calculations.isWinner);
+  if (winners.length === 0) return 0;
+  const totalWins = winners.reduce((sum, t) => sum + t.calculations.netPnl, 0);
+  return totalWins / winners.length;
 }
 
 /**
  * Calculate average loss
- * @param trades - Array of trades with calculations
- * @returns Average losing trade P&L (negative value)
  */
 export function calculateAverageLoss(trades: TradeWithCalculations[]): number {
-  const losingTrades = trades.filter((t) => t.outcome === 'losing');
-  if (losingTrades.length === 0) return 0;
-
-  const totalLoss = losingTrades.reduce((sum, t) => sum + t.netPnl, 0);
-  return totalLoss / losingTrades.length;
+  const losers = trades.filter((t) => t.calculations.isLoser);
+  if (losers.length === 0) return 0;
+  const totalLosses = losers.reduce((sum, t) => sum + t.calculations.netPnl, 0);
+  return totalLosses / losers.length;
 }
 
 /**
  * Calculate profit factor
- * @param trades - Array of trades with calculations
- * @returns Profit factor (gross profit / gross loss)
  */
 export function calculateProfitFactor(trades: TradeWithCalculations[]): number {
   const grossProfit = trades
-    .filter((t) => t.outcome === 'winning')
-    .reduce((sum, t) => sum + t.netPnl, 0);
+    .filter((t) => t.calculations.isWinner)
+    .reduce((sum, t) => sum + t.calculations.netPnl, 0);
 
   const grossLoss = Math.abs(
-    trades.filter((t) => t.outcome === 'losing').reduce((sum, t) => sum + t.netPnl, 0)
+    trades.filter((t) => t.calculations.isLoser).reduce((sum, t) => sum + t.calculations.netPnl, 0)
   );
 
   if (grossLoss === 0) return grossProfit > 0 ? Infinity : 0;
@@ -266,8 +286,6 @@ export function calculateProfitFactor(trades: TradeWithCalculations[]): number {
 
 /**
  * Calculate expectancy (average expected profit per trade)
- * @param trades - Array of trades with calculations
- * @returns Expectancy value
  */
 export function calculateExpectancy(trades: TradeWithCalculations[]): number {
   if (trades.length === 0) return 0;
@@ -280,100 +298,72 @@ export function calculateExpectancy(trades: TradeWithCalculations[]): number {
 }
 
 /**
- * Calculate total P&L
- * @param trades - Array of trades with calculations
- * @returns Total P&L
+ * Calculate Sharpe ratio (simplified - assuming risk-free rate = 0)
  */
-export function calculateTotalPnl(trades: TradeWithCalculations[]): number {
-  return trades.reduce((sum, t) => sum + t.netPnl, 0);
+export function calculateSharpeRatio(trades: TradeWithCalculations[]): number {
+  if (trades.length === 0) return 0;
+
+  const returns = trades.map((t) => t.calculations.pnlPercent);
+  const avgReturn = returns.reduce((sum, r) => sum + r, 0) / returns.length;
+
+  // Calculate standard deviation
+  const variance = returns.reduce((sum, r) => sum + Math.pow(r - avgReturn, 2), 0) / returns.length;
+  const stdDev = Math.sqrt(variance);
+
+  if (stdDev === 0) return 0;
+  return avgReturn / stdDev;
 }
 
-// ============================================================================
-// Validation Helpers
-// ============================================================================
+/**
+ * Calculate maximum drawdown
+ */
+export function calculateMaxDrawdown(trades: TradeWithCalculations[]): number {
+  if (trades.length === 0) return 0;
+
+  // Sort by date
+  const sortedTrades = [...trades].sort(
+    (a, b) => new Date(a.entryDate).getTime() - new Date(b.entryDate).getTime()
+  );
+
+  let peak = 0;
+  let maxDrawdown = 0;
+  let cumulative = 0;
+
+  for (const trade of sortedTrades) {
+    cumulative += trade.calculations.netPnl;
+
+    if (cumulative > peak) {
+      peak = cumulative;
+    }
+
+    const drawdown = peak - cumulative;
+    if (drawdown > maxDrawdown) {
+      maxDrawdown = drawdown;
+    }
+  }
+
+  return maxDrawdown;
+}
 
 /**
- * Validate trade dates
- * @param entryDate - Entry date
- * @param exitDate - Exit date
- * @returns Validation result
+ * Generate equity curve data
  */
-export function validateTradeDates(
-  entryDate: Date | string,
-  exitDate: Date | string
-): { valid: boolean; error?: string } {
-  const entry = new Date(entryDate);
-  const exit = new Date(exitDate);
+export function generateEquityCurve(
+  trades: TradeWithCalculations[]
+): Array<{ date: Date; cumulativePnl: number; tradeNumber: number }> {
+  const sortedTrades = [...trades].sort(
+    (a, b) => new Date(a.entryDate).getTime() - new Date(b.entryDate).getTime()
+  );
 
-  if (exit < entry) {
+  let cumulative = 0;
+  const equityCurve = sortedTrades.map((trade, index) => {
+    cumulative += trade.calculations.netPnl;
     return {
-      valid: false,
-      error: 'Exit date must be after entry date',
+      date: new Date(trade.exitDate),
+      cumulativePnl: cumulative,
+      tradeNumber: index + 1,
     };
-  }
+  });
 
-  return { valid: true };
+  return equityCurve;
 }
-
-/**
- * Validate trade prices
- * @param entryPrice - Entry price
- * @param exitPrice - Exit price
- * @param stopLoss - Stop loss (optional)
- * @param takeProfit - Take profit (optional)
- * @returns Validation result
- */
-export function validateTradePrices(
-  entryPrice: number,
-  exitPrice: number,
-  stopLoss?: number,
-  takeProfit?: number
-): { valid: boolean; warnings: string[] } {
-  const warnings: string[] = [];
-
-  if (entryPrice <= 0 || exitPrice <= 0) {
-    return {
-      valid: false,
-      warnings: ['Prices must be positive'],
-    };
-  }
-
-  if (stopLoss !== undefined && stopLoss <= 0) {
-    warnings.push('Stop loss should be positive');
-  }
-
-  if (takeProfit !== undefined && takeProfit <= 0) {
-    warnings.push('Take profit should be positive');
-  }
-
-  return { valid: true, warnings };
-}
-
-// ============================================================================
-// Formatting Helpers
-// ============================================================================
-
-/**
- * Format currency value
- * @param value - Numeric value
- * @param currency - Currency code
- * @returns Formatted currency string
- */
-export function formatCurrency(value: number, currency: string = 'USD'): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency,
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(value);
-}
-
-/**
- * Format percentage
- * @param value - Numeric value (as percentage, e.g., 15.5 for 15.5%)
- * @returns Formatted percentage string
- */
-export function formatPercentage(value: number): string {
-  return `${value > 0 ? '+' : ''}${value.toFixed(2)}%`;
-}
-
