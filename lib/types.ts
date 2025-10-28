@@ -53,8 +53,9 @@ export interface TradeWithCalculations extends Trade {
   tags: Array<{
     tag: Tag;
   }>;
-  // Explicitly include entryDate to ensure TypeScript recognizes it
+  // Explicitly include properties to ensure TypeScript recognizes them
   entryDate: Date;
+  symbol: string;
 }
 
 // ============================================================================
