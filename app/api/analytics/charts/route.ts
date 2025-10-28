@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { enrichTradesWithCalculations } from '@/lib/trades';
+import { TradeWithCalculations } from '@/lib/types';
 import {
   calculateEquityCurve,
   calculatePerformanceByDimension,
@@ -168,7 +169,7 @@ export async function GET(request: NextRequest) {
         'Saturday',
       ];
 
-      trades.forEach((trade) => {
+      trades.forEach((trade: TradeWithCalculations) => {
         const dayOfWeek = dayNames[trade.entryDate.getDay()];
         if (!byDayOfWeek[dayOfWeek]) {
           byDayOfWeek[dayOfWeek] = { totalPnl: 0, count: 0, wins: 0 };
