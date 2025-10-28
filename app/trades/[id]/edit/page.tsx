@@ -64,7 +64,7 @@ export default async function TradeEditPage({ params }: TradeEditPageProps) {
     emotionalStateEntry: trade.emotionalStateEntry || undefined,
     emotionalStateExit: trade.emotionalStateExit || undefined,
     notes: trade.notes || undefined,
-    tags: trade.tags.map((tt) => tt.tag.name),
+    tags: trade.tags.map((tt: { tag: { name: string } }) => tt.tag.name),
   };
 
   return (
