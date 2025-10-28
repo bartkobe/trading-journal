@@ -6,6 +6,35 @@ import Placeholder from '@tiptap/extension-placeholder';
 import Link from '@tiptap/extension-link';
 import { forwardRef, useEffect, useImperativeHandle } from 'react';
 
+// Toolbar components (moved outside to avoid creating during render)
+const ToolbarButton = ({
+  onClick,
+  isActive,
+  disabled,
+  children,
+  title,
+}: {
+  onClick: () => void;
+  isActive?: boolean;
+  disabled?: boolean;
+  children: React.ReactNode;
+  title: string;
+}) => (
+  <button
+    type="button"
+    onClick={onClick}
+    disabled={disabled}
+    title={title}
+    className={`p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+      isActive ? 'bg-gray-200 dark:bg-gray-600' : ''
+    }`}
+  >
+    {children}
+  </button>
+);
+
+const ToolbarDivider = () => <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1" />;
+
 interface RichTextEditorProps {
   value?: string;
   onChange?: (value: string) => void;
@@ -35,7 +64,8 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
         Link.configure({
           openOnClick: false,
           HTMLAttributes: {
-            class: 'text-blue-600 dark:text-blue-400 underline hover:text-blue-700 dark:hover:text-blue-300',
+            class:
+              'text-blue-600 dark:text-blue-400 underline hover:text-blue-700 dark:hover:text-blue-300',
           },
         }),
       ],
@@ -72,35 +102,6 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
       return null;
     }
 
-    const ToolbarButton = ({
-      onClick,
-      isActive,
-      disabled,
-      children,
-      title,
-    }: {
-      onClick: () => void;
-      isActive?: boolean;
-      disabled?: boolean;
-      children: React.ReactNode;
-      title: string;
-    }) => (
-      <button
-        type="button"
-        onClick={onClick}
-        disabled={disabled}
-        title={title}
-        className={`p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
-          isActive ? 'bg-gray-200 dark:bg-gray-600' : ''
-        }`}
-      >
-        {children}
-      </button>
-    );
-
-    const ToolbarDivider = () => (
-      <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1" />
-    );
 
     return (
       <div className="border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden">
@@ -341,4 +342,3 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
 );
 
 RichTextEditor.displayName = 'RichTextEditor';
-

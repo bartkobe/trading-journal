@@ -49,15 +49,11 @@ const CustomTooltip = ({ active, payload }: any) => {
 
   return (
     <div style={chartConfig.tooltip.contentStyle}>
-      <p style={chartConfig.tooltip.labelStyle}>
-        {formatChartDate(data.date)}
-      </p>
+      <p style={chartConfig.tooltip.labelStyle}>{formatChartDate(data.date)}</p>
       <p style={{ color: chartColors.line.primary }}>
         <strong>Cumulative P&L:</strong> {formatChartCurrency(data.cumulativePnl)}
       </p>
-      <p style={{ color: chartColors.bar.neutral, fontSize: '12px' }}>
-        Trade #{data.tradeNumber}
-      </p>
+      <p style={{ color: chartColors.bar.neutral, fontSize: '12px' }}>Trade #{data.tradeNumber}</p>
     </div>
   );
 };
@@ -95,13 +91,13 @@ export default function EquityCurve({
         }
 
         const result = await response.json();
-        
+
         // Transform the data - convert date strings to Date objects
         const equityCurve = result.charts.equityCurve.map((point: any) => ({
           ...point,
           date: new Date(point.date),
         }));
-        
+
         setData(equityCurve);
       } catch (err: any) {
         console.error('Error fetching equity curve:', err);
@@ -160,9 +156,7 @@ export default function EquityCurve({
   return (
     <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6">
       <div className="mb-4">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-          Equity Curve
-        </h3>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Equity Curve</h3>
         <p className="text-sm text-gray-600 dark:text-gray-400">
           Cumulative P&L over time ({data.length} trades)
         </p>
@@ -170,34 +164,15 @@ export default function EquityCurve({
 
       <ResponsiveContainer width="100%" height={height}>
         {showArea ? (
-          <AreaChart
-            data={data}
-            margin={chartDimensions.margin.full}
-          >
+          <AreaChart data={data} margin={chartDimensions.margin.full}>
             <defs>
               <linearGradient id="colorProfit" x1="0" y1="0" x2="0" y2="1">
-                <stop
-                  offset="5%"
-                  stopColor={chartColors.profit}
-                  stopOpacity={0.3}
-                />
-                <stop
-                  offset="95%"
-                  stopColor={chartColors.profit}
-                  stopOpacity={0}
-                />
+                <stop offset="5%" stopColor={chartColors.profit} stopOpacity={0.3} />
+                <stop offset="95%" stopColor={chartColors.profit} stopOpacity={0} />
               </linearGradient>
               <linearGradient id="colorLoss" x1="0" y1="0" x2="0" y2="1">
-                <stop
-                  offset="5%"
-                  stopColor={chartColors.loss}
-                  stopOpacity={0.3}
-                />
-                <stop
-                  offset="95%"
-                  stopColor={chartColors.loss}
-                  stopOpacity={0}
-                />
+                <stop offset="5%" stopColor={chartColors.loss} stopOpacity={0.3} />
+                <stop offset="95%" stopColor={chartColors.loss} stopOpacity={0} />
               </linearGradient>
             </defs>
             <CartesianGrid {...chartConfig.grid} />
@@ -206,10 +181,7 @@ export default function EquityCurve({
               tickFormatter={(date) => formatChartDate(date)}
               {...chartConfig.axis}
             />
-            <YAxis
-              tickFormatter={(value) => formatChartCurrency(value)}
-              {...chartConfig.axis}
-            />
+            <YAxis tickFormatter={(value) => formatChartCurrency(value)} {...chartConfig.axis} />
             <Tooltip content={<CustomTooltip />} />
             <ReferenceLine
               y={0}
@@ -227,20 +199,14 @@ export default function EquityCurve({
             />
           </AreaChart>
         ) : (
-          <LineChart
-            data={data}
-            margin={chartDimensions.margin.full}
-          >
+          <LineChart data={data} margin={chartDimensions.margin.full}>
             <CartesianGrid {...chartConfig.grid} />
             <XAxis
               dataKey="date"
               tickFormatter={(date) => formatChartDate(date)}
               {...chartConfig.axis}
             />
-            <YAxis
-              tickFormatter={(value) => formatChartCurrency(value)}
-              {...chartConfig.axis}
-            />
+            <YAxis tickFormatter={(value) => formatChartCurrency(value)} {...chartConfig.axis} />
             <Tooltip content={<CustomTooltip />} />
             <ReferenceLine
               y={0}
@@ -263,4 +229,3 @@ export default function EquityCurve({
     </div>
   );
 }
-

@@ -18,15 +18,19 @@ export type TradeWithRelations = Prisma.TradeGetPayload<{
 }>;
 
 // Trade without relations
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export type Trade = Prisma.TradeGetPayload<{}>;
 
 // Screenshot type
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export type Screenshot = Prisma.ScreenshotGetPayload<{}>;
 
 // Tag type
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export type Tag = Prisma.TagGetPayload<{}>;
 
 // User type (without password)
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export type User = Omit<Prisma.UserGetPayload<{}>, 'password'>;
 
 // Enums from Prisma schema

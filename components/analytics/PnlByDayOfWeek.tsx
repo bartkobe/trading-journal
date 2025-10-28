@@ -59,8 +59,7 @@ const CustomTooltip = ({ active, payload }: any) => {
         <strong>Win Rate:</strong> {data.winRate.toFixed(1)}%
       </p>
       <p style={{ color: chartColors.bar.neutral }}>
-        <strong>Avg P&L:</strong>{' '}
-        {formatChartCurrency(data.totalPnl / data.tradeCount)}
+        <strong>Avg P&L:</strong> {formatChartCurrency(data.totalPnl / data.tradeCount)}
       </p>
     </div>
   );
@@ -98,7 +97,7 @@ export default function PnlByDayOfWeek({
         }
 
         const result = await response.json();
-        
+
         // The data is already sorted by day of week in the API
         // (Sunday through Saturday as returned by the API)
         setData(result.charts.byDayOfWeek || []);
@@ -171,10 +170,7 @@ export default function PnlByDayOfWeek({
       <ResponsiveContainer width="100%" height={height}>
         <BarChart data={displayData} margin={chartDimensions.margin.full}>
           <CartesianGrid {...chartConfig.grid} />
-          <XAxis
-            dataKey="shortName"
-            {...chartConfig.axis}
-          />
+          <XAxis dataKey="shortName" {...chartConfig.axis} />
           <YAxis
             tickFormatter={(value) => formatChartCurrency(value)}
             {...chartConfig.axis}
@@ -185,11 +181,7 @@ export default function PnlByDayOfWeek({
             }}
           />
           <Tooltip content={<CustomTooltip />} />
-          <ReferenceLine
-            y={0}
-            stroke={chartColors.breakeven}
-            strokeDasharray="3 3"
-          />
+          <ReferenceLine y={0} stroke={chartColors.breakeven} strokeDasharray="3 3" />
           <Bar dataKey="totalPnl" animationDuration={1000}>
             {displayData.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={getPnlColor(entry.totalPnl)} />
@@ -202,7 +194,7 @@ export default function PnlByDayOfWeek({
       <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-7 gap-3">
         {displayData.map((day) => {
           const avgPnl = day.totalPnl / day.tradeCount;
-          
+
           // Determine if this is a weekend day
           const isWeekend = day.name === 'Saturday' || day.name === 'Sunday';
 
@@ -253,7 +245,9 @@ export default function PnlByDayOfWeek({
               return (
                 <div className="p-3 rounded-lg bg-green-50 dark:bg-green-900/20">
                   <p className="text-sm text-green-900 dark:text-green-100">
-                    <strong>🎯 Best Day:</strong> {best.name} with {formatChartCurrency(best.totalPnl)} ({best.tradeCount} trades, {best.winRate.toFixed(0)}% win rate)
+                    <strong>🎯 Best Day:</strong> {best.name} with{' '}
+                    {formatChartCurrency(best.totalPnl)} ({best.tradeCount} trades,{' '}
+                    {best.winRate.toFixed(0)}% win rate)
                   </p>
                 </div>
               );
@@ -268,7 +262,9 @@ export default function PnlByDayOfWeek({
               return (
                 <div className="p-3 rounded-lg bg-red-50 dark:bg-red-900/20">
                   <p className="text-sm text-red-900 dark:text-red-100">
-                    <strong>⚠️ Worst Day:</strong> {worst.name} with {formatChartCurrency(worst.totalPnl)} ({worst.tradeCount} trades, {worst.winRate.toFixed(0)}% win rate)
+                    <strong>⚠️ Worst Day:</strong> {worst.name} with{' '}
+                    {formatChartCurrency(worst.totalPnl)} ({worst.tradeCount} trades,{' '}
+                    {worst.winRate.toFixed(0)}% win rate)
                   </p>
                 </div>
               );
@@ -297,9 +293,9 @@ export default function PnlByDayOfWeek({
               return (
                 <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20">
                   <p className="text-sm text-blue-900 dark:text-blue-100">
-                    <strong>📊 Weekday vs Weekend:</strong>{' '}
-                    Weekdays: {formatChartCurrency(weekdayAvg)} avg/trade ({weekdayTrades} trades) • 
-                    Weekends: {formatChartCurrency(weekendAvg)} avg/trade ({weekendTrades} trades)
+                    <strong>📊 Weekday vs Weekend:</strong> Weekdays:{' '}
+                    {formatChartCurrency(weekdayAvg)} avg/trade ({weekdayTrades} trades) • Weekends:{' '}
+                    {formatChartCurrency(weekendAvg)} avg/trade ({weekendTrades} trades)
                   </p>
                 </div>
               );
@@ -311,4 +307,3 @@ export default function PnlByDayOfWeek({
     </div>
   );
 }
-

@@ -71,13 +71,7 @@ interface MetricCardProps {
   className?: string;
 }
 
-const MetricCard = ({
-  title,
-  value,
-  subtitle,
-  trend,
-  className = '',
-}: MetricCardProps) => {
+const MetricCard = ({ title, value, subtitle, trend, className = '' }: MetricCardProps) => {
   const getTrendColor = () => {
     if (!trend) return '';
     switch (trend) {
@@ -94,15 +88,9 @@ const MetricCard = ({
     <div
       className={`rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-sm ${className}`}
     >
-      <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
-        {title}
-      </h3>
+      <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">{title}</h3>
       <p className={`text-3xl font-bold ${getTrendColor()}`}>{value}</p>
-      {subtitle && (
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-          {subtitle}
-        </p>
-      )}
+      {subtitle && <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{subtitle}</p>}
     </div>
   );
 };
@@ -111,10 +99,7 @@ const MetricCard = ({
 // DashboardMetrics Component
 // ============================================================================
 
-export default function DashboardMetrics({
-  startDate,
-  endDate,
-}: DashboardMetricsProps) {
+export default function DashboardMetrics({ startDate, endDate }: DashboardMetricsProps) {
   const [metrics, setMetrics] = useState<DashboardMetricsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -156,10 +141,7 @@ export default function DashboardMetrics({
       <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[...Array(8)].map((_, i) => (
-            <div
-              key={i}
-              className="h-32 rounded-lg bg-gray-200 dark:bg-gray-700 animate-pulse"
-            />
+            <div key={i} className="h-32 rounded-lg bg-gray-200 dark:bg-gray-700 animate-pulse" />
           ))}
         </div>
       </div>
@@ -234,9 +216,7 @@ export default function DashboardMetrics({
             title="Win Rate"
             value={`${(metrics.performance?.winRate ?? 0).toFixed(1)}%`}
             subtitle={`${metrics.winLoss?.winningTrades ?? 0} wins, ${metrics.winLoss?.losingTrades ?? 0} losses`}
-            trend={
-              (metrics.performance?.winRate ?? 0) >= 50 ? 'positive' : 'negative'
-            }
+            trend={(metrics.performance?.winRate ?? 0) >= 50 ? 'positive' : 'negative'}
           />
         </div>
       </div>
@@ -284,9 +264,7 @@ export default function DashboardMetrics({
             title="Profit Factor"
             value={(metrics.performance?.profitFactor ?? 0).toFixed(2)}
             subtitle="Gross profit / Gross loss"
-            trend={
-              (metrics.performance?.profitFactor ?? 0) > 1 ? 'positive' : 'negative'
-            }
+            trend={(metrics.performance?.profitFactor ?? 0) > 1 ? 'positive' : 'negative'}
           />
           <MetricCard
             title="Expectancy"
@@ -311,9 +289,7 @@ export default function DashboardMetrics({
 
       {/* Risk Metrics */}
       <div>
-        <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-          Risk Metrics
-        </h2>
+        <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">Risk Metrics</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <MetricCard
             title="Max Drawdown"
@@ -325,9 +301,7 @@ export default function DashboardMetrics({
             title="Current Drawdown"
             value={formatCurrency(metrics.drawdown?.currentDrawdown ?? 0)}
             subtitle={formatPercent(metrics.drawdown?.currentDrawdownPercent ?? 0)}
-            trend={
-              (metrics.drawdown?.currentDrawdown ?? 0) === 0 ? 'neutral' : 'negative'
-            }
+            trend={(metrics.drawdown?.currentDrawdown ?? 0) === 0 ? 'neutral' : 'negative'}
           />
           <MetricCard
             title="Average Drawdown"
@@ -362,9 +336,7 @@ export default function DashboardMetrics({
 
       {/* Streak Analysis */}
       <div>
-        <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-          Streak Analysis
-        </h2>
+        <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">Streak Analysis</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <MetricCard
             title="Longest Win Streak"
@@ -395,4 +367,3 @@ export default function DashboardMetrics({
     </div>
   );
 }
-

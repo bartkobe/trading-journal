@@ -11,11 +11,7 @@ import {
   ResponsiveContainer,
   Cell,
 } from 'recharts';
-import {
-  chartConfig,
-  formatChartCurrency,
-  getPnlColor,
-} from '@/lib/chart-config';
+import { chartConfig, formatChartCurrency, getPnlColor } from '@/lib/chart-config';
 
 // ============================================================================
 // Types
@@ -62,7 +58,7 @@ export default function PnlBySymbol({ startDate, endDate }: PnlBySymbolProps) {
         }
 
         const result = await response.json();
-        
+
         // Sort by total P&L and take top 10
         const sorted = (result.performance?.bySymbol || [])
           .sort((a: SymbolPerformance, b: SymbolPerformance) => b.totalPnl - a.totalPnl)
@@ -113,9 +109,7 @@ export default function PnlBySymbol({ startDate, endDate }: PnlBySymbolProps) {
           P&L by Symbol
         </h3>
         <div className="flex items-center justify-center h-64">
-          <div className="text-gray-500 dark:text-gray-400">
-            No trading data available
-          </div>
+          <div className="text-gray-500 dark:text-gray-400">No trading data available</div>
         </div>
       </div>
     );
@@ -146,10 +140,7 @@ export default function PnlBySymbol({ startDate, endDate }: PnlBySymbolProps) {
             <Tooltip content={<CustomTooltip />} />
             <Bar dataKey="totalPnl" radius={[8, 8, 0, 0]}>
               {data.map((entry, index) => (
-                <Cell
-                  key={`cell-${index}`}
-                  fill={getPnlColor(entry.totalPnl)}
-                />
+                <Cell key={`cell-${index}`} fill={getPnlColor(entry.totalPnl)} />
               ))}
             </Bar>
           </BarChart>
@@ -165,9 +156,7 @@ export default function PnlBySymbol({ startDate, endDate }: PnlBySymbolProps) {
             </span>
             <span className="text-2xl">🏆</span>
           </div>
-          <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
-            {topSymbol.symbol}
-          </p>
+          <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{topSymbol.symbol}</p>
           <p className="text-sm text-green-600 dark:text-green-400 font-semibold">
             {formatChartCurrency(topSymbol.totalPnl)}
           </p>
@@ -201,8 +190,8 @@ export default function PnlBySymbol({ startDate, endDate }: PnlBySymbolProps) {
           <span className="font-semibold">💡 Insight:</span> Your best symbol{' '}
           <span className="font-semibold">{topSymbol.symbol}</span> has a{' '}
           {(topSymbol.winRate ?? 0).toFixed(1)}% win rate with an average P&L of{' '}
-          {formatChartCurrency(topSymbol.avgPnl ?? 0)} per trade. Consider focusing
-          on your top performers.
+          {formatChartCurrency(topSymbol.avgPnl ?? 0)} per trade. Consider focusing on your top
+          performers.
         </p>
       </div>
     </div>
@@ -220,9 +209,7 @@ function CustomTooltip({ active, payload }: any) {
 
   return (
     <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-3">
-      <p className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
-        {data.symbol}
-      </p>
+      <p className="font-semibold text-gray-900 dark:text-gray-100 mb-2">{data.symbol}</p>
       <div className="space-y-1 text-sm">
         <p className="text-gray-700 dark:text-gray-300">
           <span className="font-medium">Total P&L:</span>{' '}
@@ -240,15 +227,12 @@ function CustomTooltip({ active, payload }: any) {
           <span className="font-medium">Trades:</span> {data.trades}
         </p>
         <p className="text-gray-700 dark:text-gray-300">
-          <span className="font-medium">Win Rate:</span>{' '}
-          {(data.winRate ?? 0).toFixed(1)}%
+          <span className="font-medium">Win Rate:</span> {(data.winRate ?? 0).toFixed(1)}%
         </p>
         <p className="text-gray-700 dark:text-gray-300">
-          <span className="font-medium">Avg P&L:</span>{' '}
-          {formatChartCurrency(data.avgPnl ?? 0)}
+          <span className="font-medium">Avg P&L:</span> {formatChartCurrency(data.avgPnl ?? 0)}
         </p>
       </div>
     </div>
   );
 }
-

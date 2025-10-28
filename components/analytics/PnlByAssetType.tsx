@@ -59,8 +59,7 @@ const CustomTooltip = ({ active, payload }: any) => {
         <strong>Win Rate:</strong> {data.winRate.toFixed(1)}%
       </p>
       <p style={{ color: chartColors.bar.neutral }}>
-        <strong>Avg P&L:</strong>{' '}
-        {formatChartCurrency(data.totalPnl / data.tradeCount)}
+        <strong>Avg P&L:</strong> {formatChartCurrency(data.totalPnl / data.tradeCount)}
       </p>
     </div>
   );
@@ -176,11 +175,7 @@ export default function PnlByAssetType({
             }}
           />
           <Tooltip content={<CustomTooltip />} />
-          <ReferenceLine
-            y={0}
-            stroke={chartColors.breakeven}
-            strokeDasharray="3 3"
-          />
+          <ReferenceLine y={0} stroke={chartColors.breakeven} strokeDasharray="3 3" />
           <Bar dataKey="totalPnl" animationDuration={1000}>
             {sortedData.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={getPnlColor(entry.totalPnl)} />
@@ -225,4 +220,3 @@ export default function PnlByAssetType({
     </div>
   );
 }
-

@@ -500,4 +500,3 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
     </form>
   );
 }
-

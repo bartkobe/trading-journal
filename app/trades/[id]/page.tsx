@@ -17,7 +17,7 @@ interface TradeDetailPageProps {
 export default async function TradeDetailPage({ params }: TradeDetailPageProps) {
   // Await params (Next.js 15+ requirement)
   const { id } = await params;
-  
+
   let user;
   try {
     user = await requireAuth();
@@ -57,12 +57,7 @@ export default async function TradeDetailPage({ params }: TradeDetailPageProps) 
             href="/trades"
             className="inline-flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 mb-4"
           >
-            <svg
-              className="w-4 h-4 mr-2"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
+            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -78,9 +73,7 @@ export default async function TradeDetailPage({ params }: TradeDetailPageProps) 
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
                 {trade.symbol.toUpperCase()} Trade
               </h1>
-              <p className="mt-2 text-gray-600 dark:text-gray-400">
-                View and manage trade details
-              </p>
+              <p className="mt-2 text-gray-600 dark:text-gray-400">View and manage trade details</p>
             </div>
 
             <TradeActions tradeId={id} />
@@ -93,4 +86,3 @@ export default async function TradeDetailPage({ params }: TradeDetailPageProps) 
     </div>
   );
 }
-

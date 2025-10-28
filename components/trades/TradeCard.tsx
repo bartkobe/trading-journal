@@ -15,28 +15,50 @@ export function TradeCard({ trade, onClick }: TradeCardProps) {
   };
 
   const getOutcomeBg = () => {
-    if (trade.calculations.isWinner) return 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800';
-    if (trade.calculations.isLoser) return 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800';
+    if (trade.calculations.isWinner)
+      return 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800';
+    if (trade.calculations.isLoser)
+      return 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800';
     return 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700';
   };
 
   const getOutcomeIcon = () => {
     if (trade.calculations.isWinner) {
       return (
-        <svg className="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg
+          className="w-5 h-5 text-green-600 dark:text-green-400"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
         </svg>
       );
     }
     if (trade.calculations.isLoser) {
       return (
-        <svg className="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+        <svg
+          className="w-5 h-5 text-red-600 dark:text-red-400"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M6 18L18 6M6 6l12 12"
+          />
         </svg>
       );
     }
     return (
-      <svg className="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg
+        className="w-5 h-5 text-gray-600 dark:text-gray-400"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
       </svg>
     );
@@ -72,9 +94,7 @@ export function TradeCard({ trade, onClick }: TradeCardProps) {
             </p>
           )}
         </div>
-        <div className="flex items-center gap-2">
-          {getOutcomeIcon()}
-        </div>
+        <div className="flex items-center gap-2">{getOutcomeIcon()}</div>
       </div>
 
       {/* Asset Type Badge */}
@@ -87,16 +107,18 @@ export function TradeCard({ trade, onClick }: TradeCardProps) {
       {/* Entry and Exit Prices */}
       <div className="grid grid-cols-2 gap-4 mb-3 pb-3 border-b border-gray-200 dark:border-gray-700">
         <div>
-          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Entry</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">
+            Entry
+          </p>
           <p className="text-sm font-medium text-gray-900 dark:text-white">
             {formatCurrency(trade.entryPrice, trade.currency)}
           </p>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-            Qty: {trade.quantity}
-          </p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Qty: {trade.quantity}</p>
         </div>
         <div>
-          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Exit</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">
+            Exit
+          </p>
           <p className="text-sm font-medium text-gray-900 dark:text-white">
             {trade.exitPrice ? formatCurrency(trade.exitPrice, trade.currency) : 'Open'}
           </p>
@@ -111,13 +133,17 @@ export function TradeCard({ trade, onClick }: TradeCardProps) {
       {/* P&L and Return */}
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">P&L</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">
+            P&L
+          </p>
           <p className={`text-xl font-bold ${getOutcomeColor()}`}>
             {formatCurrency(trade.calculations.netPnl, trade.currency)}
           </p>
         </div>
         <div className="text-right">
-          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Return</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">
+            Return
+          </p>
           <p className={`text-xl font-bold ${getOutcomeColor()}`}>
             {formatPercent(trade.calculations.pnlPercent)}
           </p>
@@ -174,7 +200,9 @@ export function TradeCard({ trade, onClick }: TradeCardProps) {
               d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
             />
           </svg>
-          <span>{trade.screenshots.length} screenshot{trade.screenshots.length !== 1 ? 's' : ''}</span>
+          <span>
+            {trade.screenshots.length} screenshot{trade.screenshots.length !== 1 ? 's' : ''}
+          </span>
         </div>
       )}
     </div>
@@ -194,4 +222,3 @@ export function TradeCard({ trade, onClick }: TradeCardProps) {
     </Link>
   );
 }
-

@@ -14,12 +14,7 @@ import {
   YAxis,
   CartesianGrid,
 } from 'recharts';
-import {
-  chartColors,
-  chartConfig,
-  chartDimensions,
-  formatChartCurrency,
-} from '@/lib/chart-config';
+import { chartColors, chartConfig, chartDimensions, formatChartCurrency } from '@/lib/chart-config';
 
 // ============================================================================
 // Types
@@ -93,12 +88,8 @@ export default function WinLossDistribution({
   height = chartDimensions.height.medium,
   showPnlHistogram = true,
 }: WinLossDistributionProps) {
-  const [distribution, setDistribution] = useState<DistributionData | null>(
-    null
-  );
-  const [pnlDistribution, setPnlDistribution] = useState<
-    PnlDistributionData[]
-  >([]);
+  const [distribution, setDistribution] = useState<DistributionData | null>(null);
+  const [pnlDistribution, setPnlDistribution] = useState<PnlDistributionData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -222,8 +213,7 @@ export default function WinLossDistribution({
             Win/Loss Distribution
           </h3>
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            {distribution.wins + distribution.losses + distribution.breakeven}{' '}
-            total trades
+            {distribution.wins + distribution.losses + distribution.breakeven} total trades
           </p>
         </div>
 
@@ -234,9 +224,7 @@ export default function WinLossDistribution({
               cx="50%"
               cy="50%"
               labelLine={false}
-              label={({ name, percentage }: any) =>
-                `${name}: ${percentage.toFixed(1)}%`
-              }
+              label={({ name, percentage }: any) => `${name}: ${percentage.toFixed(1)}%`}
               outerRadius={height / 3}
               fill="#8884d8"
               dataKey="value"
@@ -270,9 +258,7 @@ export default function WinLossDistribution({
               <p className="text-2xl font-bold text-gray-600 dark:text-gray-400">
                 {distribution.breakeven}
               </p>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Breakeven
-              </p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Breakeven</p>
             </div>
           )}
         </div>
@@ -291,10 +277,7 @@ export default function WinLossDistribution({
           </div>
 
           <ResponsiveContainer width="100%" height={height}>
-            <BarChart
-              data={pnlDistribution}
-              margin={chartDimensions.margin.full}
-            >
+            <BarChart data={pnlDistribution} margin={chartDimensions.margin.full}>
               <CartesianGrid {...chartConfig.grid} />
               <XAxis
                 dataKey="range"
@@ -324,4 +307,3 @@ export default function WinLossDistribution({
     </div>
   );
 }
-

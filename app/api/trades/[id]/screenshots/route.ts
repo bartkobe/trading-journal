@@ -7,10 +7,7 @@ import prisma from '@/lib/db';
  * POST /api/trades/[id]/screenshots
  * Upload screenshots for a trade
  */
-export async function POST(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     // Require authentication
     const user = await requireAuth();
@@ -214,4 +211,3 @@ export async function DELETE(
     );
   }
 }
-

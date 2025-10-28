@@ -59,8 +59,7 @@ const CustomTooltip = ({ active, payload }: any) => {
         <strong>Win Rate:</strong> {data.winRate.toFixed(1)}%
       </p>
       <p style={{ color: chartColors.bar.neutral }}>
-        <strong>Avg P&L:</strong>{' '}
-        {formatChartCurrency(data.totalPnl / data.tradeCount)}
+        <strong>Avg P&L:</strong> {formatChartCurrency(data.totalPnl / data.tradeCount)}
       </p>
     </div>
   );
@@ -98,7 +97,7 @@ export default function PnlByTimeOfDay({
         }
 
         const result = await response.json();
-        
+
         // Order the data chronologically (Morning, Afternoon, Evening)
         const timeOrder = ['MORNING', 'AFTERNOON', 'EVENING'];
         const orderedData = (result.charts.byTimeOfDay || []).sort(
@@ -106,7 +105,7 @@ export default function PnlByTimeOfDay({
             return timeOrder.indexOf(a.name) - timeOrder.indexOf(b.name);
           }
         );
-        
+
         setData(orderedData);
       } catch (err: any) {
         console.error('Error fetching time of day data:', err);
@@ -188,11 +187,7 @@ export default function PnlByTimeOfDay({
             }}
           />
           <Tooltip content={<CustomTooltip />} />
-          <ReferenceLine
-            y={0}
-            stroke={chartColors.breakeven}
-            strokeDasharray="3 3"
-          />
+          <ReferenceLine y={0} stroke={chartColors.breakeven} strokeDasharray="3 3" />
           <Bar dataKey="totalPnl" animationDuration={1000}>
             {displayData.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={getPnlColor(entry.totalPnl)} />
@@ -205,7 +200,7 @@ export default function PnlByTimeOfDay({
       <div className="mt-6 grid grid-cols-3 gap-4">
         {displayData.map((timeSlot) => {
           const avgPnl = timeSlot.totalPnl / timeSlot.tradeCount;
-          
+
           // Get icon based on time of day
           const getTimeIcon = (name: string) => {
             if (name.includes('Morning')) return '🌅';
@@ -253,7 +248,7 @@ export default function PnlByTimeOfDay({
             {(() => {
               const best = [...displayData].sort((a, b) => b.totalPnl - a.totalPnl)[0];
               const worst = [...displayData].sort((a, b) => a.totalPnl - b.totalPnl)[0];
-              
+
               if (best.totalPnl > 0 && worst.totalPnl < 0) {
                 return `You perform best during ${best.displayName.toLowerCase()} (${formatChartCurrency(best.totalPnl)}) and struggle during ${worst.displayName.toLowerCase()} (${formatChartCurrency(worst.totalPnl)}).`;
               } else if (best.totalPnl > 0) {
@@ -268,4 +263,3 @@ export default function PnlByTimeOfDay({
     </div>
   );
 }
-

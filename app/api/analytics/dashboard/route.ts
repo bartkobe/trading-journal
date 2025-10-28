@@ -138,10 +138,7 @@ export async function GET(request: NextRequest) {
     console.error('Dashboard metrics error:', error);
 
     if (error.message === 'Unauthorized') {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
 
     return NextResponse.json(
@@ -150,4 +147,3 @@ export async function GET(request: NextRequest) {
     );
   }
 }
-

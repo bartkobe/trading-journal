@@ -3,10 +3,7 @@ import { requireAuth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { enrichTradesWithCalculations } from '@/lib/trades';
 import { TradeWithCalculations } from '@/lib/types';
-import {
-  calculateEquityCurve,
-  calculatePerformanceByDimension,
-} from '@/lib/analytics';
+import { calculateEquityCurve, calculatePerformanceByDimension } from '@/lib/analytics';
 
 export const dynamic = 'force-dynamic';
 
@@ -84,14 +81,9 @@ export async function GET(request: NextRequest) {
         wins: winningTrades.length,
         losses: losingTrades.length,
         breakeven: breakevenTrades.length,
-        winRate:
-          trades.length > 0 ? (winningTrades.length / trades.length) * 100 : 0,
-        lossRate:
-          trades.length > 0 ? (losingTrades.length / trades.length) * 100 : 0,
-        breakevenRate:
-          trades.length > 0
-            ? (breakevenTrades.length / trades.length) * 100
-            : 0,
+        winRate: trades.length > 0 ? (winningTrades.length / trades.length) * 100 : 0,
+        lossRate: trades.length > 0 ? (losingTrades.length / trades.length) * 100 : 0,
+        breakevenRate: trades.length > 0 ? (breakevenTrades.length / trades.length) * 100 : 0,
       };
 
       // P&L distribution buckets (for histogram)
@@ -99,7 +91,7 @@ export async function GET(request: NextRequest) {
         'Loss > $500': 0,
         'Loss $100-$500': 0,
         'Loss $0-$100': 0,
-        'Breakeven': 0,
+        Breakeven: 0,
         'Win $0-$100': 0,
         'Win $100-$500': 0,
         'Win > $500': 0,
@@ -120,12 +112,10 @@ export async function GET(request: NextRequest) {
         }
       });
 
-      chartData.pnlDistribution = Object.entries(pnlBuckets).map(
-        ([range, count]) => ({
-          range,
-          count,
-        })
-      );
+      chartData.pnlDistribution = Object.entries(pnlBuckets).map(([range, count]) => ({
+        range,
+        count,
+      }));
     }
 
     // Performance Breakdowns
@@ -184,9 +174,7 @@ export async function GET(request: NextRequest) {
         totalPnl: byDayOfWeek[day]?.totalPnl || 0,
         tradeCount: byDayOfWeek[day]?.count || 0,
         winRate:
-          byDayOfWeek[day]?.count > 0
-            ? (byDayOfWeek[day].wins / byDayOfWeek[day].count) * 100
-            : 0,
+          byDayOfWeek[day]?.count > 0 ? (byDayOfWeek[day].wins / byDayOfWeek[day].count) * 100 : 0,
       }));
 
       // By Symbol (top 10)
@@ -202,10 +190,7 @@ export async function GET(request: NextRequest) {
         }));
 
       // By Market Conditions
-      const byMarketConditions = calculatePerformanceByDimension(
-        trades,
-        'marketConditions'
-      );
+      const byMarketConditions = calculatePerformanceByDimension(trades, 'marketConditions');
       chartData.byMarketConditions = byMarketConditions.map((item) => ({
         name: item.value || 'Unknown',
         totalPnl: item.totalPnl,
@@ -252,10 +237,7 @@ export async function GET(request: NextRequest) {
     console.error('Chart data error:', error);
 
     if (error.message === 'Unauthorized') {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
 
     return NextResponse.json(
@@ -264,4 +246,3 @@ export async function GET(request: NextRequest) {
     );
   }
 }
-

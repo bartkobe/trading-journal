@@ -20,7 +20,7 @@ interface PerformanceChartsProps {
   endDate?: string;
 }
 
-type ChartSection = 
+type ChartSection =
   | 'equity'
   | 'distribution'
   | 'assetType'
@@ -36,10 +36,7 @@ type ChartSection =
 // PerformanceCharts Component
 // ============================================================================
 
-export default function PerformanceCharts({
-  startDate,
-  endDate,
-}: PerformanceChartsProps) {
+export default function PerformanceCharts({ startDate, endDate }: PerformanceChartsProps) {
   const [visibleSection, setVisibleSection] = useState<ChartSection>('all');
 
   // Chart section filters
@@ -90,12 +87,7 @@ export default function PerformanceCharts({
         {/* Equity Curve - Full Width */}
         {shouldShowChart('equity') && (
           <div className="w-full">
-            <EquityCurve
-              startDate={startDate}
-              endDate={endDate}
-              height={400}
-              showArea={true}
-            />
+            <EquityCurve startDate={startDate} endDate={endDate} height={400} showArea={true} />
           </div>
         )}
 
@@ -114,44 +106,28 @@ export default function PerformanceCharts({
         {/* Performance by Asset Type */}
         {shouldShowChart('assetType') && (
           <div className="w-full">
-            <PnlByAssetType
-              startDate={startDate}
-              endDate={endDate}
-              height={300}
-            />
+            <PnlByAssetType startDate={startDate} endDate={endDate} height={300} />
           </div>
         )}
 
         {/* Performance by Strategy */}
         {shouldShowChart('strategy') && (
           <div className="w-full">
-            <PnlByStrategy
-              startDate={startDate}
-              endDate={endDate}
-              height={300}
-            />
+            <PnlByStrategy startDate={startDate} endDate={endDate} height={300} />
           </div>
         )}
 
         {/* Performance by Time of Day */}
         {shouldShowChart('timeOfDay') && (
           <div className="w-full">
-            <PnlByTimeOfDay
-              startDate={startDate}
-              endDate={endDate}
-              height={300}
-            />
+            <PnlByTimeOfDay startDate={startDate} endDate={endDate} height={300} />
           </div>
         )}
 
         {/* Performance by Day of Week */}
         {shouldShowChart('dayOfWeek') && (
           <div className="w-full">
-            <PnlByDayOfWeek
-              startDate={startDate}
-              endDate={endDate}
-              height={400}
-            />
+            <PnlByDayOfWeek startDate={startDate} endDate={endDate} height={400} />
           </div>
         )}
 
@@ -188,4 +164,3 @@ export default function PerformanceCharts({
     </div>
   );
 }
-

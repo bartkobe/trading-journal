@@ -59,8 +59,7 @@ const CustomTooltip = ({ active, payload }: any) => {
         <strong>Win Rate:</strong> {data.winRate.toFixed(1)}%
       </p>
       <p style={{ color: chartColors.bar.neutral }}>
-        <strong>Avg P&L:</strong>{' '}
-        {formatChartCurrency(data.totalPnl / data.tradeCount)}
+        <strong>Avg P&L:</strong> {formatChartCurrency(data.totalPnl / data.tradeCount)}
       </p>
     </div>
   );
@@ -154,9 +153,7 @@ export default function PnlByStrategy({
   return (
     <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6">
       <div className="mb-4">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-          P&L by Strategy
-        </h3>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">P&L by Strategy</h3>
         <p className="text-sm text-gray-600 dark:text-gray-400">
           Performance of different trading strategies
         </p>
@@ -165,13 +162,7 @@ export default function PnlByStrategy({
       <ResponsiveContainer width="100%" height={height}>
         <BarChart data={sortedData} margin={chartDimensions.margin.full}>
           <CartesianGrid {...chartConfig.grid} />
-          <XAxis
-            dataKey="name"
-            angle={-45}
-            textAnchor="end"
-            height={100}
-            {...chartConfig.axis}
-          />
+          <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} {...chartConfig.axis} />
           <YAxis
             tickFormatter={(value) => formatChartCurrency(value)}
             {...chartConfig.axis}
@@ -182,11 +173,7 @@ export default function PnlByStrategy({
             }}
           />
           <Tooltip content={<CustomTooltip />} />
-          <ReferenceLine
-            y={0}
-            stroke={chartColors.breakeven}
-            strokeDasharray="3 3"
-          />
+          <ReferenceLine y={0} stroke={chartColors.breakeven} strokeDasharray="3 3" />
           <Bar dataKey="totalPnl" animationDuration={1000}>
             {sortedData.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={getPnlColor(entry.totalPnl)} />
@@ -220,8 +207,7 @@ export default function PnlByStrategy({
                   {formatChartCurrency(strategy.totalPnl)}
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  {strategy.tradeCount} trades • {strategy.winRate.toFixed(0)}%
-                  win
+                  {strategy.tradeCount} trades • {strategy.winRate.toFixed(0)}% win
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
                   Avg: {formatChartCurrency(avgPnl)}
@@ -234,4 +220,3 @@ export default function PnlByStrategy({
     </div>
   );
 }
-

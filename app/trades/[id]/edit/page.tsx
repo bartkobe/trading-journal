@@ -15,7 +15,7 @@ interface TradeEditPageProps {
 export default async function TradeEditPage({ params }: TradeEditPageProps) {
   // Await params (Next.js 15+ requirement)
   const { id } = await params;
-  
+
   let user;
   try {
     user = await requireAuth();
@@ -76,12 +76,7 @@ export default async function TradeEditPage({ params }: TradeEditPageProps) {
             href={`/trades/${id}`}
             className="inline-flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 mb-4"
           >
-            <svg
-              className="w-4 h-4 mr-2"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
+            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -111,7 +106,7 @@ export default async function TradeEditPage({ params }: TradeEditPageProps) {
             Editing Tips
           </h3>
           <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1 list-disc list-inside">
-            <li>All changes will be saved when you click "Save Trade"</li>
+            <li>All changes will be saved when you click &ldquo;Save Trade&rdquo;</li>
             <li>You can add or remove screenshots and tags</li>
             <li>The form will validate your input before saving</li>
             <li>Use the rich text editor for detailed trade notes</li>
@@ -121,4 +116,3 @@ export default async function TradeEditPage({ params }: TradeEditPageProps) {
     </div>
   );
 }
-

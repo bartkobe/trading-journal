@@ -1,5 +1,4 @@
-import { Trade } from '@prisma/client';
-import { TradeCalculations, TradeWithCalculations } from './types';
+import { Trade, TradeCalculations, TradeWithCalculations } from './types';
 
 // ============================================================================
 // Trade Calculations

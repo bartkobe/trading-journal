@@ -233,9 +233,7 @@ export function ScreenshotUpload({
               <span className="pl-1">or drag and drop</span>
             </div>
 
-            <p className="text-xs text-gray-500">
-              PNG, JPG, GIF, WebP up to {maxSizeMB}MB
-            </p>
+            <p className="text-xs text-gray-500">PNG, JPG, GIF, WebP up to {maxSizeMB}MB</p>
 
             <p className="text-xs text-gray-500">
               {screenshots.length + uploadingFiles.length} / {maxFiles} screenshots
@@ -295,12 +293,7 @@ export function ScreenshotUpload({
                     className="p-2 bg-white dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
                     title="View full size"
                   >
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -357,4 +350,3 @@ export function ScreenshotUpload({
     </div>
   );
 }
-

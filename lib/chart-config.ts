@@ -1,19 +1,19 @@
 /**
  * Recharts Configuration
  * Common styles, themes, and utilities for charts across the application
- * 
+ *
  * This file provides:
  * - Color palettes for profit/loss, chart series, and themed colors
  * - Standard chart dimensions and margins
  * - Reusable chart configurations (tooltip, axis, grid, legend styles)
  * - Formatter functions for currency, percentage, and date values
  * - Utility functions for consistent chart styling
- * 
+ *
  * Usage example:
  * ```tsx
  * import { chartColors, formatChartCurrency, chartConfig } from '@/lib/chart-config';
  * import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
- * 
+ *
  * <LineChart data={data}>
  *   <CartesianGrid {...chartConfig.grid} />
  *   <XAxis {...chartConfig.axis} />
@@ -32,12 +32,12 @@ export const chartColors = {
   // Primary colors for charts
   primary: 'hsl(222.2 47.4% 11.2%)',
   secondary: 'hsl(210 40% 96.1%)',
-  
+
   // P&L colors
   profit: 'hsl(142 76% 36%)', // Green
   loss: 'hsl(0 72% 51%)', // Red
   breakeven: 'hsl(240 6% 50%)', // Gray
-  
+
   // Chart line/area colors
   line: {
     primary: 'hsl(221 83% 53%)', // Blue
@@ -45,14 +45,14 @@ export const chartColors = {
     tertiary: 'hsl(173 58% 39%)', // Teal
     quaternary: 'hsl(25 95% 53%)', // Orange
   },
-  
+
   // Bar chart colors
   bar: {
     positive: 'hsl(142 76% 36%)', // Green
     negative: 'hsl(0 72% 51%)', // Red
     neutral: 'hsl(215 16% 47%)', // Gray
   },
-  
+
   // Gradient stops for area charts
   gradient: {
     profit: {
@@ -64,7 +64,7 @@ export const chartColors = {
       stop: 'hsl(0 72% 51% / 0)',
     },
   },
-  
+
   // Multi-series colors
   series: [
     'hsl(221 83% 53%)', // Blue
@@ -123,7 +123,7 @@ export const chartConfig = {
       strokeWidth: 1,
     },
   },
-  
+
   // Axis styles
   axis: {
     stroke: 'hsl(214.3 31.8% 91.4%)',
@@ -132,13 +132,13 @@ export const chartConfig = {
       fill: 'hsl(215.4 16.3% 46.9%)',
     },
   },
-  
+
   // Grid styles
   grid: {
     stroke: 'hsl(214.3 31.8% 91.4%)',
     strokeDasharray: '3 3',
   },
-  
+
   // Legend styles
   legend: {
     iconSize: 12,
@@ -228,7 +228,9 @@ export interface CustomTooltipProps {
 /**
  * Get chart height based on size name
  */
-export const getChartHeight = (size: 'small' | 'medium' | 'large' | 'xlarge' = 'medium'): number => {
+export const getChartHeight = (
+  size: 'small' | 'medium' | 'large' | 'xlarge' = 'medium'
+): number => {
   return chartDimensions.height[size];
 };
 
@@ -240,4 +242,3 @@ export const getChartMargin = (
 ) => {
   return chartDimensions.margin[type];
 };
-

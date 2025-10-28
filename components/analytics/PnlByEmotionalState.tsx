@@ -11,11 +11,7 @@ import {
   ResponsiveContainer,
   Cell,
 } from 'recharts';
-import {
-  chartConfig,
-  formatChartCurrency,
-  getPnlColor,
-} from '@/lib/chart-config';
+import { chartConfig, formatChartCurrency, getPnlColor } from '@/lib/chart-config';
 
 // ============================================================================
 // Types
@@ -60,10 +56,7 @@ const getEmotionalIcon = (state: string): string => {
 // PnlByEmotionalState Component
 // ============================================================================
 
-export default function PnlByEmotionalState({
-  startDate,
-  endDate,
-}: PnlByEmotionalStateProps) {
+export default function PnlByEmotionalState({ startDate, endDate }: PnlByEmotionalStateProps) {
   const [data, setData] = useState<EmotionalStatePerformance[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -90,8 +83,7 @@ export default function PnlByEmotionalState({
 
         // Sort by total P&L
         const sorted = (result.performance?.byEmotionalState || []).sort(
-          (a: EmotionalStatePerformance, b: EmotionalStatePerformance) =>
-            b.totalPnl - a.totalPnl
+          (a: EmotionalStatePerformance, b: EmotionalStatePerformance) => b.totalPnl - a.totalPnl
         );
 
         setData(sorted);
@@ -139,9 +131,7 @@ export default function PnlByEmotionalState({
           P&L by Emotional State
         </h3>
         <div className="flex items-center justify-center h-64">
-          <div className="text-gray-500 dark:text-gray-400">
-            No trading data available
-          </div>
+          <div className="text-gray-500 dark:text-gray-400">No trading data available</div>
         </div>
       </div>
     );
@@ -174,10 +164,7 @@ export default function PnlByEmotionalState({
             <Tooltip content={<CustomTooltip />} />
             <Bar dataKey="totalPnl" radius={[8, 8, 0, 0]}>
               {data.map((entry, index) => (
-                <Cell
-                  key={`cell-${index}`}
-                  fill={getPnlColor(entry.totalPnl)}
-                />
+                <Cell key={`cell-${index}`} fill={getPnlColor(entry.totalPnl)} />
               ))}
             </Bar>
           </BarChart>
@@ -191,9 +178,7 @@ export default function PnlByEmotionalState({
             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
               Best Emotional State
             </span>
-            <span className="text-2xl">
-              {getEmotionalIcon(bestState.emotionalStateEntry)}
-            </span>
+            <span className="text-2xl">{getEmotionalIcon(bestState.emotionalStateEntry)}</span>
           </div>
           <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
             {bestState.emotionalStateEntry}
@@ -202,8 +187,7 @@ export default function PnlByEmotionalState({
             {formatChartCurrency(bestState.totalPnl)}
           </p>
           <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-            {(bestState.winRate ?? 0).toFixed(1)}% win rate • {bestState.trades}{' '}
-            trades
+            {(bestState.winRate ?? 0).toFixed(1)}% win rate • {bestState.trades} trades
           </p>
         </div>
 
@@ -212,9 +196,7 @@ export default function PnlByEmotionalState({
             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
               Worst Emotional State
             </span>
-            <span className="text-2xl">
-              {getEmotionalIcon(worstState.emotionalStateEntry)}
-            </span>
+            <span className="text-2xl">{getEmotionalIcon(worstState.emotionalStateEntry)}</span>
           </div>
           <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
             {worstState.emotionalStateEntry}
@@ -223,8 +205,7 @@ export default function PnlByEmotionalState({
             {formatChartCurrency(worstState.totalPnl)}
           </p>
           <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-            {(worstState.winRate ?? 0).toFixed(1)}% win rate • {worstState.trades}{' '}
-            trades
+            {(worstState.winRate ?? 0).toFixed(1)}% win rate • {worstState.trades} trades
           </p>
         </div>
 
@@ -238,12 +219,9 @@ export default function PnlByEmotionalState({
           <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
             {positiveStates.length} / {data.length}
           </p>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            Positive states
-          </p>
+          <p className="text-sm text-gray-600 dark:text-gray-400">Positive states</p>
           <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-            {((positiveStates.length / data.length) * 100).toFixed(0)}% of
-            states
+            {((positiveStates.length / data.length) * 100).toFixed(0)}% of states
           </p>
         </div>
       </div>
@@ -251,13 +229,12 @@ export default function PnlByEmotionalState({
       {/* Insights */}
       <div className="mt-4 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
         <p className="text-sm text-gray-700 dark:text-gray-300">
-          <span className="font-semibold">🧠 Insight:</span> You perform best
-          when <span className="font-semibold">{bestState.emotionalStateEntry}</span> with a{' '}
+          <span className="font-semibold">🧠 Insight:</span> You perform best when{' '}
+          <span className="font-semibold">{bestState.emotionalStateEntry}</span> with a{' '}
           {(bestState.winRate ?? 0).toFixed(1)}% win rate. Avoid trading when feeling{' '}
           <span className="font-semibold">{worstState.emotionalStateEntry}</span>
-          {negativeStates.length > 2 &&
-            ' or other negative emotional states'}
-          . Consider your emotional state before entering trades.
+          {negativeStates.length > 2 && ' or other negative emotional states'}. Consider your
+          emotional state before entering trades.
         </p>
       </div>
     </div>
@@ -276,9 +253,7 @@ function CustomTooltip({ active, payload }: any) {
   return (
     <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-3">
       <p className="font-semibold text-gray-900 dark:text-gray-100 mb-2 flex items-center gap-2">
-        <span className="text-xl">
-          {getEmotionalIcon(data.emotionalStateEntry)}
-        </span>
+        <span className="text-xl">{getEmotionalIcon(data.emotionalStateEntry)}</span>
         {data.emotionalStateEntry}
       </p>
       <div className="space-y-1 text-sm">
@@ -298,15 +273,12 @@ function CustomTooltip({ active, payload }: any) {
           <span className="font-medium">Trades:</span> {data.trades}
         </p>
         <p className="text-gray-700 dark:text-gray-300">
-          <span className="font-medium">Win Rate:</span>{' '}
-          {(data.winRate ?? 0).toFixed(1)}%
+          <span className="font-medium">Win Rate:</span> {(data.winRate ?? 0).toFixed(1)}%
         </p>
         <p className="text-gray-700 dark:text-gray-300">
-          <span className="font-medium">Avg P&L:</span>{' '}
-          {formatChartCurrency(data.avgPnl ?? 0)}
+          <span className="font-medium">Avg P&L:</span> {formatChartCurrency(data.avgPnl ?? 0)}
         </p>
       </div>
     </div>
   );
 }
-

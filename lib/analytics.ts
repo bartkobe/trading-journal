@@ -62,14 +62,10 @@ export function calculateBasicMetrics(trades: TradeWithCalculations[]): BasicMet
       : 0;
 
   const largestWin =
-    winningTrades.length > 0
-      ? Math.max(...winningTrades.map((t) => t.calculations.netPnl))
-      : 0;
+    winningTrades.length > 0 ? Math.max(...winningTrades.map((t) => t.calculations.netPnl)) : 0;
 
   const largestLoss =
-    losingTrades.length > 0
-      ? Math.min(...losingTrades.map((t) => t.calculations.netPnl))
-      : 0;
+    losingTrades.length > 0 ? Math.min(...losingTrades.map((t) => t.calculations.netPnl)) : 0;
 
   return {
     totalTrades,
@@ -110,8 +106,7 @@ export function calculateExpectancy(trades: TradeWithCalculations[]): Expectancy
 
   // Expectancy = (Win Rate × Average Win) - (Loss Rate × |Average Loss|)
   const expectancy =
-    (metrics.winRate / 100) * metrics.averageWin +
-    (metrics.lossRate / 100) * metrics.averageLoss;
+    (metrics.winRate / 100) * metrics.averageWin + (metrics.lossRate / 100) * metrics.averageLoss;
 
   // Calculate average trade size for percentage
   const averageTradeSize =
@@ -244,8 +239,7 @@ export function calculateDrawdown(trades: TradeWithCalculations[]): DrawdownMetr
           trough,
           drawdown,
           drawdownPercent,
-          duration:
-            (current.date.getTime() - drawdownStart.getTime()) / (1000 * 60 * 60 * 24),
+          duration: (current.date.getTime() - drawdownStart.getTime()) / (1000 * 60 * 60 * 24),
         });
 
         inDrawdown = false;
@@ -284,14 +278,10 @@ export function calculateDrawdown(trades: TradeWithCalculations[]): DrawdownMetr
 
   // Calculate metrics
   const maxDrawdown =
-    drawdownPeriods.length > 0
-      ? Math.max(...drawdownPeriods.map((d) => d.drawdown))
-      : 0;
+    drawdownPeriods.length > 0 ? Math.max(...drawdownPeriods.map((d) => d.drawdown)) : 0;
 
   const maxDrawdownPercent =
-    drawdownPeriods.length > 0
-      ? Math.max(...drawdownPeriods.map((d) => d.drawdownPercent))
-      : 0;
+    drawdownPeriods.length > 0 ? Math.max(...drawdownPeriods.map((d) => d.drawdownPercent)) : 0;
 
   const currentEquity = equityCurve[equityCurve.length - 1].equity;
   const currentDrawdown = Math.max(0, peak - currentEquity);
@@ -367,7 +357,15 @@ export interface DimensionPerformance {
 
 export function calculatePerformanceByDimension(
   trades: TradeWithCalculations[],
-  dimension: 'symbol' | 'assetType' | 'direction' | 'strategyName' | 'setupType' | 'timeOfDay' | 'marketConditions' | 'emotionalStateEntry'
+  dimension:
+    | 'symbol'
+    | 'assetType'
+    | 'direction'
+    | 'strategyName'
+    | 'setupType'
+    | 'timeOfDay'
+    | 'marketConditions'
+    | 'emotionalStateEntry'
 ): DimensionPerformance[] {
   // Group trades by dimension
   const grouped = new Map<string, TradeWithCalculations[]>();
@@ -557,9 +555,7 @@ export function calculateStreaks(trades: TradeWithCalculations[]): StreakMetrics
     winStreaks.length > 0 ? winStreaks.reduce((a, b) => a + b, 0) / winStreaks.length : 0;
 
   const averageLossStreak =
-    lossStreaks.length > 0
-      ? lossStreaks.reduce((a, b) => a + b, 0) / lossStreaks.length
-      : 0;
+    lossStreaks.length > 0 ? lossStreaks.reduce((a, b) => a + b, 0) / lossStreaks.length : 0;
 
   return {
     currentStreak,
@@ -569,4 +565,3 @@ export function calculateStreaks(trades: TradeWithCalculations[]): StreakMetrics
     averageLossStreak,
   };
 }
-

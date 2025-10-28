@@ -102,35 +102,20 @@ export async function GET(request: NextRequest) {
     for (const dim of dimensions) {
       switch (dim) {
         case 'symbol':
-          performanceData.bySymbol = calculatePerformanceByDimension(
-            trades,
-            'symbol'
-          );
+          performanceData.bySymbol = calculatePerformanceByDimension(trades, 'symbol');
           break;
         case 'strategy':
         case 'strategyName':
-          performanceData.byStrategy = calculatePerformanceByDimension(
-            trades,
-            'strategyName'
-          );
+          performanceData.byStrategy = calculatePerformanceByDimension(trades, 'strategyName');
           break;
         case 'setupType':
-          performanceData.bySetupType = calculatePerformanceByDimension(
-            trades,
-            'setupType'
-          );
+          performanceData.bySetupType = calculatePerformanceByDimension(trades, 'setupType');
           break;
         case 'assetType':
-          performanceData.byAssetType = calculatePerformanceByDimension(
-            trades,
-            'assetType'
-          );
+          performanceData.byAssetType = calculatePerformanceByDimension(trades, 'assetType');
           break;
         case 'timeOfDay':
-          performanceData.byTimeOfDay = calculatePerformanceByDimension(
-            trades,
-            'timeOfDay'
-          );
+          performanceData.byTimeOfDay = calculatePerformanceByDimension(trades, 'timeOfDay');
           break;
         case 'emotionalState':
         case 'emotionalStateEntry':
@@ -169,10 +154,7 @@ export async function GET(request: NextRequest) {
           // Calculate metrics for each day
           const dayOfWeekMetrics: any[] = [];
           Object.entries(byDayOfWeek).forEach(([day, dayTrades]: [string, any]) => {
-            const totalPnl = dayTrades.reduce(
-              (sum: number, t: any) => sum + t.netPnl,
-              0
-            );
+            const totalPnl = dayTrades.reduce((sum: number, t: any) => sum + t.netPnl, 0);
             const wins = dayTrades.filter((t: any) => t.netPnl > 0).length;
             const losses = dayTrades.filter((t: any) => t.netPnl < 0).length;
             const winRate = dayTrades.length > 0 ? (wins / dayTrades.length) * 100 : 0;
@@ -211,16 +193,16 @@ export async function GET(request: NextRequest) {
     console.error('Error stack:', error.stack);
 
     if (error.message === 'Unauthorized') {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
 
     return NextResponse.json(
-      { success: false, error: 'Failed to calculate performance breakdowns', details: error.message },
+      {
+        success: false,
+        error: 'Failed to calculate performance breakdowns',
+        details: error.message,
+      },
       { status: 500 }
     );
   }
 }
-

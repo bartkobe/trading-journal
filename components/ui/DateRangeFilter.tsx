@@ -23,10 +23,7 @@ export default function DateRangeFilter({
   const [endDate, setEndDate] = useState<string>('');
 
   const handleApply = () => {
-    onDateRangeChange(
-      startDate || undefined,
-      endDate || undefined
-    );
+    onDateRangeChange(startDate || undefined, endDate || undefined);
   };
 
   const handleClear = () => {
@@ -50,7 +47,9 @@ export default function DateRangeFilter({
   };
 
   return (
-    <div className={`bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 ${className}`}>
+    <div
+      className={`bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 ${className}`}
+    >
       <div className="flex flex-col md:flex-row md:items-end gap-4">
         {/* Date Inputs */}
         <div className="flex flex-col sm:flex-row gap-4 flex-1">
@@ -148,4 +147,3 @@ export default function DateRangeFilter({
     </div>
   );
 }
-

@@ -11,11 +11,7 @@ import {
   ResponsiveContainer,
   Cell,
 } from 'recharts';
-import {
-  chartConfig,
-  formatChartCurrency,
-  getPnlColor,
-} from '@/lib/chart-config';
+import { chartConfig, formatChartCurrency, getPnlColor } from '@/lib/chart-config';
 
 // ============================================================================
 // Types
@@ -38,10 +34,7 @@ interface PnlBySetupTypeProps {
 // PnlBySetupType Component
 // ============================================================================
 
-export default function PnlBySetupType({
-  startDate,
-  endDate,
-}: PnlBySetupTypeProps) {
+export default function PnlBySetupType({ startDate, endDate }: PnlBySetupTypeProps) {
   const [data, setData] = useState<SetupTypePerformance[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -68,8 +61,7 @@ export default function PnlBySetupType({
 
         // Sort by total P&L
         const sorted = (result.performance?.bySetupType || []).sort(
-          (a: SetupTypePerformance, b: SetupTypePerformance) =>
-            b.totalPnl - a.totalPnl
+          (a: SetupTypePerformance, b: SetupTypePerformance) => b.totalPnl - a.totalPnl
         );
 
         setData(sorted);
@@ -117,9 +109,7 @@ export default function PnlBySetupType({
           P&L by Setup Type
         </h3>
         <div className="flex items-center justify-center h-64">
-          <div className="text-gray-500 dark:text-gray-400">
-            No trading data available
-          </div>
+          <div className="text-gray-500 dark:text-gray-400">No trading data available</div>
         </div>
       </div>
     );
@@ -150,10 +140,7 @@ export default function PnlBySetupType({
             <Tooltip content={<CustomTooltip />} />
             <Bar dataKey="totalPnl" radius={[8, 8, 0, 0]}>
               {data.map((entry, index) => (
-                <Cell
-                  key={`cell-${index}`}
-                  fill={getPnlColor(entry.totalPnl)}
-                />
+                <Cell key={`cell-${index}`} fill={getPnlColor(entry.totalPnl)} />
               ))}
             </Bar>
           </BarChart>
@@ -164,14 +151,10 @@ export default function PnlBySetupType({
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              Best Setup
-            </span>
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Best Setup</span>
             <span className="text-2xl">✅</span>
           </div>
-          <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
-            {topSetup.setupType}
-          </p>
+          <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{topSetup.setupType}</p>
           <p className="text-sm text-green-600 dark:text-green-400 font-semibold">
             {formatChartCurrency(topSetup.totalPnl)}
           </p>
@@ -182,9 +165,7 @@ export default function PnlBySetupType({
 
         <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              Most Used
-            </span>
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Most Used</span>
             <span className="text-2xl">📊</span>
           </div>
           <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
@@ -194,12 +175,8 @@ export default function PnlBySetupType({
             {data.sort((a, b) => b.trades - a.trades)[0].trades} trades
           </p>
           <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-            {(
-              (data.sort((a, b) => b.trades - a.trades)[0].trades /
-                totalTrades) *
-              100
-            ).toFixed(1)}
-            % of all trades
+            {((data.sort((a, b) => b.trades - a.trades)[0].trades / totalTrades) * 100).toFixed(1)}%
+            of all trades
           </p>
         </div>
 
@@ -210,12 +187,8 @@ export default function PnlBySetupType({
             </span>
             <span className="text-2xl">🎯</span>
           </div>
-          <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
-            {data.length}
-          </p>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            Different setups
-          </p>
+          <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{data.length}</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400">Different setups</p>
           <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
             {totalTrades} total trades
           </p>
@@ -225,12 +198,11 @@ export default function PnlBySetupType({
       {/* Insights */}
       <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
         <p className="text-sm text-gray-700 dark:text-gray-300">
-          <span className="font-semibold">💡 Insight:</span> Your most
-          profitable setup is{' '}
+          <span className="font-semibold">💡 Insight:</span> Your most profitable setup is{' '}
           <span className="font-semibold">{topSetup.setupType}</span> with{' '}
           {formatChartCurrency(topSetup.totalPnl)} total P&L and a{' '}
-          {(topSetup.winRate ?? 0).toFixed(1)}% win rate. Focus on your proven setups
-          and consider documenting what makes them successful.
+          {(topSetup.winRate ?? 0).toFixed(1)}% win rate. Focus on your proven setups and consider
+          documenting what makes them successful.
         </p>
       </div>
     </div>
@@ -248,9 +220,7 @@ function CustomTooltip({ active, payload }: any) {
 
   return (
     <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-3">
-      <p className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
-        {data.setupType}
-      </p>
+      <p className="font-semibold text-gray-900 dark:text-gray-100 mb-2">{data.setupType}</p>
       <div className="space-y-1 text-sm">
         <p className="text-gray-700 dark:text-gray-300">
           <span className="font-medium">Total P&L:</span>{' '}
@@ -268,15 +238,12 @@ function CustomTooltip({ active, payload }: any) {
           <span className="font-medium">Trades:</span> {data.trades}
         </p>
         <p className="text-gray-700 dark:text-gray-300">
-          <span className="font-medium">Win Rate:</span>{' '}
-          {(data.winRate ?? 0).toFixed(1)}%
+          <span className="font-medium">Win Rate:</span> {(data.winRate ?? 0).toFixed(1)}%
         </p>
         <p className="text-gray-700 dark:text-gray-300">
-          <span className="font-medium">Avg P&L:</span>{' '}
-          {formatChartCurrency(data.avgPnl ?? 0)}
+          <span className="font-medium">Avg P&L:</span> {formatChartCurrency(data.avgPnl ?? 0)}
         </p>
       </div>
     </div>
   );
 }
-

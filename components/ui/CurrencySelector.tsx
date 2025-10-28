@@ -108,4 +108,3 @@ export function formatCurrencyAmount(amount: number, currencyCode: string): stri
     return `${symbol}${amount.toFixed(2)}`;
   }
 }
-

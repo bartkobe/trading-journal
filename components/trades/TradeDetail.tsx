@@ -27,7 +27,12 @@ export function TradeDetail({ trade }: TradeDetailProps) {
       return (
         <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400">
           <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
           </svg>
           Loser
         </span>
@@ -82,16 +87,14 @@ export function TradeDetail({ trade }: TradeDetailProps) {
         {/* Outcome Card */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
           <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Outcome</p>
-          <div className="mt-2">
-            {getOutcomeBadge()}
-          </div>
+          <div className="mt-2">{getOutcomeBadge()}</div>
         </div>
       </div>
 
       {/* Trade Details */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Trade Details</h2>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Left Column */}
           <div className="space-y-4">
@@ -210,10 +213,17 @@ export function TradeDetail({ trade }: TradeDetailProps) {
       </div>
 
       {/* Strategy & Context */}
-      {(trade.strategyName || trade.setupType || trade.timeOfDay || trade.marketConditions || trade.emotionalStateEntry || trade.emotionalStateExit) && (
+      {(trade.strategyName ||
+        trade.setupType ||
+        trade.timeOfDay ||
+        trade.marketConditions ||
+        trade.emotionalStateEntry ||
+        trade.emotionalStateExit) && (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Strategy & Context</h2>
-          
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+            Strategy & Context
+          </h2>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
               {trade.strategyName && (
@@ -254,15 +264,23 @@ export function TradeDetail({ trade }: TradeDetailProps) {
 
               {trade.emotionalStateEntry && (
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Emotional State (Entry)</p>
-                  <p className="text-base text-gray-900 dark:text-white">{trade.emotionalStateEntry}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+                    Emotional State (Entry)
+                  </p>
+                  <p className="text-base text-gray-900 dark:text-white">
+                    {trade.emotionalStateEntry}
+                  </p>
                 </div>
               )}
 
               {trade.emotionalStateExit && (
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Emotional State (Exit)</p>
-                  <p className="text-base text-gray-900 dark:text-white">{trade.emotionalStateExit}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+                    Emotional State (Exit)
+                  </p>
+                  <p className="text-base text-gray-900 dark:text-white">
+                    {trade.emotionalStateExit}
+                  </p>
                 </div>
               )}
             </div>
@@ -349,4 +367,3 @@ export function TradeDetail({ trade }: TradeDetailProps) {
     </div>
   );
 }
-

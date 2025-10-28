@@ -83,7 +83,12 @@ export function TradeList({ filters, sortBy, initialTrades }: TradeListProps) {
   const getOutcomeIcon = (trade: TradeWithCalculations) => {
     if (trade.calculations.isWinner) {
       return (
-        <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg
+          className="w-5 h-5 text-green-600"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
         </svg>
       );
@@ -91,7 +96,12 @@ export function TradeList({ filters, sortBy, initialTrades }: TradeListProps) {
     if (trade.calculations.isLoser) {
       return (
         <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M6 18L18 6M6 6l12 12"
+          />
         </svg>
       );
     }
@@ -144,7 +154,9 @@ export function TradeList({ filters, sortBy, initialTrades }: TradeListProps) {
               d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
             />
           </svg>
-          <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">No trades found</h3>
+          <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
+            No trades found
+          </h3>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             {filters ? 'Try adjusting your filters.' : 'Get started by recording your first trade.'}
           </p>
@@ -155,7 +167,12 @@ export function TradeList({ filters, sortBy, initialTrades }: TradeListProps) {
                 className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
               >
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 4v16m8-8H4"
+                  />
                 </svg>
                 Record First Trade
               </Link>
@@ -217,7 +234,9 @@ export function TradeList({ filters, sortBy, initialTrades }: TradeListProps) {
                           {trade.symbol.toUpperCase()}
                         </div>
                         {trade.strategyName && (
-                          <div className="text-xs text-gray-500 dark:text-gray-400">{trade.strategyName}</div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">
+                            {trade.strategyName}
+                          </div>
                         )}
                       </div>
                     </div>
@@ -245,13 +264,19 @@ export function TradeList({ filters, sortBy, initialTrades }: TradeListProps) {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900 dark:text-gray-300">
                     {trade.exitPrice ? formatCurrency(trade.exitPrice, trade.currency) : '-'}
                   </td>
-                  <td className={`px-6 py-4 whitespace-nowrap text-sm text-right font-medium ${getOutcomeColor(trade)}`}>
+                  <td
+                    className={`px-6 py-4 whitespace-nowrap text-sm text-right font-medium ${getOutcomeColor(trade)}`}
+                  >
                     {formatCurrency(trade.calculations.netPnl, trade.currency)}
                   </td>
-                  <td className={`px-6 py-4 whitespace-nowrap text-sm text-right font-medium ${getOutcomeColor(trade)}`}>
+                  <td
+                    className={`px-6 py-4 whitespace-nowrap text-sm text-right font-medium ${getOutcomeColor(trade)}`}
+                  >
                     {formatPercent(trade.calculations.pnlPercent)}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-center">{getOutcomeIcon(trade)}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-center">
+                    {getOutcomeIcon(trade)}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -269,8 +294,8 @@ export function TradeList({ filters, sortBy, initialTrades }: TradeListProps) {
               trade.calculations.isWinner
                 ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
                 : trade.calculations.isLoser
-                ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
-                : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
+                  ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
+                  : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
             }`}
           >
             {/* Header Row */}
@@ -279,9 +304,13 @@ export function TradeList({ filters, sortBy, initialTrades }: TradeListProps) {
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                   {trade.symbol.toUpperCase()}
                 </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">{formatDate(trade.entryDate)}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  {formatDate(trade.entryDate)}
+                </p>
                 {trade.strategyName && (
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Strategy: {trade.strategyName}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    Strategy: {trade.strategyName}
+                  </p>
                 )}
               </div>
               <div className="flex items-center gap-2">
@@ -359,4 +388,3 @@ export function TradeList({ filters, sortBy, initialTrades }: TradeListProps) {
     </div>
   );
 }
-
