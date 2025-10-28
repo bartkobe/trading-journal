@@ -53,6 +53,8 @@ export interface TradeWithCalculations extends Trade {
   tags: Array<{
     tag: Tag;
   }>;
+  // Explicitly include entryDate to ensure TypeScript recognizes it
+  entryDate: Date;
 }
 
 // ============================================================================
