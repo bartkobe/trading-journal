@@ -1,7 +1,12 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
-import prisma from '@/lib/db';
+
+// Lazy import Prisma to avoid loading in Edge Runtime (middleware)
+async function getPrisma() {
+  const { default: prisma } = await import('@/lib/db');
+  return prisma;
+}
 
 // Types
 export interface JWTPayload {
@@ -139,6 +144,7 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
       return null;
     }
 
+    const prisma = await getPrisma();
     const user = await prisma.user.findUnique({
       where: { id: payload.userId },
       select: {
@@ -187,6 +193,8 @@ export async function registerUser(
   password: string,
   name?: string
 ): Promise<{ user: AuthUser; token: string }> {
+  const prisma = await getPrisma();
+  
   // Check if user already exists
   const existingUser = await prisma.user.findUnique({
     where: { email },
@@ -230,6 +238,8 @@ export async function loginUser(
   email: string,
   password: string
 ): Promise<{ user: AuthUser; token: string }> {
+  const prisma = await getPrisma();
+  
   // Find user
   const user = await prisma.user.findUnique({
     where: { email },
