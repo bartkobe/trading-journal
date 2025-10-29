@@ -28,8 +28,15 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Get current user for navigation
-  const user = await getCurrentUser();
+  // Get current user for navigation (handle errors gracefully)
+  let user = null;
+  try {
+    user = await getCurrentUser();
+  } catch (error) {
+    // Silently fail - user is not authenticated or DB is unavailable
+    // This allows the app (including login page) to still load
+    console.error('Layout: Failed to get current user:', error);
+  }
 
   return (
     <html lang="en" suppressHydrationWarning>
