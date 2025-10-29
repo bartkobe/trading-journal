@@ -57,6 +57,25 @@ export async function POST(request: NextRequest) {
           { status: 409 }
         );
       }
+      
+      // Return detailed error in development/non-production for debugging
+      if (process.env.NODE_ENV !== 'production') {
+        return NextResponse.json(
+          {
+            error: 'Failed to register user',
+            details: error.message,
+            stack: error.stack,
+          },
+          { status: 500 }
+        );
+      }
+      
+      // Log full error to console for production debugging
+      console.error('Full registration error:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name,
+      });
     }
 
     // Generic error response
