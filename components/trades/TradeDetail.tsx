@@ -9,7 +9,7 @@ export function TradeDetail({ trade }: TradeDetailProps) {
   const getOutcomeColor = () => {
     if (trade.calculations.isWinner) return 'text-green-600 dark:text-green-400';
     if (trade.calculations.isLoser) return 'text-red-600 dark:text-red-400';
-    return 'text-gray-600 dark:text-gray-400';
+    return 'text-muted-foreground';
   };
 
   const getOutcomeBadge = () => {
@@ -39,7 +39,7 @@ export function TradeDetail({ trade }: TradeDetailProps) {
       );
     }
     return (
-      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-400">
+      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-muted dark:bg-gray-700 text-foreground dark:text-muted-foreground">
         Break Even
       </span>
     );
@@ -50,70 +50,70 @@ export function TradeDetail({ trade }: TradeDetailProps) {
       {/* Key Metrics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {/* P&L Card */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Net P&L</p>
+        <div className="bg-card rounded-lg shadow-sm border border-border p-4">
+          <p className="text-sm text-muted-foreground mb-1">Net P&L</p>
           <p className={`text-2xl font-bold ${getOutcomeColor()}`}>
             {formatCurrency(trade.calculations.netPnl, trade.currency)}
           </p>
           {trade.fees && trade.fees > 0 && (
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               Fees: {formatCurrency(trade.fees, trade.currency)}
             </p>
           )}
         </div>
 
         {/* Return % Card */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Return</p>
+        <div className="bg-card rounded-lg shadow-sm border border-border p-4">
+          <p className="text-sm text-muted-foreground mb-1">Return</p>
           <p className={`text-2xl font-bold ${getOutcomeColor()}`}>
             {formatPercent(trade.calculations.pnlPercent)}
           </p>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+          <p className="text-xs text-muted-foreground mt-1">
             {formatCurrency(trade.calculations.pnl, trade.currency)} gross
           </p>
         </div>
 
         {/* Holding Period Card */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Holding Period</p>
-          <p className="text-2xl font-bold text-gray-900 dark:text-white">
+        <div className="bg-card rounded-lg shadow-sm border border-border p-4">
+          <p className="text-sm text-muted-foreground mb-1">Holding Period</p>
+          <p className="text-2xl font-bold text-foreground">
             {trade.calculations.holdingPeriodDays.toFixed(1)}d
           </p>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+          <p className="text-xs text-muted-foreground mt-1">
             {trade.calculations.holdingPeriod.toFixed(1)} hours
           </p>
         </div>
 
         {/* Outcome Card */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Outcome</p>
+        <div className="bg-card rounded-lg shadow-sm border border-border p-4">
+          <p className="text-sm text-muted-foreground mb-1">Outcome</p>
           <div className="mt-2">{getOutcomeBadge()}</div>
         </div>
       </div>
 
       {/* Trade Details */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Trade Details</h2>
+      <div className="bg-card rounded-lg shadow-sm border border-border p-6">
+        <h2 className="text-lg font-semibold text-foreground mb-4">Trade Details</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Left Column */}
           <div className="space-y-4">
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Symbol</p>
-              <p className="text-lg font-semibold text-gray-900 dark:text-white">
+              <p className="text-sm text-muted-foreground mb-1">Symbol</p>
+              <p className="text-lg font-semibold text-foreground">
                 {trade.symbol.toUpperCase()}
               </p>
             </div>
 
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Asset Type</p>
-              <span className="inline-flex items-center px-2.5 py-1 rounded-md text-sm font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
+              <p className="text-sm text-muted-foreground mb-1">Asset Type</p>
+              <span className="inline-flex items-center px-2.5 py-1 rounded-md text-sm font-medium bg-muted dark:bg-gray-700 text-foreground">
                 {trade.assetType}
               </span>
             </div>
 
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Direction</p>
+              <p className="text-sm text-muted-foreground mb-1">Direction</p>
               <span
                 className={`inline-flex items-center px-2.5 py-1 rounded-md text-sm font-medium ${
                   trade.direction === 'LONG'
@@ -126,27 +126,27 @@ export function TradeDetail({ trade }: TradeDetailProps) {
             </div>
 
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Entry Date</p>
-              <p className="text-base text-gray-900 dark:text-white">
+              <p className="text-sm text-muted-foreground mb-1">Entry Date</p>
+              <p className="text-base text-foreground">
                 {formatDateTime(trade.entryDate)}
               </p>
             </div>
 
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Entry Price</p>
-              <p className="text-base font-medium text-gray-900 dark:text-white">
+              <p className="text-sm text-muted-foreground mb-1">Entry Price</p>
+              <p className="text-base font-medium text-foreground">
                 {formatCurrency(trade.entryPrice, trade.currency)}
               </p>
             </div>
 
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Quantity</p>
-              <p className="text-base text-gray-900 dark:text-white">{trade.quantity}</p>
+              <p className="text-sm text-muted-foreground mb-1">Quantity</p>
+              <p className="text-base text-foreground">{trade.quantity}</p>
             </div>
 
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Entry Value</p>
-              <p className="text-base text-gray-900 dark:text-white">
+              <p className="text-sm text-muted-foreground mb-1">Entry Value</p>
+              <p className="text-base text-foreground">
                 {formatCurrency(trade.calculations.entryValue, trade.currency)}
               </p>
             </div>
@@ -155,37 +155,37 @@ export function TradeDetail({ trade }: TradeDetailProps) {
           {/* Right Column */}
           <div className="space-y-4">
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Currency</p>
-              <p className="text-lg font-semibold text-gray-900 dark:text-white">
+              <p className="text-sm text-muted-foreground mb-1">Currency</p>
+              <p className="text-lg font-semibold text-foreground">
                 {trade.currency}
               </p>
             </div>
 
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Exit Date</p>
-              <p className="text-base text-gray-900 dark:text-white">
+              <p className="text-sm text-muted-foreground mb-1">Exit Date</p>
+              <p className="text-base text-foreground">
                 {trade.exitDate ? formatDateTime(trade.exitDate) : 'Still open'}
               </p>
             </div>
 
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Exit Price</p>
-              <p className="text-base font-medium text-gray-900 dark:text-white">
+              <p className="text-sm text-muted-foreground mb-1">Exit Price</p>
+              <p className="text-base font-medium text-foreground">
                 {trade.exitPrice ? formatCurrency(trade.exitPrice, trade.currency) : 'N/A'}
               </p>
             </div>
 
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Exit Value</p>
-              <p className="text-base text-gray-900 dark:text-white">
+              <p className="text-sm text-muted-foreground mb-1">Exit Value</p>
+              <p className="text-base text-foreground">
                 {formatCurrency(trade.calculations.exitValue, trade.currency)}
               </p>
             </div>
 
             {trade.stopLoss && (
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Stop Loss</p>
-                <p className="text-base text-gray-900 dark:text-white">
+                <p className="text-sm text-muted-foreground mb-1">Stop Loss</p>
+                <p className="text-base text-foreground">
                   {formatCurrency(trade.stopLoss, trade.currency)}
                 </p>
               </div>
@@ -193,8 +193,8 @@ export function TradeDetail({ trade }: TradeDetailProps) {
 
             {trade.takeProfit && (
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Take Profit</p>
-                <p className="text-base text-gray-900 dark:text-white">
+                <p className="text-sm text-muted-foreground mb-1">Take Profit</p>
+                <p className="text-base text-foreground">
                   {formatCurrency(trade.takeProfit, trade.currency)}
                 </p>
               </div>
@@ -202,8 +202,8 @@ export function TradeDetail({ trade }: TradeDetailProps) {
 
             {trade.riskRewardRatio && (
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Risk:Reward Ratio</p>
-                <p className="text-base text-gray-900 dark:text-white">
+                <p className="text-sm text-muted-foreground mb-1">Risk:Reward Ratio</p>
+                <p className="text-base text-foreground">
                   1:{trade.riskRewardRatio.toFixed(2)}
                 </p>
               </div>
@@ -219,8 +219,8 @@ export function TradeDetail({ trade }: TradeDetailProps) {
         trade.marketConditions ||
         trade.emotionalStateEntry ||
         trade.emotionalStateExit) && (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+        <div className="bg-card rounded-lg shadow-sm border border-border p-6">
+          <h2 className="text-lg font-semibold text-foreground mb-4">
             Strategy & Context
           </h2>
 
@@ -228,14 +228,14 @@ export function TradeDetail({ trade }: TradeDetailProps) {
             <div className="space-y-4">
               {trade.strategyName && (
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Strategy</p>
-                  <p className="text-base text-gray-900 dark:text-white">{trade.strategyName}</p>
+                  <p className="text-sm text-muted-foreground mb-1">Strategy</p>
+                  <p className="text-base text-foreground">{trade.strategyName}</p>
                 </div>
               )}
 
               {trade.setupType && (
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Setup Type</p>
+                  <p className="text-sm text-muted-foreground mb-1">Setup Type</p>
                   <span className="inline-flex items-center px-2.5 py-1 rounded-md text-sm font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400">
                     {trade.setupType}
                   </span>
@@ -244,7 +244,7 @@ export function TradeDetail({ trade }: TradeDetailProps) {
 
               {trade.timeOfDay && (
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Time of Day</p>
+                  <p className="text-sm text-muted-foreground mb-1">Time of Day</p>
                   <span className="inline-flex items-center px-2.5 py-1 rounded-md text-sm font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400">
                     {trade.timeOfDay.replace('_', ' ')}
                   </span>
@@ -255,7 +255,7 @@ export function TradeDetail({ trade }: TradeDetailProps) {
             <div className="space-y-4">
               {trade.marketConditions && (
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Market Conditions</p>
+                  <p className="text-sm text-muted-foreground mb-1">Market Conditions</p>
                   <span className="inline-flex items-center px-2.5 py-1 rounded-md text-sm font-medium bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400">
                     {trade.marketConditions}
                   </span>
@@ -264,10 +264,10 @@ export function TradeDetail({ trade }: TradeDetailProps) {
 
               {trade.emotionalStateEntry && (
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+                  <p className="text-sm text-muted-foreground mb-1">
                     Emotional State (Entry)
                   </p>
-                  <p className="text-base text-gray-900 dark:text-white">
+                  <p className="text-base text-foreground">
                     {trade.emotionalStateEntry}
                   </p>
                 </div>
@@ -275,10 +275,10 @@ export function TradeDetail({ trade }: TradeDetailProps) {
 
               {trade.emotionalStateExit && (
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+                  <p className="text-sm text-muted-foreground mb-1">
                     Emotional State (Exit)
                   </p>
-                  <p className="text-base text-gray-900 dark:text-white">
+                  <p className="text-base text-foreground">
                     {trade.emotionalStateExit}
                   </p>
                 </div>
@@ -290,13 +290,13 @@ export function TradeDetail({ trade }: TradeDetailProps) {
 
       {/* Tags */}
       {trade.tags && trade.tags.length > 0 && (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Tags</h2>
+        <div className="bg-card rounded-lg shadow-sm border border-border p-6">
+          <h2 className="text-lg font-semibold text-foreground mb-4">Tags</h2>
           <div className="flex flex-wrap gap-2">
             {trade.tags.map((tradeTag) => (
               <span
                 key={tradeTag.tag.id}
-                className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
+                className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-muted dark:bg-gray-700 text-foreground"
               >
                 #{tradeTag.tag.name}
               </span>
@@ -307,8 +307,8 @@ export function TradeDetail({ trade }: TradeDetailProps) {
 
       {/* Screenshots */}
       {trade.screenshots && trade.screenshots.length > 0 && (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+        <div className="bg-card rounded-lg shadow-sm border border-border p-6">
+          <h2 className="text-lg font-semibold text-foreground mb-4">
             Screenshots ({trade.screenshots.length})
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -318,7 +318,7 @@ export function TradeDetail({ trade }: TradeDetailProps) {
                 href={screenshot.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="relative group aspect-square rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 hover:border-blue-500 transition-colors"
+                className="relative group aspect-square rounded-lg overflow-hidden border border-border hover:border-primary transition-colors"
               >
                 <img
                   src={screenshot.url}
@@ -348,18 +348,18 @@ export function TradeDetail({ trade }: TradeDetailProps) {
 
       {/* Notes */}
       {trade.notes && (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Notes</h2>
+        <div className="bg-card rounded-lg shadow-sm border border-border p-6">
+          <h2 className="text-lg font-semibold text-foreground mb-4">Notes</h2>
           <div
-            className="prose prose-sm dark:prose-invert max-w-none text-gray-900 dark:text-gray-100"
+            className="prose prose-sm dark:prose-invert max-w-none text-foreground dark:text-gray-100"
             dangerouslySetInnerHTML={{ __html: trade.notes }}
           />
         </div>
       )}
 
       {/* Timestamps */}
-      <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
-        <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
+      <div className="bg-muted bg-card/50 rounded-lg border border-border p-4">
+        <div className="flex items-center justify-between text-sm text-muted-foreground">
           <span>Created: {formatDateTime(trade.createdAt)}</span>
           <span>Updated: {formatDateTime(trade.updatedAt)}</span>
         </div>

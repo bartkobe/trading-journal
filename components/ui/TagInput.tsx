@@ -129,7 +129,7 @@ export function TagInput({
         <label className="block text-sm font-medium mb-2">
           {label}
           {maxTags && (
-            <span className="text-gray-500 text-xs ml-2">
+            <span className="text-muted-foreground text-xs ml-2">
               ({value.length}/{maxTags})
             </span>
           )}
@@ -137,7 +137,7 @@ export function TagInput({
       )}
 
       {/* Tags Display */}
-      <div className="w-full min-h-[42px] px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent">
+      <div className="w-full min-h-[42px] px-3 py-2 border border-border rounded-lg bg-card focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent">
         <div className="flex flex-wrap gap-2">
           {value.map((tag) => (
             <span
@@ -149,7 +149,7 @@ export function TagInput({
                 type="button"
                 onClick={() => removeTag(tag)}
                 disabled={disabled}
-                className="hover:text-blue-600 dark:hover:text-blue-300 disabled:opacity-50"
+                className="hover:text-primary dark:hover:text-blue-300 disabled:opacity-50"
                 aria-label={`Remove ${tag}`}
               >
                 ×
@@ -182,15 +182,15 @@ export function TagInput({
       {showSuggestions && suggestions.length > 0 && (
         <div
           ref={suggestionsRef}
-          className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-lg max-h-48 overflow-y-auto"
+          className="absolute z-10 w-full mt-1 bg-card border border-border rounded-lg shadow-lg max-h-48 overflow-y-auto"
         >
           {suggestions.map((suggestion, index) => (
             <button
               key={suggestion}
               type="button"
               onClick={() => addTag(suggestion)}
-              className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 ${
-                index === selectedIndex ? 'bg-gray-100 dark:bg-gray-700' : ''
+              className={`w-full text-left px-4 py-2 text-sm hover:bg-muted dark:hover:bg-gray-700 ${
+                index === selectedIndex ? 'bg-muted dark:bg-gray-700' : ''
               }`}
             >
               {suggestion}
@@ -201,14 +201,14 @@ export function TagInput({
 
       {/* Loading Indicator */}
       {isLoading && inputValue.length >= 2 && (
-        <div className="absolute right-3 top-10 text-gray-400 text-sm">Loading...</div>
+        <div className="absolute right-3 top-10 text-muted-foreground text-sm">Loading...</div>
       )}
 
       {/* Error Message */}
       {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
 
       {/* Help Text */}
-      <p className="mt-1 text-xs text-gray-500">
+      <p className="mt-1 text-xs text-muted-foreground">
         Press Enter to add a tag. Only letters, numbers, hyphens, and underscores allowed.
       </p>
     </div>

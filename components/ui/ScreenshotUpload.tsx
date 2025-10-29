@@ -192,8 +192,8 @@ export function ScreenshotUpload({
           onDrop={handleDrop}
           className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
             isDragging
-              ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-              : 'border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-600'
+              ? 'border-primary bg-blue-50 dark:bg-blue-900/20'
+              : 'border-border hover:border-gray-400 dark:hover:border-gray-600'
           }`}
         >
           <input
@@ -208,7 +208,7 @@ export function ScreenshotUpload({
 
           <div className="space-y-2">
             <svg
-              className="mx-auto h-12 w-12 text-gray-400"
+              className="mx-auto h-12 w-12 text-muted-foreground"
               stroke="currentColor"
               fill="none"
               viewBox="0 0 48 48"
@@ -222,20 +222,20 @@ export function ScreenshotUpload({
               />
             </svg>
 
-            <div className="text-sm text-gray-600 dark:text-gray-400">
+            <div className="text-sm text-muted-foreground">
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="font-medium text-blue-600 hover:text-blue-500"
+                className="font-medium text-primary hover:text-primary"
               >
                 Upload screenshots
               </button>
               <span className="pl-1">or drag and drop</span>
             </div>
 
-            <p className="text-xs text-gray-500">PNG, JPG, GIF, WebP up to {maxSizeMB}MB</p>
+            <p className="text-xs text-muted-foreground">PNG, JPG, GIF, WebP up to {maxSizeMB}MB</p>
 
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-muted-foreground">
               {screenshots.length + uploadingFiles.length} / {maxFiles} screenshots
             </p>
           </div>
@@ -255,13 +255,13 @@ export function ScreenshotUpload({
           {uploadingFiles.map((filename) => (
             <div
               key={filename}
-              className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+              className="flex items-center gap-3 p-3 bg-muted bg-card rounded-lg"
             >
               <div className="flex-1">
                 <p className="text-sm font-medium">{filename}</p>
-                <p className="text-xs text-gray-500">Uploading...</p>
+                <p className="text-xs text-muted-foreground">Uploading...</p>
               </div>
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary"></div>
             </div>
           ))}
         </div>
@@ -273,7 +273,7 @@ export function ScreenshotUpload({
           {screenshots.map((screenshot) => (
             <div
               key={screenshot.id || screenshot.url}
-              className="relative group aspect-square rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700"
+              className="relative group aspect-square rounded-lg overflow-hidden border border-border"
             >
               {/* Image */}
               <img
@@ -290,7 +290,7 @@ export function ScreenshotUpload({
                     href={screenshot.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="p-2 bg-white dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                    className="p-2 bg-card rounded-lg hover:bg-muted dark:hover:bg-gray-700"
                     title="View full size"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -343,7 +343,7 @@ export function ScreenshotUpload({
 
       {/* No Screenshots Message */}
       {screenshots.length === 0 && uploadingFiles.length === 0 && !tradeId && (
-        <p className="text-sm text-gray-500 text-center py-4">
+        <p className="text-sm text-muted-foreground text-center py-4">
           Save the trade first to upload screenshots
         </p>
       )}

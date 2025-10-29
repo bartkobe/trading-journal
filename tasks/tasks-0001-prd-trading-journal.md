@@ -60,13 +60,13 @@
 
 ### Frontend - Pages
 
-- `app/page.tsx` - Landing/login page
-- `app/dashboard/page.tsx` - Main analytics dashboard (✅ Created - comprehensive dashboard with metrics, charts, and quick actions)
-- `app/trades/page.tsx` - Trade list view (✅ Created - protected route with filters, sorting, stats, empty state)
+- `app/page.tsx` - Landing/login page (✅ Updated - integrated ThemeToggle, uses semantic theme colors)
+- `app/dashboard/page.tsx` - Main analytics dashboard (✅ Updated - removed redundant header, uses unified Navigation)
+- `app/trades/page.tsx` - Trade list view (✅ Updated - removed redundant header, uses unified Navigation)
 - `app/trades/new/page.tsx` - New trade entry form (✅ Created - protected route with TradeForm integration)
 - `app/trades/[id]/page.tsx` - Trade detail view (✅ Created - protected route with direct DB access, edit/delete buttons)
 - `app/trades/[id]/edit/page.tsx` - Trade edit form (✅ Created - protected route with pre-filled TradeForm)
-- `app/layout.tsx` - Root layout with navigation
+- `app/layout.tsx` - Root layout with navigation (✅ Updated - integrated Navigation, ThemeProvider, FOUC prevention, async user fetch)
 
 ### Frontend - Components
 
@@ -91,8 +91,9 @@
 - `components/analytics/PnlBySymbol.tsx` - P&L by symbol chart (✅ Created - Top 10 symbols with best/worst performers)
 - `components/analytics/PnlBySetupType.tsx` - P&L by setup type chart (✅ Created - Bar chart showing performance by setup)
 - `components/analytics/PnlByEmotionalState.tsx` - P&L by emotional state chart (✅ Created - Bar chart with emotional state analysis)
-- `components/ui/Navigation.tsx` - Main navigation component
-- `components/ui/ThemeToggle.tsx` - Light/dark mode toggle
+- `components/providers/ThemeProvider.tsx` - Theme context provider (✅ Created - manages theme state, localStorage persistence, FOUC prevention)
+- `components/ui/Navigation.tsx` - Main navigation component (✅ Created - responsive nav with active states, user menu, theme toggle, mobile support)
+- `components/ui/ThemeToggle.tsx` - Light/dark mode toggle (✅ Created - three variants: button cycle, dropdown, switch; uses theme context)
 - `components/ui/TagInput.tsx` - Tag input with autocomplete (✅ Created - debounced search, keyboard navigation, chip display)
 - `components/ui/CurrencySelector.tsx` - Currency dropdown (✅ Created - 10 major currencies with symbols and helper functions)
 - `components/ui/RichTextEditor.tsx` - Rich text editor for trade notes (✅ Created - Tiptap integration with toolbar, formatting, links)
@@ -111,8 +112,9 @@
 
 ### Styling
 
-- `app/globals.css` - Global styles and theme variables
-- `tailwind.config.js` - Tailwind configuration with theme colors
+- `app/globals.css` - Global styles and theme variables (✅ Updated - comprehensive theme with professional financial colors, light/dark modes, utility classes)
+- `THEME_GUIDE.md` - Theme documentation and usage guide (✅ Created - comprehensive color palette, typography, usage examples)
+- `RESPONSIVE_DESIGN.md` - Responsive design guide (✅ Created - desktop-first strategy, breakpoints, layout patterns, best practices)
 
 ### Testing
 
@@ -201,15 +203,15 @@
   - [x] 4.21 Display performance breakdowns by symbol, strategy, setup type, emotional state
 
 - [ ] 5.0 UI/UX Implementation (Theming, Navigation, Responsive Design)
-  - [ ] 5.1 Configure Tailwind CSS with custom theme colors (professional/financial aesthetic)
-  - [ ] 5.2 Set up CSS variables for light and dark themes in `app/globals.css`
-  - [ ] 5.3 Create ThemeProvider context for theme state management
-  - [ ] 5.4 Build ThemeToggle component (`components/ui/ThemeToggle.tsx`)
-  - [ ] 5.5 Implement theme persistence (localStorage)
-  - [ ] 5.6 Apply theme classes throughout all components
-  - [ ] 5.7 Build Navigation component with links to Dashboard, Trades, New Trade
-  - [ ] 5.8 Create root layout (`app/layout.tsx`) with Navigation and ThemeProvider
-  - [ ] 5.9 Ensure responsive design for desktop (minimum 1280px width)
+  - [x] 5.1 Configure Tailwind CSS with custom theme colors (professional/financial aesthetic)
+  - [x] 5.2 Set up CSS variables for light and dark themes in `app/globals.css`
+  - [x] 5.3 Create ThemeProvider context for theme state management
+  - [x] 5.4 Build ThemeToggle component (`components/ui/ThemeToggle.tsx`)
+  - [x] 5.5 Implement theme persistence (localStorage)
+  - [x] 5.6 Apply theme classes throughout all components
+  - [x] 5.7 Build Navigation component with links to Dashboard, Trades, New Trade
+  - [x] 5.8 Create root layout (`app/layout.tsx`) with Navigation and ThemeProvider
+  - [x] 5.9 Ensure responsive design for desktop (minimum 1280px width)
   - [ ] 5.10 Style all forms with consistent spacing and typography
   - [ ] 5.11 Add visual indicators: green for profits, red for losses
   - [ ] 5.12 Implement loading states for async operations

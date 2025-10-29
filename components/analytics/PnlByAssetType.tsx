@@ -132,14 +132,14 @@ export default function PnlByAssetType({
   if (!data || data.length === 0) {
     return (
       <div
-        className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-12 text-center flex items-center justify-center"
+        className="rounded-lg border border-border bg-card p-12 text-center flex items-center justify-center"
         style={{ height: `${height}px` }}
       >
         <div>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+          <h3 className="text-lg font-semibold text-foreground dark:text-gray-100 mb-2">
             No Data Available
           </h3>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-muted-foreground">
             Start logging trades across different asset types.
           </p>
         </div>
@@ -151,12 +151,12 @@ export default function PnlByAssetType({
   const sortedData = [...data].sort((a, b) => b.totalPnl - a.totalPnl);
 
   return (
-    <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6">
+    <div className="rounded-lg border border-border bg-card p-6">
       <div className="mb-4">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+        <h3 className="text-lg font-semibold text-foreground dark:text-gray-100">
           P&L by Asset Type
         </h3>
-        <p className="text-sm text-gray-600 dark:text-gray-400">
+        <p className="text-sm text-muted-foreground">
           Performance across different asset classes
         </p>
       </div>
@@ -191,9 +191,9 @@ export default function PnlByAssetType({
           return (
             <div
               key={asset.name}
-              className="text-center p-3 rounded-lg bg-gray-50 dark:bg-gray-700"
+              className="text-center p-3 rounded-lg bg-muted dark:bg-gray-700"
             >
-              <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+              <p className="text-xs font-medium text-muted-foreground mb-1">
                 {asset.name}
               </p>
               <p
@@ -202,15 +202,15 @@ export default function PnlByAssetType({
                     ? 'text-green-600 dark:text-green-400'
                     : asset.totalPnl < 0
                       ? 'text-red-600 dark:text-red-400'
-                      : 'text-gray-600 dark:text-gray-400'
+                      : 'text-muted-foreground'
                 }`}
               >
                 {formatChartCurrency(asset.totalPnl)}
               </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              <p className="text-xs text-muted-foreground mt-1">
                 {asset.tradeCount} trades • {asset.winRate.toFixed(0)}% win
               </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
+              <p className="text-xs text-muted-foreground">
                 Avg: {formatChartCurrency(avgPnl)}
               </p>
             </div>

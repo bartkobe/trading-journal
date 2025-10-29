@@ -133,14 +133,14 @@ export default function EquityCurve({
   if (!data || data.length === 0) {
     return (
       <div
-        className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-12 text-center flex items-center justify-center"
+        className="rounded-lg border border-border bg-card p-12 text-center flex items-center justify-center"
         style={{ height: `${height}px` }}
       >
         <div>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+          <h3 className="text-lg font-semibold text-foreground dark:text-gray-100 mb-2">
             No Data Available
           </h3>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-muted-foreground">
             Start logging trades to see your equity curve.
           </p>
         </div>
@@ -154,10 +154,10 @@ export default function EquityCurve({
   const areaGradientId = finalPnl >= 0 ? 'colorProfit' : 'colorLoss';
 
   return (
-    <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6">
+    <div className="rounded-lg border border-border bg-card p-6">
       <div className="mb-4">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Equity Curve</h3>
-        <p className="text-sm text-gray-600 dark:text-gray-400">
+        <h3 className="text-lg font-semibold text-foreground dark:text-gray-100">Equity Curve</h3>
+        <p className="text-sm text-muted-foreground">
           Cumulative P&L over time ({data.length} trades)
         </p>
       </div>

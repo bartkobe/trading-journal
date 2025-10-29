@@ -78,12 +78,12 @@ export default function PnlBySetupType({ startDate, endDate }: PnlBySetupTypePro
 
   if (loading) {
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+      <div className="bg-card rounded-lg border border-border p-6">
+        <h3 className="text-lg font-semibold text-foreground dark:text-gray-100 mb-4">
           P&L by Setup Type
         </h3>
         <div className="flex items-center justify-center h-64">
-          <div className="text-gray-500 dark:text-gray-400">Loading...</div>
+          <div className="text-muted-foreground">Loading...</div>
         </div>
       </div>
     );
@@ -91,8 +91,8 @@ export default function PnlBySetupType({ startDate, endDate }: PnlBySetupTypePro
 
   if (error) {
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+      <div className="bg-card rounded-lg border border-border p-6">
+        <h3 className="text-lg font-semibold text-foreground dark:text-gray-100 mb-4">
           P&L by Setup Type
         </h3>
         <div className="flex items-center justify-center h-64">
@@ -104,12 +104,12 @@ export default function PnlBySetupType({ startDate, endDate }: PnlBySetupTypePro
 
   if (data.length === 0) {
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+      <div className="bg-card rounded-lg border border-border p-6">
+        <h3 className="text-lg font-semibold text-foreground dark:text-gray-100 mb-4">
           P&L by Setup Type
         </h3>
         <div className="flex items-center justify-center h-64">
-          <div className="text-gray-500 dark:text-gray-400">No trading data available</div>
+          <div className="text-muted-foreground">No trading data available</div>
         </div>
       </div>
     );
@@ -119,8 +119,8 @@ export default function PnlBySetupType({ startDate, endDate }: PnlBySetupTypePro
   const totalTrades = data.reduce((sum, item) => sum + item.trades, 0);
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+    <div className="bg-card rounded-lg border border-border p-6">
+      <h3 className="text-lg font-semibold text-foreground dark:text-gray-100 mb-4">
         P&L by Setup Type
       </h3>
 
@@ -151,30 +151,30 @@ export default function PnlBySetupType({ startDate, endDate }: PnlBySetupTypePro
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Best Setup</span>
+            <span className="text-sm font-medium text-foreground">Best Setup</span>
             <span className="text-2xl">✅</span>
           </div>
-          <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{topSetup.setupType}</p>
+          <p className="text-lg font-bold text-foreground dark:text-gray-100">{topSetup.setupType}</p>
           <p className="text-sm text-green-600 dark:text-green-400 font-semibold">
             {formatChartCurrency(topSetup.totalPnl)}
           </p>
-          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+          <p className="text-xs text-muted-foreground mt-1">
             {(topSetup.winRate ?? 0).toFixed(1)}% win rate
           </p>
         </div>
 
         <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Most Used</span>
+            <span className="text-sm font-medium text-foreground">Most Used</span>
             <span className="text-2xl">📊</span>
           </div>
-          <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
+          <p className="text-lg font-bold text-foreground dark:text-gray-100">
             {data.sort((a, b) => b.trades - a.trades)[0].setupType}
           </p>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
+          <p className="text-sm text-muted-foreground">
             {data.sort((a, b) => b.trades - a.trades)[0].trades} trades
           </p>
-          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+          <p className="text-xs text-muted-foreground mt-1">
             {((data.sort((a, b) => b.trades - a.trades)[0].trades / totalTrades) * 100).toFixed(1)}%
             of all trades
           </p>
@@ -182,14 +182,14 @@ export default function PnlBySetupType({ startDate, endDate }: PnlBySetupTypePro
 
         <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <span className="text-sm font-medium text-foreground">
               Total Setups
             </span>
             <span className="text-2xl">🎯</span>
           </div>
-          <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{data.length}</p>
-          <p className="text-sm text-gray-600 dark:text-gray-400">Different setups</p>
-          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+          <p className="text-lg font-bold text-foreground dark:text-gray-100">{data.length}</p>
+          <p className="text-sm text-muted-foreground">Different setups</p>
+          <p className="text-xs text-muted-foreground mt-1">
             {totalTrades} total trades
           </p>
         </div>
@@ -197,7 +197,7 @@ export default function PnlBySetupType({ startDate, endDate }: PnlBySetupTypePro
 
       {/* Insights */}
       <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-        <p className="text-sm text-gray-700 dark:text-gray-300">
+        <p className="text-sm text-foreground">
           <span className="font-semibold">💡 Insight:</span> Your most profitable setup is{' '}
           <span className="font-semibold">{topSetup.setupType}</span> with{' '}
           {formatChartCurrency(topSetup.totalPnl)} total P&L and a{' '}
@@ -219,10 +219,10 @@ function CustomTooltip({ active, payload }: any) {
   const data = payload[0].payload as SetupTypePerformance;
 
   return (
-    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-3">
-      <p className="font-semibold text-gray-900 dark:text-gray-100 mb-2">{data.setupType}</p>
+    <div className="bg-card border border-border rounded-lg shadow-lg p-3">
+      <p className="font-semibold text-foreground dark:text-gray-100 mb-2">{data.setupType}</p>
       <div className="space-y-1 text-sm">
-        <p className="text-gray-700 dark:text-gray-300">
+        <p className="text-foreground">
           <span className="font-medium">Total P&L:</span>{' '}
           <span
             className={
@@ -234,13 +234,13 @@ function CustomTooltip({ active, payload }: any) {
             {formatChartCurrency(data.totalPnl)}
           </span>
         </p>
-        <p className="text-gray-700 dark:text-gray-300">
+        <p className="text-foreground">
           <span className="font-medium">Trades:</span> {data.trades}
         </p>
-        <p className="text-gray-700 dark:text-gray-300">
+        <p className="text-foreground">
           <span className="font-medium">Win Rate:</span> {(data.winRate ?? 0).toFixed(1)}%
         </p>
-        <p className="text-gray-700 dark:text-gray-300">
+        <p className="text-foreground">
           <span className="font-medium">Avg P&L:</span> {formatChartCurrency(data.avgPnl ?? 0)}
         </p>
       </div>

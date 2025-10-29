@@ -49,13 +49,13 @@ export default async function TradeDetailPage({ params }: TradeDetailPageProps) 
   const trade = enrichTradeWithCalculations(rawTrade);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-background">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header with navigation */}
         <div className="mb-8">
           <Link
             href="/trades"
-            className="inline-flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 mb-4"
+            className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground dark:hover:text-gray-100 mb-4"
           >
             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -70,10 +70,10 @@ export default async function TradeDetailPage({ params }: TradeDetailPageProps) 
 
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+              <h1 className="text-3xl font-bold text-foreground">
                 {trade.symbol.toUpperCase()} Trade
               </h1>
-              <p className="mt-2 text-gray-600 dark:text-gray-400">View and manage trade details</p>
+              <p className="mt-2 text-muted-foreground">View and manage trade details</p>
             </div>
 
             <TradeActions tradeId={id} />

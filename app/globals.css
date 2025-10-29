@@ -1,28 +1,313 @@
 @import 'tailwindcss';
 
+/* ===================================
+   TRADING JOURNAL THEME CONFIGURATION
+   Professional Financial Aesthetic
+   =================================== */
+
 :root {
+  /* Base Colors - Light Theme */
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #0f172a;
+  --muted: #f8fafc;
+  --muted-foreground: #64748b;
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --ring: #3b82f6;
+
+  /* Primary Brand Colors - Professional Blue */
+  --primary: #1e40af;
+  --primary-foreground: #ffffff;
+  --primary-hover: #1e3a8a;
+
+  /* Secondary Accent - Slate */
+  --secondary: #475569;
+  --secondary-foreground: #ffffff;
+  --secondary-hover: #334155;
+
+  /* Financial Status Colors */
+  --success: #059669;
+  --success-foreground: #ffffff;
+  --success-light: #d1fae5;
+  --success-dark: #047857;
+
+  --danger: #dc2626;
+  --danger-foreground: #ffffff;
+  --danger-light: #fee2e2;
+  --danger-dark: #b91c1c;
+
+  --warning: #f59e0b;
+  --warning-foreground: #ffffff;
+  --warning-light: #fef3c7;
+  --warning-dark: #d97706;
+
+  --info: #0ea5e9;
+  --info-foreground: #ffffff;
+  --info-light: #e0f2fe;
+  --info-dark: #0284c7;
+
+  /* UI Element Colors */
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+
+  /* Destructive Actions */
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+
+  /* Chart Colors */
+  --chart-1: #3b82f6;
+  --chart-2: #8b5cf6;
+  --chart-3: #10b981;
+  --chart-4: #f59e0b;
+  --chart-5: #ef4444;
+  --chart-6: #06b6d4;
+  --chart-7: #ec4899;
+  --chart-8: #84cc16;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+
+  /* Radius */
+  --radius-sm: 0.25rem;
+  --radius: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Dark Theme Overrides - Class-based (preferred, set by ThemeProvider) */
+.dark {
+  --background: #020617;
+  --foreground: #f1f5f9;
+  --muted: #0f172a;
+  --muted-foreground: #94a3b8;
+  --border: #1e293b;
+  --input: #1e293b;
+  --ring: #3b82f6;
+
+  --primary: #3b82f6;
+  --primary-foreground: #ffffff;
+  --primary-hover: #2563eb;
+
+  --secondary: #64748b;
+  --secondary-foreground: #ffffff;
+  --secondary-hover: #475569;
+
+  --success: #10b981;
+  --success-foreground: #ffffff;
+  --success-light: #064e3b;
+  --success-dark: #34d399;
+
+  --danger: #ef4444;
+  --danger-foreground: #ffffff;
+  --danger-light: #7f1d1d;
+  --danger-dark: #f87171;
+
+  --warning: #fbbf24;
+  --warning-foreground: #000000;
+  --warning-light: #78350f;
+  --warning-dark: #fcd34d;
+
+  --info: #38bdf8;
+  --info-foreground: #000000;
+  --info-light: #0c4a6e;
+  --info-dark: #7dd3fc;
+
+  --card: #0f172a;
+  --card-foreground: #f1f5f9;
+  --popover: #0f172a;
+  --popover-foreground: #f1f5f9;
+
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.4), 0 1px 2px -1px rgb(0 0 0 / 0.4);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.4);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.4);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.4), 0 8px 10px -6px rgb(0 0 0 / 0.4);
 }
 
+/* Dark Theme Overrides - Media query fallback (for when theme is set to 'system') */
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  :root:not(.light):not(.dark) {
+    --background: #020617;
+    --foreground: #f1f5f9;
+    --muted: #0f172a;
+    --muted-foreground: #94a3b8;
+    --border: #1e293b;
+    --input: #1e293b;
+    --ring: #3b82f6;
+
+    --primary: #3b82f6;
+    --primary-foreground: #ffffff;
+    --primary-hover: #2563eb;
+
+    --secondary: #64748b;
+    --secondary-foreground: #ffffff;
+    --secondary-hover: #475569;
+
+    --success: #10b981;
+    --success-foreground: #ffffff;
+    --success-light: #064e3b;
+    --success-dark: #34d399;
+
+    --danger: #ef4444;
+    --danger-foreground: #ffffff;
+    --danger-light: #7f1d1d;
+    --danger-dark: #f87171;
+
+    --warning: #fbbf24;
+    --warning-foreground: #000000;
+    --warning-light: #78350f;
+    --warning-dark: #fcd34d;
+
+    --info: #38bdf8;
+    --info-foreground: #000000;
+    --info-light: #0c4a6e;
+    --info-dark: #7dd3fc;
+
+    --card: #0f172a;
+    --card-foreground: #f1f5f9;
+    --popover: #0f172a;
+    --popover-foreground: #f1f5f9;
+
+    --destructive: #ef4444;
+    --destructive-foreground: #ffffff;
+
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+    --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.4), 0 1px 2px -1px rgb(0 0 0 / 0.4);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.4);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.4);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.4), 0 8px 10px -6px rgb(0 0 0 / 0.4);
   }
 }
 
+/* Tailwind Theme Configuration */
+@theme inline {
+  /* Colors */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-hover: var(--primary-hover);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary-hover: var(--secondary-hover);
+
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-success-light: var(--success-light);
+  --color-success-dark: var(--success-dark);
+
+  --color-danger: var(--danger);
+  --color-danger-foreground: var(--danger-foreground);
+  --color-danger-light: var(--danger-light);
+  --color-danger-dark: var(--danger-dark);
+
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-warning-light: var(--warning-light);
+  --color-warning-dark: var(--warning-dark);
+
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-info-light: var(--info-light);
+  --color-info-dark: var(--info-dark);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-chart-6: var(--chart-6);
+  --color-chart-7: var(--chart-7);
+  --color-chart-8: var(--chart-8);
+
+  /* Profit/Loss specific colors */
+  --color-profit: var(--success);
+  --color-profit-light: var(--success-light);
+  --color-loss: var(--danger);
+  --color-loss-light: var(--danger-light);
+  --color-breakeven: var(--muted-foreground);
+
+  /* Typography */
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  /* Shadows */
+  --box-shadow-sm: var(--shadow-sm);
+  --box-shadow: var(--shadow);
+  --box-shadow-md: var(--shadow-md);
+  --box-shadow-lg: var(--shadow-lg);
+  --box-shadow-xl: var(--shadow-xl);
+
+  /* Border Radius */
+  --border-radius-sm: var(--radius-sm);
+  --border-radius: var(--radius);
+  --border-radius-md: var(--radius-md);
+  --border-radius-lg: var(--radius-lg);
+  --border-radius-xl: var(--radius-xl);
+}
+
+/* Base Styles */
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-feature-settings: "tnum" 1; /* Enable tabular numbers for financial data */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Utility Classes for Financial Data */
+.profit {
+  color: var(--success);
+}
+
+.loss {
+  color: var(--danger);
+}
+
+.breakeven {
+  color: var(--muted-foreground);
+}
+
+.profit-bg {
+  background-color: var(--success-light);
+  color: var(--success-dark);
+}
+
+.loss-bg {
+  background-color: var(--danger-light);
+  color: var(--danger-dark);
+}
+
+/* Tabular Numbers for Financial Values */
+.tabular-nums {
+  font-feature-settings: "tnum" 1;
+  font-variant-numeric: tabular-nums;
 }
 
 /* Tiptap Editor Styles */

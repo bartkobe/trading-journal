@@ -78,12 +78,12 @@ export default function PnlBySymbol({ startDate, endDate }: PnlBySymbolProps) {
 
   if (loading) {
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+      <div className="bg-card rounded-lg border border-border p-6">
+        <h3 className="text-lg font-semibold text-foreground dark:text-gray-100 mb-4">
           P&L by Symbol
         </h3>
         <div className="flex items-center justify-center h-64">
-          <div className="text-gray-500 dark:text-gray-400">Loading...</div>
+          <div className="text-muted-foreground">Loading...</div>
         </div>
       </div>
     );
@@ -91,8 +91,8 @@ export default function PnlBySymbol({ startDate, endDate }: PnlBySymbolProps) {
 
   if (error) {
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+      <div className="bg-card rounded-lg border border-border p-6">
+        <h3 className="text-lg font-semibold text-foreground dark:text-gray-100 mb-4">
           P&L by Symbol
         </h3>
         <div className="flex items-center justify-center h-64">
@@ -104,12 +104,12 @@ export default function PnlBySymbol({ startDate, endDate }: PnlBySymbolProps) {
 
   if (data.length === 0) {
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+      <div className="bg-card rounded-lg border border-border p-6">
+        <h3 className="text-lg font-semibold text-foreground dark:text-gray-100 mb-4">
           P&L by Symbol
         </h3>
         <div className="flex items-center justify-center h-64">
-          <div className="text-gray-500 dark:text-gray-400">No trading data available</div>
+          <div className="text-muted-foreground">No trading data available</div>
         </div>
       </div>
     );
@@ -119,8 +119,8 @@ export default function PnlBySymbol({ startDate, endDate }: PnlBySymbolProps) {
   const bottomSymbol = data[data.length - 1];
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+    <div className="bg-card rounded-lg border border-border p-6">
+      <h3 className="text-lg font-semibold text-foreground dark:text-gray-100 mb-4">
         P&L by Symbol (Top 10)
       </h3>
 
@@ -151,34 +151,34 @@ export default function PnlBySymbol({ startDate, endDate }: PnlBySymbolProps) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <span className="text-sm font-medium text-foreground">
               Best Performer
             </span>
             <span className="text-2xl">🏆</span>
           </div>
-          <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{topSymbol.symbol}</p>
+          <p className="text-lg font-bold text-foreground dark:text-gray-100">{topSymbol.symbol}</p>
           <p className="text-sm text-green-600 dark:text-green-400 font-semibold">
             {formatChartCurrency(topSymbol.totalPnl)}
           </p>
-          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+          <p className="text-xs text-muted-foreground mt-1">
             {topSymbol.trades} trades • {(topSymbol.winRate ?? 0).toFixed(1)}% win rate
           </p>
         </div>
 
         <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-4">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <span className="text-sm font-medium text-foreground">
               Worst Performer
             </span>
             <span className="text-2xl">📉</span>
           </div>
-          <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
+          <p className="text-lg font-bold text-foreground dark:text-gray-100">
             {bottomSymbol.symbol}
           </p>
           <p className="text-sm text-red-600 dark:text-red-400 font-semibold">
             {formatChartCurrency(bottomSymbol.totalPnl)}
           </p>
-          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+          <p className="text-xs text-muted-foreground mt-1">
             {bottomSymbol.trades} trades • {(bottomSymbol.winRate ?? 0).toFixed(1)}% win rate
           </p>
         </div>
@@ -186,7 +186,7 @@ export default function PnlBySymbol({ startDate, endDate }: PnlBySymbolProps) {
 
       {/* Insights */}
       <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-        <p className="text-sm text-gray-700 dark:text-gray-300">
+        <p className="text-sm text-foreground">
           <span className="font-semibold">💡 Insight:</span> Your best symbol{' '}
           <span className="font-semibold">{topSymbol.symbol}</span> has a{' '}
           {(topSymbol.winRate ?? 0).toFixed(1)}% win rate with an average P&L of{' '}
@@ -208,10 +208,10 @@ function CustomTooltip({ active, payload }: any) {
   const data = payload[0].payload as SymbolPerformance;
 
   return (
-    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-3">
-      <p className="font-semibold text-gray-900 dark:text-gray-100 mb-2">{data.symbol}</p>
+    <div className="bg-card border border-border rounded-lg shadow-lg p-3">
+      <p className="font-semibold text-foreground dark:text-gray-100 mb-2">{data.symbol}</p>
       <div className="space-y-1 text-sm">
-        <p className="text-gray-700 dark:text-gray-300">
+        <p className="text-foreground">
           <span className="font-medium">Total P&L:</span>{' '}
           <span
             className={
@@ -223,13 +223,13 @@ function CustomTooltip({ active, payload }: any) {
             {formatChartCurrency(data.totalPnl)}
           </span>
         </p>
-        <p className="text-gray-700 dark:text-gray-300">
+        <p className="text-foreground">
           <span className="font-medium">Trades:</span> {data.trades}
         </p>
-        <p className="text-gray-700 dark:text-gray-300">
+        <p className="text-foreground">
           <span className="font-medium">Win Rate:</span> {(data.winRate ?? 0).toFixed(1)}%
         </p>
-        <p className="text-gray-700 dark:text-gray-300">
+        <p className="text-foreground">
           <span className="font-medium">Avg P&L:</span> {formatChartCurrency(data.avgPnl ?? 0)}
         </p>
       </div>

@@ -1,6 +1,5 @@
 import { requireAuth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
-import Link from 'next/link';
 import { TradeList } from '@/components/trades/TradeList';
 
 export const dynamic = 'force-dynamic';
@@ -13,62 +12,45 @@ export default async function TradesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Trade Journal</h1>
-            <p className="mt-2 text-gray-600 dark:text-gray-400">View and manage all your trades</p>
-          </div>
-
-          <Link
-            href="/trades/new"
-            className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
-          >
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 4v16m8-8H4"
-              />
-            </svg>
-            New Trade
-          </Link>
+        {/* Page Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-foreground">Trade Journal</h1>
+          <p className="mt-2 text-muted-foreground">View and manage all your trades</p>
         </div>
 
         {/* Filters Section - Placeholder */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
-          <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Filters</h2>
+        <div className="bg-card rounded-lg shadow-sm border border-border p-6 mb-6">
+          <h2 className="text-lg font-semibold mb-4 text-foreground">Filters</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Date Range */}
             <div>
-              <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+              <label className="block text-sm font-medium mb-2 text-foreground">
                 Date From
               </label>
               <input
                 type="date"
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                className="w-full px-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-background text-foreground transition-colors"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+              <label className="block text-sm font-medium mb-2 text-foreground">
                 Date To
               </label>
               <input
                 type="date"
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                className="w-full px-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-background text-foreground transition-colors"
               />
             </div>
 
             {/* Asset Type */}
             <div>
-              <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+              <label className="block text-sm font-medium mb-2 text-foreground">
                 Asset Type
               </label>
-              <select className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+              <select className="w-full px-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-background text-foreground transition-colors">
                 <option value="">All Types</option>
                 <option value="STOCK">Stock</option>
                 <option value="FOREX">Forex</option>
@@ -81,10 +63,10 @@ export default async function TradesPage() {
 
             {/* Outcome */}
             <div>
-              <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+              <label className="block text-sm font-medium mb-2 text-foreground">
                 Outcome
               </label>
-              <select className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+              <select className="w-full px-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-background text-foreground transition-colors">
                 <option value="">All Outcomes</option>
                 <option value="win">Wins</option>
                 <option value="loss">Losses</option>
@@ -99,13 +81,13 @@ export default async function TradesPage() {
               <input
                 type="text"
                 placeholder="Search by symbol, strategy, or notes..."
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                className="w-full px-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-background text-foreground transition-colors"
               />
             </div>
-            <button className="px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-900 dark:text-white rounded-lg transition-colors">
+            <button className="px-4 py-2 bg-secondary hover:bg-secondary-hover text-secondary-foreground rounded-lg transition-colors">
               Reset
             </button>
-            <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
+            <button className="px-4 py-2 bg-primary hover:bg-primary-hover text-primary-foreground rounded-lg transition-colors">
               Apply Filters
             </button>
           </div>
@@ -113,21 +95,21 @@ export default async function TradesPage() {
 
         {/* Stats Summary */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
-            <p className="text-sm text-gray-600 dark:text-gray-400">Total Trades</p>
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">0</p>
+          <div className="bg-card rounded-lg shadow-sm border border-border p-4">
+            <p className="text-sm text-muted-foreground">Total Trades</p>
+            <p className="text-2xl font-bold text-foreground">0</p>
           </div>
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
-            <p className="text-sm text-gray-600 dark:text-gray-400">Win Rate</p>
-            <p className="text-2xl font-bold text-green-600">0%</p>
+          <div className="bg-card rounded-lg shadow-sm border border-border p-4">
+            <p className="text-sm text-muted-foreground">Win Rate</p>
+            <p className="text-2xl font-bold text-success">0%</p>
           </div>
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
-            <p className="text-sm text-gray-600 dark:text-gray-400">Total P&L</p>
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">$0.00</p>
+          <div className="bg-card rounded-lg shadow-sm border border-border p-4">
+            <p className="text-sm text-muted-foreground">Total P&L</p>
+            <p className="text-2xl font-bold text-foreground">$0.00</p>
           </div>
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
-            <p className="text-sm text-gray-600 dark:text-gray-400">Avg P&L</p>
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">$0.00</p>
+          <div className="bg-card rounded-lg shadow-sm border border-border p-4">
+            <p className="text-sm text-muted-foreground">Avg P&L</p>
+            <p className="text-2xl font-bold text-foreground">$0.00</p>
           </div>
         </div>
 

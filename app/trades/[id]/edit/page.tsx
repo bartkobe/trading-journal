@@ -68,13 +68,13 @@ export default async function TradeEditPage({ params }: TradeEditPageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-background">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
           <Link
             href={`/trades/${id}`}
-            className="inline-flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 mb-4"
+            className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground dark:hover:text-gray-100 mb-4"
           >
             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -87,16 +87,16 @@ export default async function TradeEditPage({ params }: TradeEditPageProps) {
             Back to Trade Details
           </Link>
 
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-3xl font-bold text-foreground">
             Edit Trade: {trade.symbol.toUpperCase()}
           </h1>
-          <p className="mt-2 text-gray-600 dark:text-gray-400">
+          <p className="mt-2 text-muted-foreground">
             Update trade details, add screenshots, or modify notes.
           </p>
         </div>
 
         {/* Trade Form */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <div className="bg-card rounded-lg shadow-sm border border-border p-6">
           <TradeForm tradeId={id} initialData={initialData} />
         </div>
 

@@ -23,10 +23,10 @@ export default function DashboardContent() {
       {/* Date Range Filter */}
       <section>
         <div className="mb-4">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          <h2 className="text-lg font-semibold text-foreground dark:text-gray-100">
             Filter by Date Range
           </h2>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+          <p className="text-sm text-muted-foreground mt-1">
             Customize the date range to analyze specific periods
           </p>
         </div>
@@ -41,10 +41,10 @@ export default function DashboardContent() {
       {/* Performance Charts Section */}
       <section>
         <div className="mb-6">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+          <h2 className="text-xl font-bold text-foreground dark:text-gray-100">
             Performance Analysis
           </h2>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+          <p className="text-sm text-muted-foreground mt-1">
             Visual breakdown of your trading performance
           </p>
         </div>
@@ -52,8 +52,8 @@ export default function DashboardContent() {
       </section>
 
       {/* Quick Actions */}
-      <section className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+      <section className="bg-card rounded-lg border border-border p-6">
+        <h2 className="text-lg font-semibold text-foreground dark:text-gray-100 mb-4">
           Quick Actions
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -63,8 +63,8 @@ export default function DashboardContent() {
           >
             <span className="text-2xl">📝</span>
             <div>
-              <p className="font-medium text-gray-900 dark:text-gray-100">Log New Trade</p>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Record your latest trade</p>
+              <p className="font-medium text-foreground dark:text-gray-100">Log New Trade</p>
+              <p className="text-sm text-muted-foreground">Record your latest trade</p>
             </div>
           </Link>
           <Link
@@ -73,8 +73,8 @@ export default function DashboardContent() {
           >
             <span className="text-2xl">📋</span>
             <div>
-              <p className="font-medium text-gray-900 dark:text-gray-100">View All Trades</p>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Browse trade history</p>
+              <p className="font-medium text-foreground dark:text-gray-100">View All Trades</p>
+              <p className="text-sm text-muted-foreground">Browse trade history</p>
             </div>
           </Link>
           <Link
@@ -83,8 +83,8 @@ export default function DashboardContent() {
           >
             <span className="text-2xl">📈</span>
             <div>
-              <p className="font-medium text-gray-900 dark:text-gray-100">Analytics</p>
-              <p className="text-sm text-gray-600 dark:text-gray-400">View detailed stats</p>
+              <p className="font-medium text-foreground dark:text-gray-100">Analytics</p>
+              <p className="text-sm text-muted-foreground">View detailed stats</p>
             </div>
           </Link>
         </div>

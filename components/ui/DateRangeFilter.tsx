@@ -48,7 +48,7 @@ export default function DateRangeFilter({
 
   return (
     <div
-      className={`bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 ${className}`}
+      className={`bg-card rounded-lg border border-border p-4 ${className}`}
     >
       <div className="flex flex-col md:flex-row md:items-end gap-4">
         {/* Date Inputs */}
@@ -56,7 +56,7 @@ export default function DateRangeFilter({
           <div className="flex-1">
             <label
               htmlFor="start-date"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              className="block text-sm font-medium text-foreground mb-1"
             >
               Start Date
             </label>
@@ -65,13 +65,13 @@ export default function DateRangeFilter({
               id="start-date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              className="w-full px-3 py-2 border border-border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card dark:bg-gray-700 text-foreground dark:text-gray-100"
             />
           </div>
           <div className="flex-1">
             <label
               htmlFor="end-date"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              className="block text-sm font-medium text-foreground mb-1"
             >
               End Date
             </label>
@@ -80,7 +80,7 @@ export default function DateRangeFilter({
               id="end-date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              className="w-full px-3 py-2 border border-border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card dark:bg-gray-700 text-foreground dark:text-gray-100"
             />
           </div>
         </div>
@@ -89,13 +89,13 @@ export default function DateRangeFilter({
         <div className="flex gap-2">
           <button
             onClick={handleApply}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
+            className="px-4 py-2 bg-primary hover:bg-primary-hover text-primary-foreground font-medium rounded-lg transition-colors"
           >
             Apply
           </button>
           <button
             onClick={handleClear}
-            className="px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-lg transition-colors"
+            className="px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-foreground font-medium rounded-lg transition-colors"
           >
             Clear
           </button>
@@ -104,30 +104,30 @@ export default function DateRangeFilter({
 
       {/* Quick Presets */}
       <div className="mt-4 flex flex-wrap gap-2">
-        <span className="text-sm font-medium text-gray-700 dark:text-gray-300 self-center">
+        <span className="text-sm font-medium text-foreground self-center">
           Quick Select:
         </span>
         <button
           onClick={() => handlePreset(7)}
-          className="px-3 py-1 text-sm bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg transition-colors"
+          className="px-3 py-1 text-sm bg-muted dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-foreground rounded-lg transition-colors"
         >
           Last 7 days
         </button>
         <button
           onClick={() => handlePreset(30)}
-          className="px-3 py-1 text-sm bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg transition-colors"
+          className="px-3 py-1 text-sm bg-muted dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-foreground rounded-lg transition-colors"
         >
           Last 30 days
         </button>
         <button
           onClick={() => handlePreset(90)}
-          className="px-3 py-1 text-sm bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg transition-colors"
+          className="px-3 py-1 text-sm bg-muted dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-foreground rounded-lg transition-colors"
         >
           Last 90 days
         </button>
         <button
           onClick={() => handlePreset(365)}
-          className="px-3 py-1 text-sm bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg transition-colors"
+          className="px-3 py-1 text-sm bg-muted dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-foreground rounded-lg transition-colors"
         >
           Last Year
         </button>
@@ -135,7 +135,7 @@ export default function DateRangeFilter({
 
       {/* Active Filter Indicator */}
       {(startDate || endDate) && (
-        <div className="mt-3 flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+        <div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
           <span className="font-medium">Active Filter:</span>
           <span>
             {startDate && `From ${new Date(startDate).toLocaleDateString()}`}

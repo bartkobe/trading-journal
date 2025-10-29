@@ -156,14 +156,14 @@ export default function WinLossDistribution({
   if (!distribution) {
     return (
       <div
-        className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-12 text-center flex items-center justify-center"
+        className="rounded-lg border border-border bg-card p-12 text-center flex items-center justify-center"
         style={{ height: `${height}px` }}
       >
         <div>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+          <h3 className="text-lg font-semibold text-foreground dark:text-gray-100 mb-2">
             No Data Available
           </h3>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-muted-foreground">
             Start logging trades to see distribution charts.
           </p>
         </div>
@@ -207,12 +207,12 @@ export default function WinLossDistribution({
   return (
     <div className="space-y-6">
       {/* Win/Loss Pie Chart */}
-      <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6">
+      <div className="rounded-lg border border-border bg-card p-6">
         <div className="mb-4">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          <h3 className="text-lg font-semibold text-foreground dark:text-gray-100">
             Win/Loss Distribution
           </h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
+          <p className="text-sm text-muted-foreground">
             {distribution.wins + distribution.losses + distribution.breakeven} total trades
           </p>
         </div>
@@ -245,20 +245,20 @@ export default function WinLossDistribution({
             <p className="text-2xl font-bold text-green-600 dark:text-green-400">
               {distribution.wins}
             </p>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Wins</p>
+            <p className="text-sm text-muted-foreground">Wins</p>
           </div>
           <div>
             <p className="text-2xl font-bold text-red-600 dark:text-red-400">
               {distribution.losses}
             </p>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Losses</p>
+            <p className="text-sm text-muted-foreground">Losses</p>
           </div>
           {distribution.breakeven > 0 && (
             <div>
-              <p className="text-2xl font-bold text-gray-600 dark:text-gray-400">
+              <p className="text-2xl font-bold text-muted-foreground">
                 {distribution.breakeven}
               </p>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Breakeven</p>
+              <p className="text-sm text-muted-foreground">Breakeven</p>
             </div>
           )}
         </div>
@@ -266,12 +266,12 @@ export default function WinLossDistribution({
 
       {/* P&L Distribution Histogram */}
       {showPnlHistogram && pnlDistribution.length > 0 && (
-        <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6">
+        <div className="rounded-lg border border-border bg-card p-6">
           <div className="mb-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            <h3 className="text-lg font-semibold text-foreground dark:text-gray-100">
               P&L Distribution
             </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-sm text-muted-foreground">
               Trade count by profit/loss range
             </p>
           </div>

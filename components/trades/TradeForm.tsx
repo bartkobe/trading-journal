@@ -81,7 +81,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
       )}
 
       {/* Basic Information Section */}
-      <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+      <div className="bg-card shadow rounded-lg p-6">
         <h2 className="text-lg font-semibold mb-4">Basic Information</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Symbol */}
@@ -93,7 +93,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
               id="symbol"
               type="text"
               {...register('symbol')}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800"
+              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card"
               placeholder="AAPL, EUR/USD, BTC, etc."
               disabled={isLoading}
             />
@@ -108,7 +108,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
             <select
               id="assetType"
               {...register('assetType')}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800"
+              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card"
               disabled={isLoading}
             >
               <option value="STOCK">Stock</option>
@@ -129,7 +129,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
             <select
               id="currency"
               {...register('currency')}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800"
+              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card"
               disabled={isLoading}
             >
               <option value="USD">USD - US Dollar</option>
@@ -153,7 +153,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
             <select
               id="direction"
               {...register('direction')}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800"
+              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card"
               disabled={isLoading}
             >
               <option value="LONG">Long</option>
@@ -167,7 +167,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
       </div>
 
       {/* Entry Details Section */}
-      <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+      <div className="bg-card shadow rounded-lg p-6">
         <h2 className="text-lg font-semibold mb-4">Entry Details</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
@@ -178,7 +178,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
               id="entryDate"
               type="datetime-local"
               {...register('entryDate')}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800"
+              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card"
               disabled={isLoading}
             />
             {errors.entryDate && (
@@ -195,7 +195,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
               type="number"
               step="0.01"
               {...register('entryPrice', { valueAsNumber: true })}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800"
+              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card"
               placeholder="0.00"
               disabled={isLoading}
             />
@@ -213,7 +213,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
               type="number"
               step="0.01"
               {...register('quantity', { valueAsNumber: true })}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800"
+              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card"
               placeholder="0"
               disabled={isLoading}
             />
@@ -225,7 +225,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
       </div>
 
       {/* Exit Details Section */}
-      <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+      <div className="bg-card shadow rounded-lg p-6">
         <h2 className="text-lg font-semibold mb-4">Exit Details</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -236,7 +236,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
               id="exitDate"
               type="datetime-local"
               {...register('exitDate')}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800"
+              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card"
               disabled={isLoading}
             />
             {errors.exitDate && (
@@ -253,7 +253,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
               type="number"
               step="0.01"
               {...register('exitPrice', { valueAsNumber: true })}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800"
+              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card"
               placeholder="0.00"
               disabled={isLoading}
             />
@@ -265,7 +265,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
       </div>
 
       {/* Trade Strategy Section */}
-      <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+      <div className="bg-card shadow rounded-lg p-6">
         <h2 className="text-lg font-semibold mb-4">Strategy & Risk Management</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -276,7 +276,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
               id="strategyName"
               type="text"
               {...register('strategyName')}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800"
+              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card"
               placeholder="e.g., Momentum Play, Breakout"
               disabled={isLoading}
             />
@@ -293,7 +293,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
               id="setupType"
               type="text"
               {...register('setupType')}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800"
+              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card"
               placeholder="e.g., Pullback, Reversal, Continuation"
               disabled={isLoading}
             />
@@ -311,7 +311,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
               type="number"
               step="0.01"
               {...register('stopLoss', { valueAsNumber: true })}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800"
+              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card"
               placeholder="0.00"
               disabled={isLoading}
             />
@@ -329,7 +329,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
               type="number"
               step="0.01"
               {...register('takeProfit', { valueAsNumber: true })}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800"
+              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card"
               placeholder="0.00"
               disabled={isLoading}
             />
@@ -347,7 +347,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
               type="number"
               step="0.1"
               {...register('riskRewardRatio', { valueAsNumber: true })}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800"
+              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card"
               placeholder="e.g., 2.0"
               disabled={isLoading}
             />
@@ -365,7 +365,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
               type="number"
               step="0.01"
               {...register('fees', { valueAsNumber: true })}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800"
+              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card"
               placeholder="0.00"
               disabled={isLoading}
             />
@@ -375,7 +375,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
       </div>
 
       {/* Context Section */}
-      <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+      <div className="bg-card shadow rounded-lg p-6">
         <h2 className="text-lg font-semibold mb-4">Context & Conditions</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -385,7 +385,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
             <select
               id="timeOfDay"
               {...register('timeOfDay')}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800"
+              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card"
               disabled={isLoading}
             >
               <option value="">Select time of day</option>
@@ -407,7 +407,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
             <select
               id="marketConditions"
               {...register('marketConditions')}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800"
+              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card"
               disabled={isLoading}
             >
               <option value="">Select market conditions</option>
@@ -429,7 +429,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
               id="emotionalStateEntry"
               type="text"
               {...register('emotionalStateEntry')}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800"
+              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card"
               placeholder="e.g., Confident, Fearful, FOMO, Disciplined"
               disabled={isLoading}
             />
@@ -446,7 +446,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
               id="emotionalStateExit"
               type="text"
               {...register('emotionalStateExit')}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800"
+              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card"
               placeholder="e.g., Satisfied, Regretful, Relieved"
               disabled={isLoading}
             />
@@ -458,7 +458,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
       </div>
 
       {/* Notes Section */}
-      <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+      <div className="bg-card shadow rounded-lg p-6">
         <h2 className="text-lg font-semibold mb-4">Trade Notes & Journal</h2>
         <div>
           <label htmlFor="notes" className="block text-sm font-medium mb-2">
@@ -468,12 +468,12 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
             id="notes"
             {...register('notes')}
             rows={8}
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800"
+            className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card"
             placeholder="Write about your analysis, reasoning, what you learned, etc."
             disabled={isLoading}
           />
           {errors.notes && <p className="mt-1 text-sm text-red-600">{errors.notes.message}</p>}
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-muted-foreground">
             Document your pre-trade analysis, post-trade reflections, and lessons learned
           </p>
         </div>
@@ -484,7 +484,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
         <button
           type="button"
           onClick={() => router.back()}
-          className="px-6 py-2 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+          className="px-6 py-2 border border-border rounded-lg hover:bg-muted dark:hover:bg-gray-700 transition-colors"
           disabled={isLoading}
         >
           Cancel
@@ -492,7 +492,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
         <button
           type="submit"
           disabled={isLoading}
-          className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-6 py-2 bg-primary hover:bg-primary-hover text-primary-foreground font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isLoading ? 'Saving...' : isEditMode ? 'Update Trade' : 'Create Trade'}
         </button>

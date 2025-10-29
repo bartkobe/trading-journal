@@ -45,7 +45,7 @@ export function TradeActions({ tradeId }: TradeActionsProps) {
     <div className="flex items-center gap-3">
       <Link
         href={`/trades/${tradeId}/edit`}
-        className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
+        className="inline-flex items-center px-4 py-2 bg-primary hover:bg-primary-hover text-primary-foreground font-medium rounded-lg transition-colors"
       >
         <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path

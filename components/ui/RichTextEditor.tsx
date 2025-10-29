@@ -25,7 +25,7 @@ const ToolbarButton = ({
     onClick={onClick}
     disabled={disabled}
     title={title}
-    className={`p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+    className={`p-2 rounded hover:bg-muted dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
       isActive ? 'bg-gray-200 dark:bg-gray-600' : ''
     }`}
   >
@@ -65,7 +65,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
           openOnClick: false,
           HTMLAttributes: {
             class:
-              'text-blue-600 dark:text-blue-400 underline hover:text-blue-700 dark:hover:text-blue-300',
+              'text-primary dark:text-blue-400 underline hover:text-blue-700 dark:hover:text-blue-300',
           },
         }),
       ],
@@ -104,9 +104,9 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
 
 
     return (
-      <div className="border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden">
+      <div className="border border-border rounded-lg overflow-hidden">
         {/* Toolbar */}
-        <div className="bg-gray-50 dark:bg-gray-800 border-b border-gray-300 dark:border-gray-700 p-2 flex items-center gap-1 flex-wrap">
+        <div className="bg-muted bg-card border-b border-border p-2 flex items-center gap-1 flex-wrap">
           {/* Text Formatting */}
           <ToolbarButton
             onClick={() => editor.chain().focus().toggleBold().run()}

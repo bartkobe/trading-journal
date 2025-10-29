@@ -61,7 +61,7 @@ export default function PerformanceCharts({ startDate, endDate }: PerformanceCha
     <div className="space-y-6">
       {/* Section Filter Tabs */}
       <div className="flex items-center gap-2 overflow-x-auto pb-2">
-        <span className="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
+        <span className="text-sm font-medium text-foreground whitespace-nowrap">
           Show:
         </span>
         <div className="flex gap-2">
@@ -71,8 +71,8 @@ export default function PerformanceCharts({ startDate, endDate }: PerformanceCha
               onClick={() => setVisibleSection(section.id as ChartSection)}
               className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
                 visibleSection === section.id
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                  ? 'bg-primary text-white'
+                  : 'bg-muted dark:bg-gray-700 text-foreground hover:bg-gray-200 dark:hover:bg-gray-600'
               }`}
             >
               <span className="mr-1">{section.icon}</span>
@@ -156,7 +156,7 @@ export default function PerformanceCharts({ startDate, endDate }: PerformanceCha
       {/* Chart Count Indicator */}
       {visibleSection === 'all' && (
         <div className="text-center py-4">
-          <p className="text-sm text-gray-500 dark:text-gray-400">
+          <p className="text-sm text-muted-foreground">
             Showing all {sections.length - 1} chart sections
           </p>
         </div>

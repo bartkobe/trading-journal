@@ -80,17 +80,17 @@ const MetricCard = ({ title, value, subtitle, trend, className = '' }: MetricCar
       case 'negative':
         return 'text-red-600 dark:text-red-400';
       default:
-        return 'text-gray-600 dark:text-gray-400';
+        return 'text-muted-foreground';
     }
   };
 
   return (
     <div
-      className={`rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-sm ${className}`}
+      className={`rounded-lg border border-border bg-card p-6 shadow-sm ${className}`}
     >
-      <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">{title}</h3>
+      <h3 className="text-sm font-medium text-muted-foreground mb-2">{title}</h3>
       <p className={`text-3xl font-bold ${getTrendColor()}`}>{value}</p>
-      {subtitle && <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{subtitle}</p>}
+      {subtitle && <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>}
     </div>
   );
 };
@@ -169,11 +169,11 @@ export default function DashboardMetrics({ startDate, endDate }: DashboardMetric
     metrics.totalTrades === 0
   ) {
     return (
-      <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-12 text-center">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+      <div className="rounded-lg border border-border bg-card p-12 text-center">
+        <h3 className="text-lg font-semibold text-foreground dark:text-gray-100 mb-2">
           No Trading Data
         </h3>
-        <p className="text-gray-600 dark:text-gray-400">
+        <p className="text-muted-foreground">
           Start logging trades to see your performance metrics.
         </p>
       </div>
@@ -190,7 +190,7 @@ export default function DashboardMetrics({ startDate, endDate }: DashboardMetric
     <div className="space-y-8">
       {/* Overview Section */}
       <div>
-        <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+        <h2 className="text-xl font-bold text-foreground dark:text-gray-100 mb-4">
           Performance Overview
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -223,7 +223,7 @@ export default function DashboardMetrics({ startDate, endDate }: DashboardMetric
 
       {/* Win/Loss Analysis */}
       <div>
-        <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+        <h2 className="text-xl font-bold text-foreground dark:text-gray-100 mb-4">
           Win/Loss Analysis
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -256,7 +256,7 @@ export default function DashboardMetrics({ startDate, endDate }: DashboardMetric
 
       {/* Advanced Metrics */}
       <div>
-        <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+        <h2 className="text-xl font-bold text-foreground dark:text-gray-100 mb-4">
           Advanced Metrics
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -289,7 +289,7 @@ export default function DashboardMetrics({ startDate, endDate }: DashboardMetric
 
       {/* Risk Metrics */}
       <div>
-        <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">Risk Metrics</h2>
+        <h2 className="text-xl font-bold text-foreground dark:text-gray-100 mb-4">Risk Metrics</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <MetricCard
             title="Max Drawdown"
@@ -336,7 +336,7 @@ export default function DashboardMetrics({ startDate, endDate }: DashboardMetric
 
       {/* Streak Analysis */}
       <div>
-        <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">Streak Analysis</h2>
+        <h2 className="text-xl font-bold text-foreground dark:text-gray-100 mb-4">Streak Analysis</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <MetricCard
             title="Longest Win Streak"

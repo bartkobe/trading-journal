@@ -100,12 +100,12 @@ export default function PnlByEmotionalState({ startDate, endDate }: PnlByEmotion
 
   if (loading) {
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+      <div className="bg-card rounded-lg border border-border p-6">
+        <h3 className="text-lg font-semibold text-foreground dark:text-gray-100 mb-4">
           P&L by Emotional State
         </h3>
         <div className="flex items-center justify-center h-64">
-          <div className="text-gray-500 dark:text-gray-400">Loading...</div>
+          <div className="text-muted-foreground">Loading...</div>
         </div>
       </div>
     );
@@ -113,8 +113,8 @@ export default function PnlByEmotionalState({ startDate, endDate }: PnlByEmotion
 
   if (error) {
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+      <div className="bg-card rounded-lg border border-border p-6">
+        <h3 className="text-lg font-semibold text-foreground dark:text-gray-100 mb-4">
           P&L by Emotional State
         </h3>
         <div className="flex items-center justify-center h-64">
@@ -126,12 +126,12 @@ export default function PnlByEmotionalState({ startDate, endDate }: PnlByEmotion
 
   if (data.length === 0) {
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+      <div className="bg-card rounded-lg border border-border p-6">
+        <h3 className="text-lg font-semibold text-foreground dark:text-gray-100 mb-4">
           P&L by Emotional State
         </h3>
         <div className="flex items-center justify-center h-64">
-          <div className="text-gray-500 dark:text-gray-400">No trading data available</div>
+          <div className="text-muted-foreground">No trading data available</div>
         </div>
       </div>
     );
@@ -143,8 +143,8 @@ export default function PnlByEmotionalState({ startDate, endDate }: PnlByEmotion
   const negativeStates = data.filter((s) => s.totalPnl < 0);
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+    <div className="bg-card rounded-lg border border-border p-6">
+      <h3 className="text-lg font-semibold text-foreground dark:text-gray-100 mb-4">
         P&L by Emotional State
       </h3>
 
@@ -175,52 +175,52 @@ export default function PnlByEmotionalState({ startDate, endDate }: PnlByEmotion
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <span className="text-sm font-medium text-foreground">
               Best Emotional State
             </span>
             <span className="text-2xl">{getEmotionalIcon(bestState.emotionalStateEntry)}</span>
           </div>
-          <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
+          <p className="text-lg font-bold text-foreground dark:text-gray-100">
             {bestState.emotionalStateEntry}
           </p>
           <p className="text-sm text-green-600 dark:text-green-400 font-semibold">
             {formatChartCurrency(bestState.totalPnl)}
           </p>
-          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+          <p className="text-xs text-muted-foreground mt-1">
             {(bestState.winRate ?? 0).toFixed(1)}% win rate • {bestState.trades} trades
           </p>
         </div>
 
         <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-4">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <span className="text-sm font-medium text-foreground">
               Worst Emotional State
             </span>
             <span className="text-2xl">{getEmotionalIcon(worstState.emotionalStateEntry)}</span>
           </div>
-          <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
+          <p className="text-lg font-bold text-foreground dark:text-gray-100">
             {worstState.emotionalStateEntry}
           </p>
           <p className="text-sm text-red-600 dark:text-red-400 font-semibold">
             {formatChartCurrency(worstState.totalPnl)}
           </p>
-          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+          <p className="text-xs text-muted-foreground mt-1">
             {(worstState.winRate ?? 0).toFixed(1)}% win rate • {worstState.trades} trades
           </p>
         </div>
 
         <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <span className="text-sm font-medium text-foreground">
               Emotional Balance
             </span>
             <span className="text-2xl">⚖️</span>
           </div>
-          <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
+          <p className="text-lg font-bold text-foreground dark:text-gray-100">
             {positiveStates.length} / {data.length}
           </p>
-          <p className="text-sm text-gray-600 dark:text-gray-400">Positive states</p>
-          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+          <p className="text-sm text-muted-foreground">Positive states</p>
+          <p className="text-xs text-muted-foreground mt-1">
             {((positiveStates.length / data.length) * 100).toFixed(0)}% of states
           </p>
         </div>
@@ -228,7 +228,7 @@ export default function PnlByEmotionalState({ startDate, endDate }: PnlByEmotion
 
       {/* Insights */}
       <div className="mt-4 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
-        <p className="text-sm text-gray-700 dark:text-gray-300">
+        <p className="text-sm text-foreground">
           <span className="font-semibold">🧠 Insight:</span> You perform best when{' '}
           <span className="font-semibold">{bestState.emotionalStateEntry}</span> with a{' '}
           {(bestState.winRate ?? 0).toFixed(1)}% win rate. Avoid trading when feeling{' '}
@@ -251,13 +251,13 @@ function CustomTooltip({ active, payload }: any) {
   const data = payload[0].payload as EmotionalStatePerformance;
 
   return (
-    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-3">
-      <p className="font-semibold text-gray-900 dark:text-gray-100 mb-2 flex items-center gap-2">
+    <div className="bg-card border border-border rounded-lg shadow-lg p-3">
+      <p className="font-semibold text-foreground dark:text-gray-100 mb-2 flex items-center gap-2">
         <span className="text-xl">{getEmotionalIcon(data.emotionalStateEntry)}</span>
         {data.emotionalStateEntry}
       </p>
       <div className="space-y-1 text-sm">
-        <p className="text-gray-700 dark:text-gray-300">
+        <p className="text-foreground">
           <span className="font-medium">Total P&L:</span>{' '}
           <span
             className={
@@ -269,13 +269,13 @@ function CustomTooltip({ active, payload }: any) {
             {formatChartCurrency(data.totalPnl)}
           </span>
         </p>
-        <p className="text-gray-700 dark:text-gray-300">
+        <p className="text-foreground">
           <span className="font-medium">Trades:</span> {data.trades}
         </p>
-        <p className="text-gray-700 dark:text-gray-300">
+        <p className="text-foreground">
           <span className="font-medium">Win Rate:</span> {(data.winRate ?? 0).toFixed(1)}%
         </p>
-        <p className="text-gray-700 dark:text-gray-300">
+        <p className="text-foreground">
           <span className="font-medium">Avg P&L:</span> {formatChartCurrency(data.avgPnl ?? 0)}
         </p>
       </div>
