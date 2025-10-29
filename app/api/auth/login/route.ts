@@ -54,12 +54,23 @@ export async function POST(request: NextRequest) {
           { status: 401 }
         );
       }
+      
+      // Return detailed error in development/for debugging
+      return NextResponse.json(
+        {
+          error: 'Failed to login',
+          details: error.message,
+          stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
+        },
+        { status: 500 }
+      );
     }
 
     // Generic error response
     return NextResponse.json(
       {
         error: 'Failed to login',
+        details: String(error),
       },
       { status: 500 }
     );
