@@ -5,6 +5,7 @@
     }
   },
   "buildCommand": "npm run build",
+  "postbuild": "npx prisma migrate deploy",
   "devCommand": "npm run dev",
   "installCommand": "npm install",
   "framework": "nextjs"
