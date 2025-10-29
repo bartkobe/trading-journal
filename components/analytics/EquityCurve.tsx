@@ -87,7 +87,8 @@ export default function EquityCurve({
         const response = await fetch(url);
 
         if (!response.ok) {
-          throw new Error('Failed to fetch equity curve data');
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.error || `Failed to fetch equity curve data (${response.status})`);
         }
 
         const result = await response.json();
