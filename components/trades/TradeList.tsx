@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { TradeWithCalculations } from '@/lib/types';
 import { formatCurrency, formatPercent, formatDate } from '@/lib/trades';
 import { TradeCard } from './TradeCard';
+import { ErrorMessage, EmptyState } from '@/components/ui/ErrorMessage';
 
 interface TradeListProps {
   filters?: {
@@ -50,19 +51,30 @@ export function TradeList({ filters, sortBy, initialTrades }: TradeListProps) {
       }
 
       const response = await fetch(`/api/trades?${params.toString()}`);
-      const result = await response.json();
 
       if (!response.ok) {
-        setError(result.error || 'Failed to fetch trades');
+        const result = await response.json();
+        if (response.status === 401) {
+          setError('Your session has expired. Please log in again.');
+        } else if (response.status === 500) {
+          setError('Server error while loading trades. Our team has been notified. Please try again in a moment.');
+        } else {
+          setError(result.error || 'Failed to load trades. Please try again.');
+        }
         return;
       }
 
+      const result = await response.json();
       setTrades(result.trades);
       setTotal(result.total);
       setHasMore(result.hasMore);
     } catch (err) {
       console.error('Fetch trades error:', err);
-      setError('An unexpected error occurred');
+      if (err instanceof TypeError && err.message === 'Failed to fetch') {
+        setError('Unable to connect to the server. Please check your internet connection and try again.');
+      } else {
+        setError('An unexpected error occurred while loading trades. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -114,15 +126,12 @@ export function TradeList({ filters, sortBy, initialTrades }: TradeListProps) {
 
   if (error) {
     return (
-      <div className="loss-bg border border-danger rounded-lg p-6 text-center">
-        <p className="loss">{error}</p>
-        <button
-          onClick={fetchTrades}
-          className="mt-4 px-4 py-2 bg-danger hover:bg-danger-dark text-danger-foreground rounded-lg transition-colors"
-        >
-          Try Again
-        </button>
-      </div>
+      <ErrorMessage
+        title="Failed to Load Trades"
+        message={error}
+        onRetry={fetchTrades}
+        retryText="Reload Trades"
+      />
     );
   }
 
@@ -176,45 +185,23 @@ export function TradeList({ filters, sortBy, initialTrades }: TradeListProps) {
   if (trades.length === 0) {
     return (
       <div className="bg-card rounded-lg shadow-sm border border-border">
-        <div className="px-6 py-12 text-center">
-          <svg
-            className="mx-auto h-12 w-12 text-muted-foreground"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-            />
-          </svg>
-          <h3 className="mt-2 text-sm font-medium text-foreground">
-            No trades found
-          </h3>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {filters ? 'Try adjusting your filters.' : 'Get started by recording your first trade.'}
-          </p>
-          {!filters && (
-            <div className="mt-6">
-              <Link
-                href="/trades/new"
-                className="inline-flex items-center px-4 py-2 bg-primary hover:bg-primary-hover text-primary-foreground font-medium rounded-lg transition-colors"
-              >
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 4v16m8-8H4"
-                  />
-                </svg>
-                Record First Trade
-              </Link>
-            </div>
-          )}
-        </div>
+        <EmptyState
+          icon={filters ? 'search' : 'data'}
+          title="No trades found"
+          message={
+            filters
+              ? 'No trades match your current filters. Try adjusting your date range, asset type, or other criteria.'
+              : 'You haven\'t recorded any trades yet. Start building your trading journal by recording your first trade.'
+          }
+          action={
+            !filters
+              ? {
+                  label: 'Record First Trade',
+                  onClick: () => (window.location.href = '/trades/new'),
+                }
+              : undefined
+          }
+        />
       </div>
     );
   }

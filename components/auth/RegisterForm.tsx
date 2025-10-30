@@ -32,10 +32,17 @@ export function RegisterForm() {
         body: JSON.stringify(data),
       });
 
-      const result = await response.json();
-
       if (!response.ok) {
-        setError(result.error || 'Failed to register');
+        const result = await response.json();
+        if (response.status === 400) {
+          setError(result.error || 'Invalid registration information. Please check your details and try again.');
+        } else if (response.status === 409) {
+          setError('An account with this email already exists. Please log in or use a different email address.');
+        } else if (response.status === 500) {
+          setError('Unable to create account due to a server error. Please try again in a moment.');
+        } else {
+          setError(result.error || 'Failed to create account. Please try again.');
+        }
         return;
       }
 
@@ -43,8 +50,12 @@ export function RegisterForm() {
       router.push('/dashboard');
       router.refresh();
     } catch (err) {
-      setError('An unexpected error occurred');
       console.error('Registration error:', err);
+      if (err instanceof TypeError && err.message === 'Failed to fetch') {
+        setError('Unable to connect to the server. Please check your internet connection and try again.');
+      } else {
+        setError('An unexpected error occurred. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }

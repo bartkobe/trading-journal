@@ -70,19 +70,19 @@
 
 ### Frontend - Components
 
-- `components/auth/LoginForm.tsx` - Login form component (✅ Updated - consistent form styling with semantic colors)
-- `components/auth/RegisterForm.tsx` - Registration form component (✅ Updated - consistent form styling with semantic colors)
-- `components/trades/TradeForm.tsx` - Trade entry/edit form (✅ Updated - consistent form styling, semantic colors, standardized spacing)
-- `components/trades/TradeList.tsx` - Trade list table/cards (✅ Created - responsive table/card layout, filtering, pagination, loading states)
+- `components/auth/LoginForm.tsx` - Login form component (✅ Updated - consistent form styling, semantic colors, context-aware error messages)
+- `components/auth/RegisterForm.tsx` - Registration form component (✅ Updated - consistent form styling, semantic colors, context-aware error messages)
+- `components/trades/TradeForm.tsx` - Trade entry/edit form (✅ Updated - consistent form styling, semantic colors, standardized spacing, context-aware errors)
+- `components/trades/TradeList.tsx` - Trade list table/cards (✅ Updated - uses ErrorMessage/EmptyState, improved error messages with retry, network error handling)
 - `components/trades/TradeCard.tsx` - Individual trade card (✅ Created - comprehensive card with P&L, visual indicators, tags, badges)
 - `components/trades/TradeFilters.tsx` - Search and filter controls
 - `components/trades/TradeDetail.tsx` - Trade detail view (✅ Created - comprehensive trade display with metrics, details, tags, screenshots, notes)
-- `components/trades/TradeActions.tsx` - Edit/delete action buttons (✅ Created - client component with delete functionality)
+- `components/trades/TradeActions.tsx` - Edit/delete action buttons (✅ Updated - uses ConfirmDialog, ErrorMessage, improved error handling with retry)
 - `components/trades/ScreenshotUpload.tsx` - Image upload component (✅ Created - drag-and-drop, preview, multi-file support)
 - `components/analytics/DashboardMetrics.tsx` - Key metrics display (✅ Created - comprehensive metrics cards with loading/error states)
 - `components/analytics/DashboardContent.tsx` - Dashboard content wrapper (✅ Created - client component managing date state)
 - `components/analytics/PerformanceCharts.tsx` - Chart components (✅ Created - wrapper component with tab filtering for all charts)
-- `components/analytics/EquityCurve.tsx` - Equity curve chart (✅ Created - Recharts line/area chart with cumulative P&L over time)
+- `components/analytics/EquityCurve.tsx` - Equity curve chart (✅ Updated - uses ErrorMessage/EmptyState, improved error handling, retry functionality)
 - `components/analytics/WinLossDistribution.tsx` - Win/loss distribution charts (✅ Created - Pie chart and P&L histogram with Recharts)
 - `components/analytics/PnlByAssetType.tsx` - P&L by asset type chart (✅ Created - Bar chart with color-coded P&L and summary stats)
 - `components/analytics/PnlByStrategy.tsx` - P&L by strategy chart (✅ Created - Bar chart showing performance by trading strategy)
@@ -98,6 +98,10 @@
 - `components/ui/CurrencySelector.tsx` - Currency dropdown (✅ Created - 10 major currencies with symbols and helper functions)
 - `components/ui/RichTextEditor.tsx` - Rich text editor for trade notes (✅ Created - Tiptap integration with toolbar, formatting, links)
 - `components/ui/DateRangeFilter.tsx` - Date range filter control (✅ Updated - consistent form styling, semantic colors, standardized spacing)
+- `components/ui/ErrorMessage.tsx` - Error and empty state components (✅ Created - reusable ErrorMessage and EmptyState with retry actions, icons, dismissible)
+- `components/ui/ConfirmDialog.tsx` - Confirmation dialog component (✅ Created - accessible modal for destructive actions with variants)
+- `components/ui/LoadingSpinner.tsx` - Loading state components (✅ Created - spinner variants, overlays, card/table skeletons, button loading)
+- `components/ui/ChartSkeleton.tsx` - Chart skeleton component (✅ Created - skeleton for charts with metric card variant)
 
 ### Utilities & Types
 
@@ -116,6 +120,7 @@
 - `THEME_GUIDE.md` - Theme documentation and usage guide (✅ Created - comprehensive color palette, typography, usage examples)
 - `RESPONSIVE_DESIGN.md` - Responsive design guide (✅ Created - desktop-first strategy, breakpoints, layout patterns, best practices)
 - `FORM_STYLING_GUIDE.md` - Form styling standards (✅ Created - consistent spacing, typography, colors, and patterns for all forms)
+- `ERROR_HANDLING_GUIDE.md` - Error handling patterns and documentation (✅ Created - user-friendly error messages, component patterns, HTTP status mapping, best practices)
 
 ### Testing
 
@@ -216,8 +221,8 @@
   - [x] 5.10 Style all forms with consistent spacing and typography
   - [x] 5.11 Add visual indicators: green for profits, red for losses
   - [x] 5.12 Implement loading states for async operations
-  - [ ] 5.13 Add error states and user-friendly error messages
-  - [ ] 5.14 Create confirmation dialogs for destructive actions
+  - [x] 5.13 Add error states and user-friendly error messages
+  - [x] 5.14 Create confirmation dialogs for destructive actions
   - [ ] 5.15 Ensure accessibility standards (WCAG contrast ratios, keyboard navigation)
   - [ ] 5.16 Polish overall aesthetic: clean, minimal, plenty of white space
 

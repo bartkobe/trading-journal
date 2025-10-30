@@ -21,6 +21,7 @@ import {
   chartDimensions,
 } from '@/lib/chart-config';
 import { ChartSkeleton } from '@/components/ui/ChartSkeleton';
+import { ErrorMessage, EmptyState } from '@/components/ui/ErrorMessage';
 
 // ============================================================================
 // Types
@@ -89,7 +90,13 @@ export default function EquityCurve({
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
-          throw new Error(errorData.error || `Failed to fetch equity curve data (${response.status})`);
+          if (response.status === 401) {
+            throw new Error('Your session has expired. Please log in again to view charts.');
+          } else if (response.status === 500) {
+            throw new Error('Server error while loading chart data. Please try again in a moment.');
+          } else {
+            throw new Error(errorData.error || `Unable to load equity curve (Error ${response.status})`);
+          }
         }
 
         const result = await response.json();
@@ -103,7 +110,11 @@ export default function EquityCurve({
         setData(equityCurve);
       } catch (err: any) {
         console.error('Error fetching equity curve:', err);
-        setError(err.message || 'An error occurred');
+        if (err instanceof TypeError && err.message === 'Failed to fetch') {
+          setError('Unable to connect to the server. Please check your internet connection.');
+        } else {
+          setError(err.message || 'An unexpected error occurred while loading the equity curve.');
+        }
       } finally {
         setLoading(false);
       }
@@ -118,29 +129,61 @@ export default function EquityCurve({
 
   if (error) {
     return (
-      <div className="rounded-lg border border-danger loss-bg p-6">
-        <h3 className="text-lg font-semibold loss mb-2">
-          Error Loading Chart
-        </h3>
-        <p className="loss">{error}</p>
+      <div className="rounded-lg border border-border bg-card p-6">
+        <ErrorMessage
+          title="Failed to Load Equity Curve"
+          message={error}
+          onRetry={() => {
+            setLoading(true);
+            setError(null);
+            // Trigger re-fetch by changing state
+            const fetchData = async () => {
+              setLoading(true);
+              setError(null);
+              try {
+                const params = new URLSearchParams();
+                if (startDate) params.append('startDate', startDate);
+                if (endDate) params.append('endDate', endDate);
+                params.append('chartType', 'equity');
+                const url = `/api/analytics/charts${params.toString() ? `?${params.toString()}` : ''}`;
+                const response = await fetch(url);
+                if (!response.ok) {
+                  const errorData = await response.json().catch(() => ({}));
+                  throw new Error(errorData.error || `Unable to load equity curve`);
+                }
+                const result = await response.json();
+                const equityCurve = result.charts.equityCurve.map((point: any) => ({
+                  ...point,
+                  date: new Date(point.date),
+                }));
+                setData(equityCurve);
+              } catch (err: any) {
+                setError(err.message || 'An unexpected error occurred');
+              } finally {
+                setLoading(false);
+              }
+            };
+            fetchData();
+          }}
+          retryText="Reload Chart"
+        />
       </div>
     );
   }
 
   if (!data || data.length === 0) {
     return (
-      <div
-        className="rounded-lg border border-border bg-card p-12 text-center flex items-center justify-center"
-        style={{ height: `${height}px` }}
-      >
-        <div>
-          <h3 className="text-lg font-semibold text-foreground dark:text-gray-100 mb-2">
-            No Data Available
-          </h3>
-          <p className="text-muted-foreground">
-            Start logging trades to see your equity curve.
-          </p>
-        </div>
+      <div className="rounded-lg border border-border bg-card">
+        <EmptyState
+          icon="data"
+          title="No Trade Data"
+          message="Start logging trades to see your equity curve and track your cumulative P&L over time."
+          action={{
+            label: 'Record First Trade',
+            onClick: () => (window.location.href = '/trades/new'),
+          }}
+          className="py-12"
+        />
       </div>
     );
   }

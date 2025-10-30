@@ -32,10 +32,15 @@ export function LoginForm() {
         body: JSON.stringify(data),
       });
 
-      const result = await response.json();
-
       if (!response.ok) {
-        setError(result.error || 'Failed to login');
+        const result = await response.json();
+        if (response.status === 401) {
+          setError('Invalid email or password. Please check your credentials and try again.');
+        } else if (response.status === 500) {
+          setError('Unable to sign in due to a server error. Please try again in a moment.');
+        } else {
+          setError(result.error || 'Failed to sign in. Please try again.');
+        }
         return;
       }
 
@@ -43,8 +48,12 @@ export function LoginForm() {
       router.push('/dashboard');
       router.refresh();
     } catch (err) {
-      setError('An unexpected error occurred');
       console.error('Login error:', err);
+      if (err instanceof TypeError && err.message === 'Failed to fetch') {
+        setError('Unable to connect to the server. Please check your internet connection and try again.');
+      } else {
+        setError('An unexpected error occurred. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }

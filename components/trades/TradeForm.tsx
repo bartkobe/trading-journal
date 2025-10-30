@@ -50,12 +50,23 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
         body: JSON.stringify(data),
       });
 
-      const result = await response.json();
-
       if (!response.ok) {
-        setError(result.error || 'Failed to save trade');
+        const result = await response.json();
+        if (response.status === 400) {
+          setError(result.error || 'Invalid trade data. Please check all required fields and try again.');
+        } else if (response.status === 401) {
+          setError('Your session has expired. Please log in again.');
+        } else if (response.status === 404 && isEditMode) {
+          setError('Trade not found. It may have been deleted.');
+        } else if (response.status === 500) {
+          setError('Unable to save trade due to a server error. Please try again in a moment.');
+        } else {
+          setError(result.error || `Failed to ${isEditMode ? 'update' : 'create'} trade. Please try again.`);
+        }
         return;
       }
+
+      const result = await response.json();
 
       // Call success callback or redirect
       if (onSuccess) {
@@ -65,8 +76,12 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
         router.refresh();
       }
     } catch (err) {
-      setError('An unexpected error occurred');
       console.error('Save trade error:', err);
+      if (err instanceof TypeError && err.message === 'Failed to fetch') {
+        setError('Unable to connect to the server. Please check your internet connection and try again.');
+      } else {
+        setError('An unexpected error occurred while saving the trade. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }
