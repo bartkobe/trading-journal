@@ -128,10 +128,46 @@ export function TradeList({ filters, sortBy, initialTrades }: TradeListProps) {
 
   if (isLoading) {
     return (
-      <div className="bg-card rounded-lg shadow-sm border border-border p-12">
-        <div className="flex items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-          <p className="ml-4 text-muted-foreground">Loading trades...</p>
+      <div className="space-y-4">
+        {/* Desktop Table Skeleton */}
+        <div className="hidden md:block bg-card rounded-lg border border-border overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-border">
+              <thead className="bg-muted">
+                <tr>
+                  {['Symbol', 'Date', 'Asset', 'Direction', 'Entry', 'Exit', 'P&L', '%', 'Outcome'].map((header) => (
+                    <th key={header} className="px-6 py-3">
+                      <div className="h-4 bg-muted-foreground/20 rounded animate-pulse" />
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {[...Array(5)].map((_, i) => (
+                  <tr key={i}>
+                    {[...Array(9)].map((_, j) => (
+                      <td key={j} className="px-6 py-4">
+                        <div className="h-4 bg-muted rounded animate-pulse" style={{ width: '80%' }} />
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Mobile Card Skeleton */}
+        <div className="md:hidden space-y-4">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="bg-card rounded-lg border border-border p-4">
+              <div className="space-y-3">
+                <div className="h-6 bg-muted rounded animate-pulse w-1/3" />
+                <div className="h-4 bg-muted rounded animate-pulse w-1/2" />
+                <div className="h-4 bg-muted rounded animate-pulse w-2/3" />
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     );

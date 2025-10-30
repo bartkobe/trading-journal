@@ -121,9 +121,14 @@ export default function PnlByTimeOfDay({
   if (loading) {
     return (
       <div
-        className="rounded-lg bg-gray-200 dark:bg-gray-700 animate-pulse"
+        className="rounded-lg bg-card border border-border p-6 flex items-center justify-center"
         style={{ height: `${height}px` }}
-      />
+      >
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-sm text-muted-foreground">Loading chart data...</p>
+        </div>
+      </div>
     );
   }
 

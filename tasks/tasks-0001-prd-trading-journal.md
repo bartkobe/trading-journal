@@ -215,7 +215,7 @@
   - [x] 5.9 Ensure responsive design for desktop (minimum 1280px width)
   - [x] 5.10 Style all forms with consistent spacing and typography
   - [x] 5.11 Add visual indicators: green for profits, red for losses
-  - [ ] 5.12 Implement loading states for async operations
+  - [x] 5.12 Implement loading states for async operations
   - [ ] 5.13 Add error states and user-friendly error messages
   - [ ] 5.14 Create confirmation dialogs for destructive actions
   - [ ] 5.15 Ensure accessibility standards (WCAG contrast ratios, keyboard navigation)

@@ -112,12 +112,7 @@ export default function EquityCurve({
   }, [startDate, endDate]);
 
   if (loading) {
-    return (
-      <div
-        className="rounded-lg bg-gray-200 dark:bg-gray-700 animate-pulse"
-        style={{ height: `${height}px` }}
-      />
-    );
+    return <ChartSkeleton height={height} />;
   }
 
   if (error) {
