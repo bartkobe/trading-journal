@@ -73,7 +73,6 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
         onSuccess();
       } else {
         router.push(`/trades/${result.trade.id}`);
-        router.refresh();
       }
     } catch (err) {
       console.error('Save trade error:', err);

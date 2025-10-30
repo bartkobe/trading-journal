@@ -12,12 +12,16 @@ interface TradeListProps {
     startDate?: string;
     endDate?: string;
     assetType?: string;
+    search?: string;
+    strategyName?: string;
     symbol?: string;
-    strategy?: string;
     tags?: string[];
     outcome?: string;
+    sortBy?: 'date' | 'pnl' | 'pnlPercent' | 'symbol';
+    sortOrder?: 'asc' | 'desc';
   };
   sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
   initialTrades?: TradeWithCalculations[];
 }
 
@@ -36,15 +40,20 @@ export function TradeList({ filters, sortBy, initialTrades }: TradeListProps) {
 
       // Build query params
       const params = new URLSearchParams();
-      params.set('page', page.toString());
-      params.set('limit', '20');
+      const limit = 20;
+      const offset = (page - 1) * limit;
+      params.set('limit', String(limit));
+      params.set('offset', String(offset));
 
       if (sortBy) params.set('sortBy', sortBy);
+      if (filters?.sortBy) params.set('sortBy', filters.sortBy);
+      if (filters?.sortOrder) params.set('sortOrder', filters.sortOrder);
       if (filters?.startDate) params.set('startDate', filters.startDate);
       if (filters?.endDate) params.set('endDate', filters.endDate);
       if (filters?.assetType) params.set('assetType', filters.assetType);
+      if (filters?.search) params.set('search', filters.search);
       if (filters?.symbol) params.set('symbol', filters.symbol);
-      if (filters?.strategy) params.set('strategy', filters.strategy);
+      if (filters?.strategyName) params.set('strategyName', filters.strategyName);
       if (filters?.outcome) params.set('outcome', filters.outcome);
       if (filters?.tags && filters.tags.length > 0) {
         params.set('tags', filters.tags.join(','));
@@ -197,7 +206,9 @@ export function TradeList({ filters, sortBy, initialTrades }: TradeListProps) {
             !filters
               ? {
                   label: 'Record First Trade',
-                  onClick: () => (window.location.href = '/trades/new'),
+                  onClick: () => {
+                    window.location.assign('/trades/new');
+                  },
                 }
               : undefined
           }

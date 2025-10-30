@@ -178,7 +178,7 @@ export default function PnlByTimeOfDay({
         </p>
       </div>
 
-      <ResponsiveContainer width="100%" height={height} minHeight={0}>
+      <ResponsiveContainer width="100%" height={height}>
         <BarChart data={displayData} margin={chartDimensions.margin.full}>
           <CartesianGrid {...chartConfig.grid} />
           <XAxis dataKey="displayName" {...chartConfig.axis} />

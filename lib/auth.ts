@@ -212,7 +212,7 @@ export async function registerUser(
     data: {
       email,
       password: hashedPassword,
-      name,
+      name: name ?? null,
     },
     select: {
       id: true,

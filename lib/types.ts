@@ -309,6 +309,7 @@ export interface ApiError {
 // ============================================================================
 
 export interface TradeCSVRow {
+  id: string;
   symbol: string;
   assetType: string;
   currency: string;
@@ -318,10 +319,16 @@ export interface TradeCSVRow {
   exitDate: string;
   exitPrice: number;
   quantity: number;
+  stopLoss: number | null;
+  takeProfit: number | null;
   pnl: number;
   pnlPercent: number;
   fees: number;
   netPnl: number;
+  entryValue: number;
+  exitValue: number;
+  actualRiskReward: number | undefined;
+  holdingPeriodHours: number;
   strategyName: string;
   setupType: string;
   timeOfDay: string;
@@ -329,5 +336,13 @@ export interface TradeCSVRow {
   emotionalStateEntry: string;
   emotionalStateExit: string;
   holdingPeriodDays: number;
+  isWinner: boolean;
+  isLoser: boolean;
+  isBreakeven: boolean;
+  riskRewardRatio: number | null;
+  notes: string;
+  createdAt: string;
+  updatedAt: string;
+  screenshotsCount: number;
   tags: string;
 }

@@ -92,6 +92,7 @@ export const tradeFilterSchema = z.object({
   endDate: z.coerce.date().optional(),
   assetType: z.enum(['STOCK', 'FOREX', 'CRYPTO', 'OPTIONS']).optional(),
   symbol: z.string().optional(),
+  search: z.string().optional(),
   strategyName: z.string().optional(),
   setupType: z.string().optional(),
   tags: z.array(z.string()).optional(),

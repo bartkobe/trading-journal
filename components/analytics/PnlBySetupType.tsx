@@ -117,6 +117,7 @@ export default function PnlBySetupType({ startDate, endDate }: PnlBySetupTypePro
 
   const topSetup = data[0];
   const totalTrades = data.reduce((sum, item) => sum + item.trades, 0);
+  const mostUsedSetup = [...data].sort((a, b) => b.trades - a.trades)[0];
 
   return (
     <div className="bg-card rounded-lg border border-border p-6">
@@ -125,8 +126,8 @@ export default function PnlBySetupType({ startDate, endDate }: PnlBySetupTypePro
       </h3>
 
       {/* Chart */}
-      <div className="h-80 mb-6">
-        <ResponsiveContainer width="100%" height="100%" minHeight={0}>
+      <div className="mb-6" style={{ minHeight: '320px' }}>
+        <ResponsiveContainer width="100%" height={320}>
           <BarChart data={data}>
             <CartesianGrid {...chartConfig.grid} />
             <XAxis
@@ -169,13 +170,13 @@ export default function PnlBySetupType({ startDate, endDate }: PnlBySetupTypePro
             <span className="text-2xl">📊</span>
           </div>
           <p className="text-lg font-bold text-foreground dark:text-gray-100">
-            {data.sort((a, b) => b.trades - a.trades)[0].setupType}
+            {mostUsedSetup.setupType}
           </p>
           <p className="text-sm text-muted-foreground">
-            {data.sort((a, b) => b.trades - a.trades)[0].trades} trades
+            {mostUsedSetup.trades} trades
           </p>
           <p className="text-xs text-muted-foreground mt-1">
-            {((data.sort((a, b) => b.trades - a.trades)[0].trades / totalTrades) * 100).toFixed(1)}%
+            {((mostUsedSetup.trades / totalTrades) * 100).toFixed(1)}%
             of all trades
           </p>
         </div>

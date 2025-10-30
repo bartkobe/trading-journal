@@ -49,19 +49,25 @@ export function calculateTradeMetrics(trade: Trade): TradeCalculations {
   const isLoser = netPnl < 0;
   const isBreakeven = netPnl === 0;
 
-  return {
+  const result: TradeCalculations = {
     pnl,
     pnlPercent,
     netPnl,
     entryValue,
     exitValue,
-    actualRiskReward,
     holdingPeriod,
     holdingPeriodDays,
     isWinner,
     isLoser,
     isBreakeven,
-  };
+  } as TradeCalculations;
+
+  if (actualRiskReward !== undefined) {
+    // @ts-expect-error exactOptionalPropertyTypes: only include when defined
+    result.actualRiskReward = actualRiskReward;
+  }
+
+  return result;
 }
 
 /**

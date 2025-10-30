@@ -40,7 +40,6 @@ export function TradeActions({ tradeId }: TradeActionsProps) {
 
       // Redirect to trades list after successful deletion
       router.push('/trades');
-      router.refresh();
     } catch (error) {
       console.error('Delete error:', error);
       setError('Unable to delete trade. Please check your connection and try again.');

@@ -48,7 +48,6 @@ export function RegisterForm() {
 
       // Redirect to dashboard on success
       router.push('/dashboard');
-      router.refresh();
     } catch (err) {
       console.error('Registration error:', err);
       if (err instanceof TypeError && err.message === 'Failed to fetch') {

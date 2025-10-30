@@ -76,8 +76,8 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         tradeId,
         url: uploadResult.url,
         filename: uploadResult.filename,
-        fileSize: uploadResult.fileSize,
-        mimeType: uploadResult.mimeType,
+        fileSize: uploadResult.fileSize ?? null,
+        mimeType: uploadResult.mimeType ?? null,
       },
     });
 

@@ -51,7 +51,7 @@
 ### Data Export
 
 - `app/api/export/csv/route.ts` - CSV export endpoint
-- `lib/export.ts` - CSV generation logic
+- `lib/export.ts` - CSV generation logic (✅ Created - builds rows and CSV for trades)
 
 ### Tags
 
@@ -229,19 +229,19 @@
   - [x] 5.15 Ensure accessibility standards (WCAG contrast ratios, keyboard navigation)
   - [x] 5.16 Polish overall aesthetic: clean, minimal, plenty of white space
 
-- [ ] 6.0 Data Export & Additional Features
-  - [ ] 6.1 Create CSV generation utility in `lib/export.ts`
-  - [ ] 6.2 Build GET /api/export/csv endpoint to export all trade data
-  - [ ] 6.3 Include all trade fields and calculated metrics in CSV export
-  - [ ] 6.4 Add "Export to CSV" button on trades list page
-  - [ ] 6.5 Build GET /api/tags endpoint to list all unique tags
-  - [ ] 6.6 Build POST /api/tags endpoint to create new tag
-  - [ ] 6.7 Implement tag autocomplete in TagInput component
-  - [ ] 6.8 Build TradeFilters component with search and filter controls
-  - [ ] 6.9 Implement search functionality across symbol, notes, strategy, tags
-  - [ ] 6.10 Implement filtering by date range, asset type, outcome, strategy, tags, symbol
-  - [ ] 6.11 Implement sorting by date, P&L, P&L%, symbol
-  - [ ] 6.12 Add pagination or infinite scroll for trade lists
+- [x] 6.0 Data Export & Additional Features
+  - [x] 6.1 Create CSV generation utility in `lib/export.ts`
+  - [x] 6.2 Build GET /api/export/csv endpoint to export all trade data
+  - [x] 6.3 Include all trade fields and calculated metrics in CSV export
+  - [x] 6.4 Add "Export to CSV" button on trades list page
+  - [x] 6.5 Build GET /api/tags endpoint to list all unique tags
+  - [x] 6.6 Build POST /api/tags endpoint to create new tag
+  - [x] 6.7 Implement tag autocomplete in TagInput component
+  - [x] 6.8 Build TradeFilters component with search and filter controls
+  - [x] 6.9 Implement search functionality across symbol, notes, strategy, tags
+  - [x] 6.10 Implement filtering by date range, asset type, outcome, strategy, tags, symbol
+  - [x] 6.11 Implement sorting by date, P&L, P&L%, symbol
+  - [x] 6.12 Add pagination or infinite scroll for trade lists
 
 - [ ] 7.0 Testing & Quality Assurance
   - [ ] 7.1 Set up Jest and React Testing Library

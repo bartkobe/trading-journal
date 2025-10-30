@@ -46,7 +46,6 @@ export function LoginForm() {
 
       // Redirect to dashboard on success
       router.push('/dashboard');
-      router.refresh();
     } catch (err) {
       console.error('Login error:', err);
       if (err instanceof TypeError && err.message === 'Failed to fetch') {

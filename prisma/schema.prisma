@@ -6,9 +6,8 @@ generator client {
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
-  // Optional: Use direct connection for migrations if DATABASE_URL_DIRECT is set
-  // This allows using pooled connection (port 6543) for runtime but direct connection (port 5432) for migrations
-  directUrl = env("DATABASE_URL_DIRECT")
+  // directUrl disabled to avoid requiring DATABASE_URL_DIRECT in local dev
+  // directUrl = env("DATABASE_URL_DIRECT")
 }
 
 model User {

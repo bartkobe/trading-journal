@@ -40,6 +40,15 @@ export async function POST(request: NextRequest) {
     const trade = await prisma.trade.create({
       data: {
         ...tradeData,
+        setupType: tradeData.setupType ?? null,
+        strategyName: tradeData.strategyName ?? null,
+        stopLoss: tradeData.stopLoss ?? null,
+        takeProfit: tradeData.takeProfit ?? null,
+        riskRewardRatio: tradeData.riskRewardRatio ?? null,
+        timeOfDay: tradeData.timeOfDay ?? null,
+        marketConditions: tradeData.marketConditions ?? null,
+        emotionalStateEntry: tradeData.emotionalStateEntry ?? null,
+        emotionalStateExit: tradeData.emotionalStateExit ?? null,
         userId: user.id,
         entryDate: new Date(tradeData.entryDate),
         exitDate: new Date(tradeData.exitDate),
@@ -158,6 +167,7 @@ export async function GET(request: NextRequest) {
       setupType: searchParams.get('setupType') || undefined,
       tags: searchParams.get('tags')?.split(',').filter(Boolean) || undefined,
       outcome: searchParams.get('outcome') || undefined,
+      search: searchParams.get('search') || undefined,
       sortBy: searchParams.get('sortBy') || 'date',
       sortOrder: searchParams.get('sortOrder') || 'desc',
       limit: searchParams.get('limit') ? parseInt(searchParams.get('limit')!) : 50,
@@ -233,6 +243,28 @@ export async function GET(request: NextRequest) {
           },
         },
       };
+    }
+
+    // Free-text search across symbol, strategyName, notes, and tag names
+    if (filters.search) {
+      const q = filters.search;
+      where.AND = where.AND || [];
+      where.AND.push({
+        OR: [
+          { symbol: { contains: q, mode: 'insensitive' } },
+          { strategyName: { contains: q, mode: 'insensitive' } },
+          { notes: { contains: q, mode: 'insensitive' } },
+          {
+            tags: {
+              some: {
+                tag: {
+                  name: { contains: q, mode: 'insensitive' },
+                },
+              },
+            },
+          },
+        ],
+      });
     }
 
     // Fetch trades

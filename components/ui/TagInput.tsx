@@ -104,7 +104,10 @@ export function TagInput({
     if (e.key === 'Enter') {
       e.preventDefault();
       if (selectedIndex >= 0 && selectedIndex < suggestions.length) {
-        addTag(suggestions[selectedIndex]);
+        const selected = suggestions[selectedIndex];
+        if (selected) {
+          addTag(selected);
+        }
       } else if (inputValue.trim()) {
         addTag(inputValue);
       }
@@ -119,7 +122,10 @@ export function TagInput({
       setSelectedIndex(-1);
     } else if (e.key === 'Backspace' && !inputValue && value.length > 0) {
       // Remove last tag on backspace when input is empty
-      removeTag(value[value.length - 1]);
+      const last = value[value.length - 1];
+      if (last) {
+        removeTag(last);
+      }
     }
   };
 

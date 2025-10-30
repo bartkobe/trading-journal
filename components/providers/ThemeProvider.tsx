@@ -169,6 +169,7 @@ export function ThemeProvider({
       mediaQuery.addListener(handleChange);
       return () => mediaQuery.removeListener(handleChange);
     }
+    return undefined;
   }, [theme, applyTheme]);
 
   const contextValue = useMemo(
