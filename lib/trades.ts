@@ -63,7 +63,6 @@ export function calculateTradeMetrics(trade: Trade): TradeCalculations {
   } as TradeCalculations;
 
   if (actualRiskReward !== undefined) {
-    // @ts-expect-error exactOptionalPropertyTypes: only include when defined
     result.actualRiskReward = actualRiskReward;
   }
 
