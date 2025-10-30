@@ -20,6 +20,7 @@ import {
   formatChartDate,
   chartDimensions,
 } from '@/lib/chart-config';
+import { ChartSkeleton } from '@/components/ui/ChartSkeleton';
 
 // ============================================================================
 // Types
