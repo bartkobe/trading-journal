@@ -19,16 +19,18 @@ export default function DashboardContent() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-12">
       {/* Date Range Filter */}
       <section>
-        <div className="mb-4">
-          <h2 className="text-lg font-semibold text-foreground dark:text-gray-100">
-            Filter by Date Range
-          </h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            Customize the date range to analyze specific periods
-          </p>
+        <div className="mb-6">
+          <div className="space-y-1">
+            <h2 className="text-2xl font-semibold text-foreground">
+              Filter by Date Range
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Customize the date range to analyze specific periods
+            </p>
+          </div>
         </div>
         <DateRangeFilter onDateRangeChange={handleDateRangeChange} />
       </section>
@@ -40,26 +42,35 @@ export default function DashboardContent() {
 
       {/* Performance Charts Section */}
       <section>
-        <div className="mb-6">
-          <h2 className="text-xl font-bold text-foreground dark:text-gray-100">
-            Performance Analysis
-          </h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            Visual breakdown of your trading performance
-          </p>
+        <div className="mb-8">
+          <div className="space-y-1">
+            <h2 className="text-2xl font-bold text-foreground">
+              Performance Analysis
+            </h2>
+            <p className="text-base text-muted-foreground">
+              Visual breakdown of your trading performance
+            </p>
+          </div>
         </div>
         <PerformanceCharts startDate={startDate} endDate={endDate} />
       </section>
 
       {/* Quick Actions */}
-      <section className="bg-card rounded-lg border border-border p-6">
-        <h2 className="text-lg font-semibold text-foreground dark:text-gray-100 mb-4">
-          Quick Actions
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+      <section className="bg-card rounded-xl border border-border p-8">
+        <div className="mb-6">
+          <div className="space-y-1">
+            <h2 className="text-xl font-semibold text-foreground">
+              Quick Actions
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Frequently used features and shortcuts
+            </p>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           <Link
             href="/trades/new"
-            className="flex items-center gap-3 p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"
+            className="flex items-center gap-3 p-5 rounded-xl bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors border border-transparent hover:border-blue-200 dark:hover:border-blue-800"
           >
             <span className="text-2xl">📝</span>
             <div>
@@ -69,7 +80,7 @@ export default function DashboardContent() {
           </Link>
           <Link
             href="/trades"
-            className="flex items-center gap-3 p-4 rounded-lg bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors"
+            className="flex items-center gap-3 p-5 rounded-xl bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors border border-transparent hover:border-purple-200 dark:hover:border-purple-800"
           >
             <span className="text-2xl">📋</span>
             <div>
@@ -79,7 +90,7 @@ export default function DashboardContent() {
           </Link>
           <Link
             href="/dashboard"
-            className="flex items-center gap-3 p-4 rounded-lg profit-bg hover:bg-success-light transition-colors"
+            className="flex items-center gap-3 p-5 rounded-xl profit-bg hover:bg-success-light transition-colors border border-transparent hover:border-success"
           >
             <span className="text-2xl">📈</span>
             <div>

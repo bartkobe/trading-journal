@@ -42,17 +42,19 @@ export function TradesClient() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground">Trade Journal</h1>
-          <p className="mt-2 text-muted-foreground">View and manage all your trades</p>
+        <div className="mb-12">
+          <div className="space-y-2">
+            <h1 className="text-4xl font-bold text-foreground tracking-tight">Trade Journal</h1>
+            <p className="text-base text-muted-foreground">View and manage all your trades</p>
+          </div>
         </div>
 
         {/* Filters Section */}
-        <div className="bg-card rounded-lg shadow-sm border border-border p-6 mb-6">
-          <h2 className="text-lg font-semibold mb-4 text-foreground">Filters</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-card rounded-xl shadow-sm border border-border p-6 mb-8">
+          <h2 className="text-xl font-semibold mb-6 text-foreground">Filters</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Date Range */}
             <div>
               <label htmlFor="date-from" className="block text-sm font-medium mb-2 text-foreground">
@@ -119,7 +121,7 @@ export function TradesClient() {
           </div>
 
           {/* Search and Action Buttons */}
-          <div className="mt-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+          <div className="mt-6 flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
             <div className="flex-1">
               <input
                 type="text"

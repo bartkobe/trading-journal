@@ -16,24 +16,28 @@ export default async function DashboardPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Page Header */}
-      <div className="bg-muted border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Welcome back, {user.name || user.email}
-          </p>
+      <div className="bg-muted/30 border-b border-border">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="space-y-1">
+            <h1 className="text-4xl font-bold text-foreground tracking-tight">Dashboard</h1>
+            <p className="text-base text-muted-foreground">
+              Welcome back, {user.name || user.email}
+            </p>
+          </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <DashboardContent />
       </main>
 
       {/* Footer */}
-      <footer className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 border-t border-border mt-12">
-        <div className="text-center text-sm text-muted-foreground">
-          <p>Trading Journal © 2025 • Track, Analyze, Improve</p>
+      <footer className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 border-t border-border mt-20">
+        <div className="text-center">
+          <p className="text-sm text-muted-foreground">
+            Trading Journal © 2025 • Track, Analyze, Improve
+          </p>
         </div>
       </footer>
     </div>
