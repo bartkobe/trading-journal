@@ -36,12 +36,12 @@ export default function DashboardContent() {
       </section>
 
       {/* Key Metrics Section */}
-      <section>
+      <section className="mt-16">
         <DashboardMetrics startDate={startDate} endDate={endDate} />
       </section>
 
       {/* Performance Charts Section */}
-      <section>
+      <section className="mt-20">
         <div className="mb-8">
           <div className="space-y-1">
             <h2 className="text-2xl font-bold text-foreground">
