@@ -75,7 +75,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
       {error && (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg">
+        <div className="bg-danger-light border border-danger text-danger-dark px-4 py-3 rounded-lg">
           {error}
         </div>
       )}
@@ -86,29 +86,29 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Symbol */}
           <div>
-            <label htmlFor="symbol" className="block text-sm font-medium mb-2">
-              Symbol/Ticker <span className="text-red-500">*</span>
+            <label htmlFor="symbol" className="block text-sm font-medium text-foreground mb-2">
+              Symbol/Ticker <span className="text-danger">*</span>
             </label>
             <input
               id="symbol"
               type="text"
               {...register('symbol')}
-              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card"
+              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card text-foreground transition-colors"
               placeholder="AAPL, EUR/USD, BTC, etc."
               disabled={isLoading}
             />
-            {errors.symbol && <p className="mt-1 text-sm text-red-600">{errors.symbol.message}</p>}
+            {errors.symbol && <p className="mt-1 text-sm text-danger">{errors.symbol.message}</p>}
           </div>
 
           {/* Asset Type */}
           <div>
-            <label htmlFor="assetType" className="block text-sm font-medium mb-2">
-              Asset Type <span className="text-red-500">*</span>
+            <label htmlFor="assetType" className="block text-sm font-medium text-foreground mb-2">
+              Asset Type <span className="text-danger">*</span>
             </label>
             <select
               id="assetType"
               {...register('assetType')}
-              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card"
+              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card text-foreground transition-colors"
               disabled={isLoading}
             >
               <option value="STOCK">Stock</option>
@@ -117,19 +117,19 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
               <option value="OPTIONS">Options/Derivatives</option>
             </select>
             {errors.assetType && (
-              <p className="mt-1 text-sm text-red-600">{errors.assetType.message}</p>
+              <p className="mt-1 text-sm text-danger">{errors.assetType.message}</p>
             )}
           </div>
 
           {/* Currency */}
           <div>
-            <label htmlFor="currency" className="block text-sm font-medium mb-2">
+            <label htmlFor="currency" className="block text-sm font-medium text-foreground mb-2">
               Currency
             </label>
             <select
               id="currency"
               {...register('currency')}
-              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card"
+              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card text-foreground transition-colors"
               disabled={isLoading}
             >
               <option value="USD">USD - US Dollar</option>
@@ -141,26 +141,26 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
               <option value="CHF">CHF - Swiss Franc</option>
             </select>
             {errors.currency && (
-              <p className="mt-1 text-sm text-red-600">{errors.currency.message}</p>
+              <p className="mt-1 text-sm text-danger">{errors.currency.message}</p>
             )}
           </div>
 
           {/* Direction */}
           <div>
-            <label htmlFor="direction" className="block text-sm font-medium mb-2">
-              Direction <span className="text-red-500">*</span>
+            <label htmlFor="direction" className="block text-sm font-medium text-foreground mb-2">
+              Direction <span className="text-danger">*</span>
             </label>
             <select
               id="direction"
               {...register('direction')}
-              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card"
+              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card text-foreground transition-colors"
               disabled={isLoading}
             >
               <option value="LONG">Long</option>
               <option value="SHORT">Short</option>
             </select>
             {errors.direction && (
-              <p className="mt-1 text-sm text-red-600">{errors.direction.message}</p>
+              <p className="mt-1 text-sm text-danger">{errors.direction.message}</p>
             )}
           </div>
         </div>
@@ -171,54 +171,54 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
         <h2 className="text-lg font-semibold mb-4">Entry Details</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label htmlFor="entryDate" className="block text-sm font-medium mb-2">
-              Entry Date & Time <span className="text-red-500">*</span>
+            <label htmlFor="entryDate" className="block text-sm font-medium text-foreground mb-2">
+              Entry Date & Time <span className="text-danger">*</span>
             </label>
             <input
               id="entryDate"
               type="datetime-local"
               {...register('entryDate')}
-              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card"
+              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card text-foreground transition-colors"
               disabled={isLoading}
             />
             {errors.entryDate && (
-              <p className="mt-1 text-sm text-red-600">{errors.entryDate.message}</p>
+              <p className="mt-1 text-sm text-danger">{errors.entryDate.message}</p>
             )}
           </div>
 
           <div>
-            <label htmlFor="entryPrice" className="block text-sm font-medium mb-2">
-              Entry Price <span className="text-red-500">*</span>
+            <label htmlFor="entryPrice" className="block text-sm font-medium text-foreground mb-2">
+              Entry Price <span className="text-danger">*</span>
             </label>
             <input
               id="entryPrice"
               type="number"
               step="0.01"
               {...register('entryPrice', { valueAsNumber: true })}
-              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card"
+              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card text-foreground transition-colors"
               placeholder="0.00"
               disabled={isLoading}
             />
             {errors.entryPrice && (
-              <p className="mt-1 text-sm text-red-600">{errors.entryPrice.message}</p>
+              <p className="mt-1 text-sm text-danger">{errors.entryPrice.message}</p>
             )}
           </div>
 
           <div>
-            <label htmlFor="quantity" className="block text-sm font-medium mb-2">
-              Quantity <span className="text-red-500">*</span>
+            <label htmlFor="quantity" className="block text-sm font-medium text-foreground mb-2">
+              Quantity <span className="text-danger">*</span>
             </label>
             <input
               id="quantity"
               type="number"
               step="0.01"
               {...register('quantity', { valueAsNumber: true })}
-              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card"
+              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card text-foreground transition-colors"
               placeholder="0"
               disabled={isLoading}
             />
             {errors.quantity && (
-              <p className="mt-1 text-sm text-red-600">{errors.quantity.message}</p>
+              <p className="mt-1 text-sm text-danger">{errors.quantity.message}</p>
             )}
           </div>
         </div>
@@ -229,36 +229,36 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
         <h2 className="text-lg font-semibold mb-4">Exit Details</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label htmlFor="exitDate" className="block text-sm font-medium mb-2">
-              Exit Date & Time <span className="text-red-500">*</span>
+            <label htmlFor="exitDate" className="block text-sm font-medium text-foreground mb-2">
+              Exit Date & Time <span className="text-danger">*</span>
             </label>
             <input
               id="exitDate"
               type="datetime-local"
               {...register('exitDate')}
-              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card"
+              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card text-foreground transition-colors"
               disabled={isLoading}
             />
             {errors.exitDate && (
-              <p className="mt-1 text-sm text-red-600">{errors.exitDate.message}</p>
+              <p className="mt-1 text-sm text-danger">{errors.exitDate.message}</p>
             )}
           </div>
 
           <div>
-            <label htmlFor="exitPrice" className="block text-sm font-medium mb-2">
-              Exit Price <span className="text-red-500">*</span>
+            <label htmlFor="exitPrice" className="block text-sm font-medium text-foreground mb-2">
+              Exit Price <span className="text-danger">*</span>
             </label>
             <input
               id="exitPrice"
               type="number"
               step="0.01"
               {...register('exitPrice', { valueAsNumber: true })}
-              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card"
+              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card text-foreground transition-colors"
               placeholder="0.00"
               disabled={isLoading}
             />
             {errors.exitPrice && (
-              <p className="mt-1 text-sm text-red-600">{errors.exitPrice.message}</p>
+              <p className="mt-1 text-sm text-danger">{errors.exitPrice.message}</p>
             )}
           </div>
         </div>
@@ -269,41 +269,41 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
         <h2 className="text-lg font-semibold mb-4">Strategy & Risk Management</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label htmlFor="strategyName" className="block text-sm font-medium mb-2">
+            <label htmlFor="strategyName" className="block text-sm font-medium text-foreground mb-2">
               Strategy Name
             </label>
             <input
               id="strategyName"
               type="text"
               {...register('strategyName')}
-              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card"
+              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card text-foreground transition-colors"
               placeholder="e.g., Momentum Play, Breakout"
               disabled={isLoading}
             />
             {errors.strategyName && (
-              <p className="mt-1 text-sm text-red-600">{errors.strategyName.message}</p>
+              <p className="mt-1 text-sm text-danger">{errors.strategyName.message}</p>
             )}
           </div>
 
           <div>
-            <label htmlFor="setupType" className="block text-sm font-medium mb-2">
+            <label htmlFor="setupType" className="block text-sm font-medium text-foreground mb-2">
               Setup Type
             </label>
             <input
               id="setupType"
               type="text"
               {...register('setupType')}
-              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card"
+              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card text-foreground transition-colors"
               placeholder="e.g., Pullback, Reversal, Continuation"
               disabled={isLoading}
             />
             {errors.setupType && (
-              <p className="mt-1 text-sm text-red-600">{errors.setupType.message}</p>
+              <p className="mt-1 text-sm text-danger">{errors.setupType.message}</p>
             )}
           </div>
 
           <div>
-            <label htmlFor="stopLoss" className="block text-sm font-medium mb-2">
+            <label htmlFor="stopLoss" className="block text-sm font-medium text-foreground mb-2">
               Stop Loss
             </label>
             <input
@@ -311,17 +311,17 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
               type="number"
               step="0.01"
               {...register('stopLoss', { valueAsNumber: true })}
-              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card"
+              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card text-foreground transition-colors"
               placeholder="0.00"
               disabled={isLoading}
             />
             {errors.stopLoss && (
-              <p className="mt-1 text-sm text-red-600">{errors.stopLoss.message}</p>
+              <p className="mt-1 text-sm text-danger">{errors.stopLoss.message}</p>
             )}
           </div>
 
           <div>
-            <label htmlFor="takeProfit" className="block text-sm font-medium mb-2">
+            <label htmlFor="takeProfit" className="block text-sm font-medium text-foreground mb-2">
               Take Profit Target
             </label>
             <input
@@ -329,17 +329,17 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
               type="number"
               step="0.01"
               {...register('takeProfit', { valueAsNumber: true })}
-              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card"
+              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card text-foreground transition-colors"
               placeholder="0.00"
               disabled={isLoading}
             />
             {errors.takeProfit && (
-              <p className="mt-1 text-sm text-red-600">{errors.takeProfit.message}</p>
+              <p className="mt-1 text-sm text-danger">{errors.takeProfit.message}</p>
             )}
           </div>
 
           <div>
-            <label htmlFor="riskRewardRatio" className="block text-sm font-medium mb-2">
+            <label htmlFor="riskRewardRatio" className="block text-sm font-medium text-foreground mb-2">
               Planned Risk/Reward Ratio
             </label>
             <input
@@ -347,17 +347,17 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
               type="number"
               step="0.1"
               {...register('riskRewardRatio', { valueAsNumber: true })}
-              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card"
+              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card text-foreground transition-colors"
               placeholder="e.g., 2.0"
               disabled={isLoading}
             />
             {errors.riskRewardRatio && (
-              <p className="mt-1 text-sm text-red-600">{errors.riskRewardRatio.message}</p>
+              <p className="mt-1 text-sm text-danger">{errors.riskRewardRatio.message}</p>
             )}
           </div>
 
           <div>
-            <label htmlFor="fees" className="block text-sm font-medium mb-2">
+            <label htmlFor="fees" className="block text-sm font-medium text-foreground mb-2">
               Commissions/Fees
             </label>
             <input
@@ -365,11 +365,11 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
               type="number"
               step="0.01"
               {...register('fees', { valueAsNumber: true })}
-              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card"
+              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card text-foreground transition-colors"
               placeholder="0.00"
               disabled={isLoading}
             />
-            {errors.fees && <p className="mt-1 text-sm text-red-600">{errors.fees.message}</p>}
+            {errors.fees && <p className="mt-1 text-sm text-danger">{errors.fees.message}</p>}
           </div>
         </div>
       </div>
@@ -379,13 +379,13 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
         <h2 className="text-lg font-semibold mb-4">Context & Conditions</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label htmlFor="timeOfDay" className="block text-sm font-medium mb-2">
+            <label htmlFor="timeOfDay" className="block text-sm font-medium text-foreground mb-2">
               Time of Day
             </label>
             <select
               id="timeOfDay"
               {...register('timeOfDay')}
-              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card"
+              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card text-foreground transition-colors"
               disabled={isLoading}
             >
               <option value="">Select time of day</option>
@@ -396,18 +396,18 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
               <option value="AFTER_HOURS">After Hours</option>
             </select>
             {errors.timeOfDay && (
-              <p className="mt-1 text-sm text-red-600">{errors.timeOfDay.message}</p>
+              <p className="mt-1 text-sm text-danger">{errors.timeOfDay.message}</p>
             )}
           </div>
 
           <div>
-            <label htmlFor="marketConditions" className="block text-sm font-medium mb-2">
+            <label htmlFor="marketConditions" className="block text-sm font-medium text-foreground mb-2">
               Market Conditions
             </label>
             <select
               id="marketConditions"
               {...register('marketConditions')}
-              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card"
+              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card text-foreground transition-colors"
               disabled={isLoading}
             >
               <option value="">Select market conditions</option>
@@ -417,41 +417,41 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
               <option value="CALM">Calm</option>
             </select>
             {errors.marketConditions && (
-              <p className="mt-1 text-sm text-red-600">{errors.marketConditions.message}</p>
+              <p className="mt-1 text-sm text-danger">{errors.marketConditions.message}</p>
             )}
           </div>
 
           <div>
-            <label htmlFor="emotionalStateEntry" className="block text-sm font-medium mb-2">
+            <label htmlFor="emotionalStateEntry" className="block text-sm font-medium text-foreground mb-2">
               Emotional State at Entry
             </label>
             <input
               id="emotionalStateEntry"
               type="text"
               {...register('emotionalStateEntry')}
-              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card"
+              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card text-foreground transition-colors"
               placeholder="e.g., Confident, Fearful, FOMO, Disciplined"
               disabled={isLoading}
             />
             {errors.emotionalStateEntry && (
-              <p className="mt-1 text-sm text-red-600">{errors.emotionalStateEntry.message}</p>
+              <p className="mt-1 text-sm text-danger">{errors.emotionalStateEntry.message}</p>
             )}
           </div>
 
           <div>
-            <label htmlFor="emotionalStateExit" className="block text-sm font-medium mb-2">
+            <label htmlFor="emotionalStateExit" className="block text-sm font-medium text-foreground mb-2">
               Emotional State at Exit
             </label>
             <input
               id="emotionalStateExit"
               type="text"
               {...register('emotionalStateExit')}
-              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card"
+              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card text-foreground transition-colors"
               placeholder="e.g., Satisfied, Regretful, Relieved"
               disabled={isLoading}
             />
             {errors.emotionalStateExit && (
-              <p className="mt-1 text-sm text-red-600">{errors.emotionalStateExit.message}</p>
+              <p className="mt-1 text-sm text-danger">{errors.emotionalStateExit.message}</p>
             )}
           </div>
         </div>
@@ -461,18 +461,18 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
       <div className="bg-card shadow rounded-lg p-6">
         <h2 className="text-lg font-semibold mb-4">Trade Notes & Journal</h2>
         <div>
-          <label htmlFor="notes" className="block text-sm font-medium mb-2">
+          <label htmlFor="notes" className="block text-sm font-medium text-foreground mb-2">
             Notes
           </label>
           <textarea
             id="notes"
             {...register('notes')}
             rows={8}
-            className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card"
+            className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card text-foreground transition-colors"
             placeholder="Write about your analysis, reasoning, what you learned, etc."
             disabled={isLoading}
           />
-          {errors.notes && <p className="mt-1 text-sm text-red-600">{errors.notes.message}</p>}
+          {errors.notes && <p className="mt-1 text-sm text-danger">{errors.notes.message}</p>}
           <p className="mt-1 text-sm text-muted-foreground">
             Document your pre-trade analysis, post-trade reflections, and lessons learned
           </p>
@@ -484,7 +484,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
         <button
           type="button"
           onClick={() => router.back()}
-          className="px-6 py-2 border border-border rounded-lg hover:bg-muted dark:hover:bg-gray-700 transition-colors"
+          className="px-6 py-2 border border-border rounded-lg hover:bg-muted text-foreground transition-colors"
           disabled={isLoading}
         >
           Cancel
