@@ -1,79 +1,58 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider      = "prisma-client-js"
   binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  // Optional: Use direct connection for migrations if DATABASE_URL_DIRECT is set
+  // This allows using pooled connection (port 6543) for runtime but direct connection (port 5432) for migrations
+  directUrl = env("DATABASE_URL_DIRECT")
 }
 
-// User model - Single user authentication (FR-22)
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
-  password  String // Hashed password
+  password  String
   name      String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  trades Trade[]
+  trades    Trade[]
 
   @@map("users")
 }
 
-// Trade model - Core entity with all trading data (FR-1, FR-2, FR-3)
 model Trade {
-  id     String @id @default(cuid())
-  userId String
-
-  // Basic Trade Information (FR-1)
-  symbol     String
-  assetType  AssetType
-  currency   String    @default("USD")
-  entryDate  DateTime
-  entryPrice Float
-  exitDate   DateTime
-  exitPrice  Float
-  quantity   Float
-  direction  Direction
-
-  // Trade Metadata (FR-2)
-  setupType        String?
-  strategyName     String?
-  stopLoss         Float?
-  takeProfit       Float?
-  riskRewardRatio  Float?
-  actualRiskReward Float?
-
-  // Commission/Fees (FR-4)
-  fees Float? @default(0)
-
-  // Context Information (FR-3)
+  id                  String            @id @default(cuid())
+  userId              String
+  symbol              String
+  assetType           AssetType
+  currency            String            @default("USD")
+  entryDate           DateTime
+  entryPrice          Float
+  exitDate            DateTime
+  exitPrice           Float
+  quantity            Float
+  direction           Direction
+  setupType           String?
+  strategyName        String?
+  stopLoss            Float?
+  takeProfit          Float?
+  riskRewardRatio     Float?
+  actualRiskReward    Float?
+  fees                Float?            @default(0)
   timeOfDay           TimeOfDay?
   marketConditions    MarketConditions?
   emotionalStateEntry String?
   emotionalStateExit  String?
+  notes               String?
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  screenshots         Screenshot[]
+  tags                TradeTag[]
+  user                User              @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  // Journal/Notes (FR-6)
-  notes String? @db.Text
-
-  // Timestamps
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  screenshots Screenshot[]
-  tags        TradeTag[]
-
-  // Indexes for common queries (FR-11, FR-12)
   @@index([userId])
   @@index([symbol])
   @@index([assetType])
@@ -82,7 +61,6 @@ model Trade {
   @@map("trades")
 }
 
-// Screenshot model - Trade chart images (FR-5)
 model Screenshot {
   id         String   @id @default(cuid())
   tradeId    String
@@ -91,41 +69,34 @@ model Screenshot {
   fileSize   Int?
   mimeType   String?
   uploadedAt DateTime @default(now())
-
-  trade Trade @relation(fields: [tradeId], references: [id], onDelete: Cascade)
+  trade      Trade    @relation(fields: [tradeId], references: [id], onDelete: Cascade)
 
   @@index([tradeId])
   @@map("screenshots")
 }
 
-// Tag model - Custom tags for organizing trades (FR-9)
 model Tag {
-  id        String   @id @default(cuid())
-  name      String   @unique
-  createdAt DateTime @default(now())
-
-  trades TradeTag[]
+  id        String     @id @default(cuid())
+  name      String     @unique
+  createdAt DateTime   @default(now())
+  trades    TradeTag[]
 
   @@map("tags")
 }
 
-// Join table for Trade-Tag many-to-many relationship
 model TradeTag {
   id        String   @id @default(cuid())
   tradeId   String
   tagId     String
   createdAt DateTime @default(now())
-
-  trade Trade @relation(fields: [tradeId], references: [id], onDelete: Cascade)
-  tag   Tag   @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  tag       Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  trade     Trade    @relation(fields: [tradeId], references: [id], onDelete: Cascade)
 
   @@unique([tradeId, tagId])
   @@index([tradeId])
   @@index([tagId])
   @@map("trade_tags")
 }
-
-// Enums
 
 enum AssetType {
   STOCK
