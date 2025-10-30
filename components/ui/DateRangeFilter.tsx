@@ -23,6 +23,7 @@ export default function DateRangeFilter({
   const [endDate, setEndDate] = useState<string>('');
 
   const handleApply = () => {
+    alert('Apply button clicked!');
     console.log('Apply clicked - startDate:', startDate, 'endDate:', endDate);
     onDateRangeChange(startDate || undefined, endDate || undefined);
   };
