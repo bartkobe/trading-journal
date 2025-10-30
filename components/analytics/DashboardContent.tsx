@@ -14,7 +14,6 @@ export default function DashboardContent() {
     newStartDate: string | undefined,
     newEndDate: string | undefined
   ) => {
-    console.log('handleDateRangeChange called - newStartDate:', newStartDate, 'newEndDate:', newEndDate);
     setStartDate(newStartDate);
     setEndDate(newEndDate);
   };
