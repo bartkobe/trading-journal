@@ -88,14 +88,18 @@ export default function DateRangeFilter({
         {/* Action Buttons */}
         <div className="flex gap-2">
           <button
+            type="button"
             onClick={handleApply}
-            className="px-4 py-2 bg-primary hover:bg-primary-hover text-primary-foreground font-medium rounded-lg transition-colors"
+            className="px-4 py-2 bg-primary hover:bg-primary-hover text-primary-foreground font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+            aria-label="Apply date range filter"
           >
             Apply
           </button>
           <button
+            type="button"
             onClick={handleClear}
-            className="px-4 py-2 border border-border hover:bg-muted text-foreground font-medium rounded-lg transition-colors"
+            className="px-4 py-2 border border-border hover:bg-muted text-foreground font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+            aria-label="Clear date range filter"
           >
             Clear
           </button>
@@ -108,26 +112,30 @@ export default function DateRangeFilter({
           Quick Select:
         </span>
         <button
+          type="button"
           onClick={() => handlePreset(7)}
-          className="px-3 py-1 text-sm border border-border hover:bg-muted text-foreground rounded-lg transition-colors"
+          className="px-3 py-1 text-sm border border-border hover:bg-muted text-foreground rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-ring"
         >
           Last 7 days
         </button>
         <button
+          type="button"
           onClick={() => handlePreset(30)}
-          className="px-3 py-1 text-sm border border-border hover:bg-muted text-foreground rounded-lg transition-colors"
+          className="px-3 py-1 text-sm border border-border hover:bg-muted text-foreground rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-ring"
         >
           Last 30 days
         </button>
         <button
+          type="button"
           onClick={() => handlePreset(90)}
-          className="px-3 py-1 text-sm border border-border hover:bg-muted text-foreground rounded-lg transition-colors"
+          className="px-3 py-1 text-sm border border-border hover:bg-muted text-foreground rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-ring"
         >
           Last 90 days
         </button>
         <button
+          type="button"
           onClick={() => handlePreset(365)}
-          className="px-3 py-1 text-sm border border-border hover:bg-muted text-foreground rounded-lg transition-colors"
+          className="px-3 py-1 text-sm border border-border hover:bg-muted text-foreground rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-ring"
         >
           Last Year
         </button>
