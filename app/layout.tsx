@@ -18,6 +18,13 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: 'Trading Journal',
   description: 'Track, analyze, and learn from your trades',
+  keywords: 'trading journal, trade tracking, trading analytics, trade analysis',
+  authors: [{ name: 'Trading Journal Team' }],
+  viewport: 'width=device-width, initial-scale=1',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#020617' },
+  ],
 };
 
 // Force dynamic rendering since we need to check auth state
@@ -46,11 +53,24 @@ export default async function RootLayout({
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ThemeProvider defaultTheme="system">
+          {/* Skip link for keyboard navigation */}
+          <a
+            href="#main-content"
+            className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-lg focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+          >
+            Skip to main content
+          </a>
+
           {/* Show navigation only for authenticated users */}
           {user && <Navigation user={user} />}
           
           {/* Main content */}
-          <main className={user ? '' : 'min-h-screen'}>
+          <main 
+            id="main-content" 
+            tabIndex={-1}
+            className={user ? '' : 'min-h-screen'}
+            aria-label="Main content"
+          >
             {children}
           </main>
         </ThemeProvider>

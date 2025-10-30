@@ -66,13 +66,17 @@ export function Navigation({ user }: NavigationProps) {
   ];
 
   return (
-    <nav className="bg-card border-b border-border sticky top-0 z-50 shadow-sm">
+    <nav className="bg-card border-b border-border sticky top-0 z-50 shadow-sm" aria-label="Main navigation">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo and Brand */}
           <div className="flex items-center">
-            <Link href="/dashboard" className="flex items-center space-x-3 group">
-              <div className="flex items-center justify-center w-10 h-10 bg-primary rounded-lg group-hover:bg-primary-hover transition-colors">
+            <Link 
+              href="/dashboard" 
+              className="flex items-center space-x-3 group focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-lg"
+              aria-label="Trading Journal home"
+            >
+              <div className="flex items-center justify-center w-10 h-10 bg-primary rounded-lg group-hover:bg-primary-hover transition-colors" aria-hidden="true">
                 <svg
                   className="w-6 h-6 text-primary-foreground"
                   fill="none"
@@ -95,27 +99,29 @@ export function Navigation({ user }: NavigationProps) {
           </div>
 
           {/* Main Navigation Links */}
-          <div className="hidden md:flex items-center space-x-1">
+          <div className="hidden md:flex items-center space-x-1" role="navigation" aria-label="Primary">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${
                   isActive(link.href)
                     ? 'bg-primary text-primary-foreground'
                     : 'text-foreground hover:bg-muted'
                 }`}
+                aria-current={isActive(link.href) ? 'page' : undefined}
               >
-                {link.icon}
+                <span aria-hidden="true">{link.icon}</span>
                 <span>{link.label}</span>
               </Link>
             ))}
 
             <Link
               href="/trades/new"
-              className="flex items-center space-x-2 px-4 py-2 ml-2 bg-success hover:bg-success-dark text-success-foreground rounded-lg text-sm font-medium transition-colors"
+              className="flex items-center space-x-2 px-4 py-2 ml-2 bg-success hover:bg-success-dark text-success-foreground rounded-lg text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+              aria-label="Create new trade"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -143,10 +149,10 @@ export function Navigation({ user }: NavigationProps) {
                 <form action="/api/auth/logout" method="POST">
                   <button
                     type="submit"
-                    className="flex items-center space-x-1 px-3 py-2 text-sm font-medium text-muted-foreground hover:text-danger hover:bg-danger-light rounded-lg transition-colors"
-                    title="Logout"
+                    className="flex items-center space-x-1 px-3 py-2 text-sm font-medium text-muted-foreground hover:text-danger hover:bg-danger-light rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                    aria-label="Log out of Trading Journal"
                   >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -163,10 +169,12 @@ export function Navigation({ user }: NavigationProps) {
             {/* Mobile menu button */}
             <button
               type="button"
-              className="md:hidden inline-flex items-center justify-center p-2 rounded-lg text-foreground hover:bg-muted transition-colors"
-              aria-label="Open menu"
+              className="md:hidden inline-flex items-center justify-center p-2 rounded-lg text-foreground hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+              aria-label="Open mobile menu"
+              aria-expanded="false"
+              aria-controls="mobile-menu"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -180,19 +188,20 @@ export function Navigation({ user }: NavigationProps) {
       </div>
 
       {/* Mobile Navigation - Hidden by default, would need state management to show/hide */}
-      <div className="md:hidden hidden border-t border-border">
+      <div id="mobile-menu" className="md:hidden hidden border-t border-border" role="navigation" aria-label="Mobile navigation">
         <div className="px-2 pt-2 pb-3 space-y-1">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className={`flex items-center space-x-3 px-3 py-2 rounded-lg text-base font-medium transition-colors ${
+              className={`flex items-center space-x-3 px-3 py-2 rounded-lg text-base font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${
                 isActive(link.href)
                   ? 'bg-primary text-primary-foreground'
                   : 'text-foreground hover:bg-muted'
               }`}
+              aria-current={isActive(link.href) ? 'page' : undefined}
             >
-              {link.icon}
+              <span aria-hidden="true">{link.icon}</span>
               <span>{link.label}</span>
             </Link>
           ))}
