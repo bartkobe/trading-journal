@@ -202,7 +202,7 @@ export default function EquityCurve({
         </p>
       </div>
 
-      <ResponsiveContainer width="100%" height={height}>
+      <ResponsiveContainer width="100%" height={height} minHeight={0}>
         {showArea ? (
           <AreaChart data={data} margin={chartDimensions.margin.full}>
             <defs>

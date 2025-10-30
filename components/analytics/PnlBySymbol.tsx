@@ -126,7 +126,7 @@ export default function PnlBySymbol({ startDate, endDate }: PnlBySymbolProps) {
 
       {/* Chart */}
       <div className="h-80 mb-6">
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height="100%" minHeight={0}>
           <BarChart data={data}>
             <CartesianGrid {...chartConfig.grid} />
             <XAxis

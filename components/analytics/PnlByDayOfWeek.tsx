@@ -172,7 +172,7 @@ export default function PnlByDayOfWeek({
         </p>
       </div>
 
-      <ResponsiveContainer width="100%" height={height}>
+      <ResponsiveContainer width="100%" height={height} minHeight={0}>
         <BarChart data={displayData} margin={chartDimensions.margin.full}>
           <CartesianGrid {...chartConfig.grid} />
           <XAxis dataKey="shortName" {...chartConfig.axis} />

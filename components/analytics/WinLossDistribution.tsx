@@ -227,7 +227,7 @@ export default function WinLossDistribution({
           </p>
         </div>
 
-        <ResponsiveContainer width="100%" height={height}>
+        <ResponsiveContainer width="100%" height={height} minHeight={0}>
           <PieChart>
             <Pie
               data={pieData}
@@ -286,7 +286,7 @@ export default function WinLossDistribution({
             </p>
           </div>
 
-          <ResponsiveContainer width="100%" height={height}>
+          <ResponsiveContainer width="100%" height={height} minHeight={0}>
             <BarChart data={pnlDistribution} margin={chartDimensions.margin.full}>
               <CartesianGrid {...chartConfig.grid} />
               <XAxis

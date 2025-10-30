@@ -164,7 +164,7 @@ export default function PnlByStrategy({
         </p>
       </div>
 
-      <ResponsiveContainer width="100%" height={height}>
+      <ResponsiveContainer width="100%" height={height} minHeight={0}>
         <BarChart data={sortedData} margin={chartDimensions.margin.full}>
           <CartesianGrid {...chartConfig.grid} />
           <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} {...chartConfig.axis} />
