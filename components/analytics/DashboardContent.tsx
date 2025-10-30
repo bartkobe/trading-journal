@@ -79,7 +79,7 @@ export default function DashboardContent() {
           </Link>
           <Link
             href="/dashboard"
-            className="flex items-center gap-3 p-4 rounded-lg bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors"
+            className="flex items-center gap-3 p-4 rounded-lg profit-bg hover:bg-success-light transition-colors"
           >
             <span className="text-2xl">📈</span>
             <div>

@@ -205,7 +205,7 @@ export function TagInput({
       )}
 
       {/* Error Message */}
-      {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+      {error && <p className="mt-1 text-sm text-danger">{error}</p>}
 
       {/* Help Text */}
       <p className="mt-1 text-xs text-muted-foreground">

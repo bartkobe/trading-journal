@@ -9,16 +9,14 @@ interface TradeCardProps {
 
 export function TradeCard({ trade, onClick }: TradeCardProps) {
   const getOutcomeColor = () => {
-    if (trade.calculations.isWinner) return 'text-green-600 dark:text-green-400';
-    if (trade.calculations.isLoser) return 'text-red-600 dark:text-red-400';
-    return 'text-muted-foreground';
+    if (trade.calculations.isWinner) return 'profit';
+    if (trade.calculations.isLoser) return 'loss';
+    return 'breakeven';
   };
 
   const getOutcomeBg = () => {
-    if (trade.calculations.isWinner)
-      return 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800';
-    if (trade.calculations.isLoser)
-      return 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800';
+    if (trade.calculations.isWinner) return 'profit-bg border-success';
+    if (trade.calculations.isLoser) return 'loss-bg border-danger';
     return 'bg-card border-border';
   };
 
@@ -26,7 +24,7 @@ export function TradeCard({ trade, onClick }: TradeCardProps) {
     if (trade.calculations.isWinner) {
       return (
         <svg
-          className="w-5 h-5 text-green-600 dark:text-green-400"
+          className="w-5 h-5 profit"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -38,7 +36,7 @@ export function TradeCard({ trade, onClick }: TradeCardProps) {
     if (trade.calculations.isLoser) {
       return (
         <svg
-          className="w-5 h-5 text-red-600 dark:text-red-400"
+          className="w-5 h-5 loss"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -54,7 +52,7 @@ export function TradeCard({ trade, onClick }: TradeCardProps) {
     }
     return (
       <svg
-        className="w-5 h-5 text-muted-foreground"
+        className="w-5 h-5 breakeven"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -67,9 +65,7 @@ export function TradeCard({ trade, onClick }: TradeCardProps) {
   const getDirectionBadge = () => (
     <span
       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-        trade.direction === 'LONG'
-          ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-          : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+        trade.direction === 'LONG' ? 'profit-bg' : 'loss-bg'
       }`}
     >
       {trade.direction}

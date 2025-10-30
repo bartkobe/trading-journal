@@ -61,7 +61,7 @@ export function TradeActions({ tradeId }: TradeActionsProps) {
       <button
         onClick={handleDelete}
         disabled={isDeleting}
-        className="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className="inline-flex items-center px-4 py-2 bg-danger hover:bg-danger-dark text-danger-foreground font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path

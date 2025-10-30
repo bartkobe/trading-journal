@@ -118,7 +118,7 @@ export default function PnlByEmotionalState({ startDate, endDate }: PnlByEmotion
           P&L by Emotional State
         </h3>
         <div className="flex items-center justify-center h-64">
-          <div className="text-red-500">Error: {error}</div>
+          <div className="loss">Error: {error}</div>
         </div>
       </div>
     );
@@ -173,7 +173,7 @@ export default function PnlByEmotionalState({ startDate, endDate }: PnlByEmotion
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
+        <div className="profit-bg rounded-lg p-4">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-foreground">
               Best Emotional State
@@ -183,7 +183,7 @@ export default function PnlByEmotionalState({ startDate, endDate }: PnlByEmotion
           <p className="text-lg font-bold text-foreground dark:text-gray-100">
             {bestState.emotionalStateEntry}
           </p>
-          <p className="text-sm text-green-600 dark:text-green-400 font-semibold">
+          <p className="text-sm profit font-semibold">
             {formatChartCurrency(bestState.totalPnl)}
           </p>
           <p className="text-xs text-muted-foreground mt-1">
@@ -191,7 +191,7 @@ export default function PnlByEmotionalState({ startDate, endDate }: PnlByEmotion
           </p>
         </div>
 
-        <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-4">
+        <div className="loss-bg rounded-lg p-4">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-foreground">
               Worst Emotional State
@@ -201,7 +201,7 @@ export default function PnlByEmotionalState({ startDate, endDate }: PnlByEmotion
           <p className="text-lg font-bold text-foreground dark:text-gray-100">
             {worstState.emotionalStateEntry}
           </p>
-          <p className="text-sm text-red-600 dark:text-red-400 font-semibold">
+          <p className="text-sm loss font-semibold">
             {formatChartCurrency(worstState.totalPnl)}
           </p>
           <p className="text-xs text-muted-foreground mt-1">
@@ -262,8 +262,8 @@ function CustomTooltip({ active, payload }: any) {
           <span
             className={
               data.totalPnl >= 0
-                ? 'text-green-600 dark:text-green-400 font-semibold'
-                : 'text-red-600 dark:text-red-400 font-semibold'
+                ? 'profit font-semibold'
+                : 'loss font-semibold'
             }
           >
             {formatChartCurrency(data.totalPnl)}

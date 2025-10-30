@@ -7,15 +7,15 @@ interface TradeDetailProps {
 
 export function TradeDetail({ trade }: TradeDetailProps) {
   const getOutcomeColor = () => {
-    if (trade.calculations.isWinner) return 'text-green-600 dark:text-green-400';
-    if (trade.calculations.isLoser) return 'text-red-600 dark:text-red-400';
-    return 'text-muted-foreground';
+    if (trade.calculations.isWinner) return 'profit';
+    if (trade.calculations.isLoser) return 'loss';
+    return 'breakeven';
   };
 
   const getOutcomeBadge = () => {
     if (trade.calculations.isWinner) {
       return (
-        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400">
+        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium profit-bg">
           <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
@@ -25,7 +25,7 @@ export function TradeDetail({ trade }: TradeDetailProps) {
     }
     if (trade.calculations.isLoser) {
       return (
-        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400">
+        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium loss-bg">
           <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               strokeLinecap="round"
@@ -39,7 +39,7 @@ export function TradeDetail({ trade }: TradeDetailProps) {
       );
     }
     return (
-      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-muted dark:bg-gray-700 text-foreground dark:text-muted-foreground">
+      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-muted text-muted-foreground">
         Break Even
       </span>
     );
@@ -107,7 +107,7 @@ export function TradeDetail({ trade }: TradeDetailProps) {
 
             <div>
               <p className="text-sm text-muted-foreground mb-1">Asset Type</p>
-              <span className="inline-flex items-center px-2.5 py-1 rounded-md text-sm font-medium bg-muted dark:bg-gray-700 text-foreground">
+              <span className="inline-flex items-center px-2.5 py-1 rounded-md text-sm font-medium bg-muted text-foreground">
                 {trade.assetType}
               </span>
             </div>
@@ -116,9 +116,7 @@ export function TradeDetail({ trade }: TradeDetailProps) {
               <p className="text-sm text-muted-foreground mb-1">Direction</p>
               <span
                 className={`inline-flex items-center px-2.5 py-1 rounded-md text-sm font-medium ${
-                  trade.direction === 'LONG'
-                    ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                    : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+                  trade.direction === 'LONG' ? 'profit-bg' : 'loss-bg'
                 }`}
               >
                 {trade.direction}

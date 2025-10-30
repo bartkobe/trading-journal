@@ -96,7 +96,7 @@ export default function PnlBySymbol({ startDate, endDate }: PnlBySymbolProps) {
           P&L by Symbol
         </h3>
         <div className="flex items-center justify-center h-64">
-          <div className="text-red-500">Error: {error}</div>
+          <div className="loss">Error: {error}</div>
         </div>
       </div>
     );
@@ -149,7 +149,7 @@ export default function PnlBySymbol({ startDate, endDate }: PnlBySymbolProps) {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
+        <div className="profit-bg rounded-lg p-4">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-foreground">
               Best Performer
@@ -157,7 +157,7 @@ export default function PnlBySymbol({ startDate, endDate }: PnlBySymbolProps) {
             <span className="text-2xl">🏆</span>
           </div>
           <p className="text-lg font-bold text-foreground dark:text-gray-100">{topSymbol.symbol}</p>
-          <p className="text-sm text-green-600 dark:text-green-400 font-semibold">
+          <p className="text-sm profit font-semibold">
             {formatChartCurrency(topSymbol.totalPnl)}
           </p>
           <p className="text-xs text-muted-foreground mt-1">
@@ -165,7 +165,7 @@ export default function PnlBySymbol({ startDate, endDate }: PnlBySymbolProps) {
           </p>
         </div>
 
-        <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-4">
+        <div className="loss-bg rounded-lg p-4">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-foreground">
               Worst Performer
@@ -175,7 +175,7 @@ export default function PnlBySymbol({ startDate, endDate }: PnlBySymbolProps) {
           <p className="text-lg font-bold text-foreground dark:text-gray-100">
             {bottomSymbol.symbol}
           </p>
-          <p className="text-sm text-red-600 dark:text-red-400 font-semibold">
+          <p className="text-sm loss font-semibold">
             {formatChartCurrency(bottomSymbol.totalPnl)}
           </p>
           <p className="text-xs text-muted-foreground mt-1">
@@ -216,8 +216,8 @@ function CustomTooltip({ active, payload }: any) {
           <span
             className={
               data.totalPnl >= 0
-                ? 'text-green-600 dark:text-green-400 font-semibold'
-                : 'text-red-600 dark:text-red-400 font-semibold'
+                ? 'profit font-semibold'
+                : 'loss font-semibold'
             }
           >
             {formatChartCurrency(data.totalPnl)}

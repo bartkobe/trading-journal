@@ -214,7 +214,7 @@
   - [x] 5.8 Create root layout (`app/layout.tsx`) with Navigation and ThemeProvider
   - [x] 5.9 Ensure responsive design for desktop (minimum 1280px width)
   - [x] 5.10 Style all forms with consistent spacing and typography
-  - [ ] 5.11 Add visual indicators: green for profits, red for losses
+  - [x] 5.11 Add visual indicators: green for profits, red for losses
   - [ ] 5.12 Implement loading states for async operations
   - [ ] 5.13 Add error states and user-friendly error messages
   - [ ] 5.14 Create confirmation dialogs for destructive actions

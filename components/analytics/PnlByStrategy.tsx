@@ -120,11 +120,11 @@ export default function PnlByStrategy({
 
   if (error) {
     return (
-      <div className="rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 p-6">
-        <h3 className="text-lg font-semibold text-red-800 dark:text-red-200 mb-2">
+      <div className="rounded-lg border border-danger loss-bg p-6">
+        <h3 className="text-lg font-semibold loss mb-2">
           Error Loading Chart
         </h3>
-        <p className="text-red-600 dark:text-red-400">{error}</p>
+        <p className="loss">{error}</p>
       </div>
     );
   }
@@ -198,10 +198,10 @@ export default function PnlByStrategy({
                 <p
                   className={`text-lg font-bold ${
                     strategy.totalPnl > 0
-                      ? 'text-green-600 dark:text-green-400'
+                      ? 'profit'
                       : strategy.totalPnl < 0
-                        ? 'text-red-600 dark:text-red-400'
-                        : 'text-muted-foreground'
+                        ? 'loss'
+                        : 'breakeven'
                   }`}
                 >
                   {formatChartCurrency(strategy.totalPnl)}

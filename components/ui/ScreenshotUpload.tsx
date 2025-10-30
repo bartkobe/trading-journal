@@ -244,7 +244,7 @@ export function ScreenshotUpload({
 
       {/* Error Message */}
       {error && (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg">
+        <div className="loss-bg border border-danger loss px-4 py-3 rounded-lg">
           {error}
         </div>
       )}
@@ -308,7 +308,7 @@ export function ScreenshotUpload({
                     <button
                       type="button"
                       onClick={() => handleDelete(screenshot.id!)}
-                      className="p-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                      className="p-2 bg-danger text-danger-foreground rounded-lg hover:bg-danger-dark"
                       title="Delete screenshot"
                     >
                       <svg

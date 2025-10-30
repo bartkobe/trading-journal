@@ -75,16 +75,16 @@ export function TradeList({ filters, sortBy, initialTrades }: TradeListProps) {
   }, [filters, sortBy, page]);
 
   const getOutcomeColor = (trade: TradeWithCalculations) => {
-    if (trade.calculations.isWinner) return 'text-green-600 dark:text-green-400';
-    if (trade.calculations.isLoser) return 'text-red-600 dark:text-red-400';
-    return 'text-muted-foreground';
+    if (trade.calculations.isWinner) return 'profit';
+    if (trade.calculations.isLoser) return 'loss';
+    return 'breakeven';
   };
 
   const getOutcomeIcon = (trade: TradeWithCalculations) => {
     if (trade.calculations.isWinner) {
       return (
         <svg
-          className="w-5 h-5 text-green-600"
+          className="w-5 h-5 profit"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -95,7 +95,7 @@ export function TradeList({ filters, sortBy, initialTrades }: TradeListProps) {
     }
     if (trade.calculations.isLoser) {
       return (
-        <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-5 h-5 loss" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -106,7 +106,7 @@ export function TradeList({ filters, sortBy, initialTrades }: TradeListProps) {
       );
     }
     return (
-      <svg className="w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className="w-5 h-5 breakeven" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
       </svg>
     );
@@ -114,11 +114,11 @@ export function TradeList({ filters, sortBy, initialTrades }: TradeListProps) {
 
   if (error) {
     return (
-      <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6 text-center">
-        <p className="text-red-700 dark:text-red-400">{error}</p>
+      <div className="loss-bg border border-danger rounded-lg p-6 text-center">
+        <p className="loss">{error}</p>
         <button
           onClick={fetchTrades}
-          className="mt-4 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+          className="mt-4 px-4 py-2 bg-danger hover:bg-danger-dark text-danger-foreground rounded-lg transition-colors"
         >
           Try Again
         </button>
@@ -241,27 +241,25 @@ export function TradeList({ filters, sortBy, initialTrades }: TradeListProps) {
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground dark:text-gray-300">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
                     {formatDate(trade.entryDate)}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground dark:text-gray-300">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
                     {trade.assetType}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span
                       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        trade.direction === 'LONG'
-                          ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                          : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+                        trade.direction === 'LONG' ? 'profit-bg' : 'loss-bg'
                       }`}
                     >
                       {trade.direction}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-foreground dark:text-gray-300">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-foreground">
                     {formatCurrency(trade.entryPrice, trade.currency)}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-foreground dark:text-gray-300">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-foreground">
                     {trade.exitPrice ? formatCurrency(trade.exitPrice, trade.currency) : '-'}
                   </td>
                   <td
@@ -292,9 +290,9 @@ export function TradeList({ filters, sortBy, initialTrades }: TradeListProps) {
             href={`/trades/${trade.id}`}
             className={`block rounded-lg border p-4 hover:shadow-md transition-shadow ${
               trade.calculations.isWinner
-                ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
+                ? 'profit-bg border-success'
                 : trade.calculations.isLoser
-                  ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
+                  ? 'loss-bg border-danger'
                   : 'bg-card border-border'
             }`}
           >
@@ -317,9 +315,7 @@ export function TradeList({ filters, sortBy, initialTrades }: TradeListProps) {
                 {getOutcomeIcon(trade)}
                 <span
                   className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                    trade.direction === 'LONG'
-                      ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                      : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+                    trade.direction === 'LONG' ? 'profit-bg' : 'loss-bg'
                   }`}
                 >
                   {trade.direction}

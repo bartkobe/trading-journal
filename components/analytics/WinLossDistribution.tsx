@@ -144,11 +144,11 @@ export default function WinLossDistribution({
 
   if (error) {
     return (
-      <div className="rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 p-6">
-        <h3 className="text-lg font-semibold text-red-800 dark:text-red-200 mb-2">
+      <div className="rounded-lg border border-danger loss-bg p-6">
+        <h3 className="text-lg font-semibold loss mb-2">
           Error Loading Chart
         </h3>
-        <p className="text-red-600 dark:text-red-400">{error}</p>
+        <p className="loss">{error}</p>
       </div>
     );
   }
@@ -242,13 +242,13 @@ export default function WinLossDistribution({
         {/* Stats Summary */}
         <div className="mt-6 grid grid-cols-3 gap-4 text-center">
           <div>
-            <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+            <p className="text-2xl font-bold profit">
               {distribution.wins}
             </p>
             <p className="text-sm text-muted-foreground">Wins</p>
           </div>
           <div>
-            <p className="text-2xl font-bold text-red-600 dark:text-red-400">
+            <p className="text-2xl font-bold loss">
               {distribution.losses}
             </p>
             <p className="text-sm text-muted-foreground">Losses</p>

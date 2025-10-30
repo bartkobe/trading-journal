@@ -57,7 +57,7 @@ export const CurrencySelector = forwardRef<HTMLSelectElement, CurrencySelectorPr
         {label && (
           <label htmlFor="currency" className="block text-sm font-medium mb-2">
             {label}
-            {required && <span className="text-red-500 ml-1">*</span>}
+            {required && <span className="text-danger ml-1">*</span>}
           </label>
         )}
         <select
@@ -77,7 +77,7 @@ export const CurrencySelector = forwardRef<HTMLSelectElement, CurrencySelectorPr
             </option>
           ))}
         </select>
-        {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+        {error && <p className="mt-1 text-sm text-danger">{error}</p>}
       </div>
     );
   }

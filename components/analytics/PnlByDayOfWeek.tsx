@@ -123,11 +123,11 @@ export default function PnlByDayOfWeek({
 
   if (error) {
     return (
-      <div className="rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 p-6">
-        <h3 className="text-lg font-semibold text-red-800 dark:text-red-200 mb-2">
+      <div className="rounded-lg border border-danger loss-bg p-6">
+        <h3 className="text-lg font-semibold loss mb-2">
           Error Loading Chart
         </h3>
-        <p className="text-red-600 dark:text-red-400">{error}</p>
+        <p className="loss">{error}</p>
       </div>
     );
   }
@@ -213,10 +213,10 @@ export default function PnlByDayOfWeek({
               <p
                 className={`text-base font-bold ${
                   day.totalPnl > 0
-                    ? 'text-green-600 dark:text-green-400'
+                    ? 'profit'
                     : day.totalPnl < 0
-                      ? 'text-red-600 dark:text-red-400'
-                      : 'text-muted-foreground'
+                      ? 'loss'
+                      : 'breakeven'
                 }`}
               >
                 {formatChartCurrency(day.totalPnl)}
@@ -243,8 +243,8 @@ export default function PnlByDayOfWeek({
             const best = [...displayData].sort((a, b) => b.totalPnl - a.totalPnl)[0];
             if (best.totalPnl > 0) {
               return (
-                <div className="p-3 rounded-lg bg-green-50 dark:bg-green-900/20">
-                  <p className="text-sm text-green-900 dark:text-green-100">
+                <div className="p-3 rounded-lg profit-bg">
+                  <p className="text-sm profit">
                     <strong>🎯 Best Day:</strong> {best.name} with{' '}
                     {formatChartCurrency(best.totalPnl)} ({best.tradeCount} trades,{' '}
                     {best.winRate.toFixed(0)}% win rate)
@@ -260,8 +260,8 @@ export default function PnlByDayOfWeek({
             const worst = [...displayData].sort((a, b) => a.totalPnl - b.totalPnl)[0];
             if (worst.totalPnl < 0) {
               return (
-                <div className="p-3 rounded-lg bg-red-50 dark:bg-red-900/20">
-                  <p className="text-sm text-red-900 dark:text-red-100">
+                <div className="p-3 rounded-lg loss-bg">
+                  <p className="text-sm loss">
                     <strong>⚠️ Worst Day:</strong> {worst.name} with{' '}
                     {formatChartCurrency(worst.totalPnl)} ({worst.tradeCount} trades,{' '}
                     {worst.winRate.toFixed(0)}% win rate)
