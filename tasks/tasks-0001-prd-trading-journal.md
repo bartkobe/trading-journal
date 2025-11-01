@@ -279,7 +279,7 @@
   - [x] 7.14 Test image upload functionality (✅ Created comprehensive tests for storage utilities and screenshot upload/delete API endpoints - 32 tests passing, covering file validation, Cloudinary/S3 upload, deletion, error handling, and API functionality)
   - [x] 7.15 Test search and filter functionality (✅ Created comprehensive tests for trade filtering API endpoint and TradeFilters component - 35 tests passing, covering date range, asset type, symbol, strategy, tags, free-text search, sorting, pagination, combined filters, validation, and UI interactions)
   - [ ] 7.16 Perform manual end-to-end testing of complete user workflows
-  - [x] 7.17 Fix any bugs discovered during testing (✅ Fixed navigation bar not appearing after login by changing router.push() to window.location.href for full page reload)
+  - [x] 7.17 Fix any bugs discovered during testing (✅ Fixed navigation bar not appearing after login by changing router.push() to window.location.href for full page reload; ✅ Fixed authenticated users seeing login form by adding client-side auth check and redirect to dashboard)
 
 - [ ] 8.0 Deployment & Documentation
   - [ ] 8.1 Choose cloud hosting platform (Vercel, Netlify, Railway, or similar)

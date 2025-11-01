@@ -17,47 +17,31 @@ export default function HomePage() {
       try {
         const response = await fetch('/api/auth/me');
         if (response.ok) {
-          // User is authenticated, redirect to dashboard
-          router.push('/dashboard');
+          // User is authenticated, redirect to dashboard immediately
+          router.replace('/dashboard');
           return;
         }
       } catch (error) {
         // Ignore errors - user is not authenticated
         console.log('User not authenticated, showing login form');
-      } finally {
-        setIsLoading(false);
       }
+
+      // Only set loading to false if we're not redirecting
+      setIsLoading(false);
     };
 
     checkAuth();
   }, [router]);
 
-  // Show loading state while checking authentication
+  // Show minimal loading state while checking authentication to avoid flash
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background px-4 py-12 relative">
-        {/* Theme Toggle - Top Right */}
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        {/* Minimal loading indicator - just the theme toggle */}
         <div className="absolute top-6 right-6">
           <ThemeToggle />
         </div>
-
-        <div className="max-w-md w-full space-y-12">
-          {/* Header */}
-          <div className="text-center space-y-3">
-            <h1 className="text-5xl font-bold text-foreground tracking-tight">Trading Journal</h1>
-            <p className="text-lg text-muted-foreground">
-              Track, analyze, and improve your trading performance
-            </p>
-          </div>
-
-          {/* Loading Card */}
-          <div className="bg-card shadow-2xl rounded-2xl border border-border p-8">
-            <div className="text-center space-y-4">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-              <p className="text-muted-foreground">Checking authentication...</p>
-            </div>
-          </div>
-        </div>
+        {/* No content shown until auth check completes */}
       </div>
     );
   }

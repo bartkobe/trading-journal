@@ -4,9 +4,11 @@ import HomePage from '@/app/page';
 
 // Mock next/navigation
 const mockPush = jest.fn();
+const mockReplace = jest.fn();
 jest.mock('next/navigation', () => ({
   useRouter: () => ({
     push: mockPush,
+    replace: mockReplace,
   }),
 }));
 
@@ -32,15 +34,17 @@ describe('HomePage', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockPush.mockClear();
+    mockReplace.mockClear();
   });
 
-  it('should show loading state initially while checking authentication', () => {
+  it('should show minimal loading state initially while checking authentication', () => {
     mockFetch.mockImplementation(() => new Promise(() => {})); // Never resolves
 
     render(<HomePage />);
 
-    expect(screen.getByText('Checking authentication...')).toBeInTheDocument();
-    expect(screen.getByText('Trading Journal')).toBeInTheDocument();
+    // Should show theme toggle but no main content during loading
+    expect(screen.getByTestId('theme-toggle')).toBeInTheDocument();
+    expect(screen.queryByText('Trading Journal')).not.toBeInTheDocument();
     expect(screen.queryByTestId('login-form')).not.toBeInTheDocument();
   });
 
@@ -53,7 +57,7 @@ describe('HomePage', () => {
     render(<HomePage />);
 
     await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith('/dashboard');
+      expect(mockReplace).toHaveBeenCalledWith('/dashboard');
     });
   });
 
@@ -66,12 +70,9 @@ describe('HomePage', () => {
     render(<HomePage />);
 
     // Wait for loading to finish and login form to appear
-    await waitFor(
-      () => {
-        expect(screen.queryByText('Checking authentication...')).not.toBeInTheDocument();
-      },
-      { timeout: 2000 }
-    );
+    await waitFor(() => {
+      expect(screen.getByTestId('login-form')).toBeInTheDocument();
+    });
 
     expect(screen.getByTestId('login-form')).toBeInTheDocument();
   });
