@@ -1,12 +1,66 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { LoginForm } from '@/components/auth/LoginForm';
 import { RegisterForm } from '@/components/auth/RegisterForm';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 
 export default function HomePage() {
   const [mode, setMode] = useState<'login' | 'register'>('login');
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
+
+  // Check if user is already authenticated
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('/api/auth/me');
+        if (response.ok) {
+          // User is authenticated, redirect to dashboard
+          router.push('/dashboard');
+          return;
+        }
+      } catch (error) {
+        // Ignore errors - user is not authenticated
+        console.log('User not authenticated, showing login form');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkAuth();
+  }, [router]);
+
+  // Show loading state while checking authentication
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background px-4 py-12 relative">
+        {/* Theme Toggle - Top Right */}
+        <div className="absolute top-6 right-6">
+          <ThemeToggle />
+        </div>
+
+        <div className="max-w-md w-full space-y-12">
+          {/* Header */}
+          <div className="text-center space-y-3">
+            <h1 className="text-5xl font-bold text-foreground tracking-tight">Trading Journal</h1>
+            <p className="text-lg text-muted-foreground">
+              Track, analyze, and improve your trading performance
+            </p>
+          </div>
+
+          {/* Loading Card */}
+          <div className="bg-card shadow-2xl rounded-2xl border border-border p-8">
+            <div className="text-center space-y-4">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+              <p className="text-muted-foreground">Checking authentication...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4 py-12 relative">
