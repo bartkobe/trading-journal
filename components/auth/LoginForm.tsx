@@ -44,8 +44,8 @@ export function LoginForm() {
         return;
       }
 
-      // Redirect to dashboard on success
-      router.push('/dashboard');
+      // Redirect to dashboard on success (force full page reload to update navigation)
+      window.location.href = '/dashboard';
     } catch (err) {
       console.error('Login error:', err);
       if (err instanceof TypeError && err.message === 'Failed to fetch') {
