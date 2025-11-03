@@ -463,6 +463,11 @@ Use the search box to find trades by:
 
 Click **"Filters"** to access advanced filtering options:
 
+**Status Filter**:
+- **All Trades**: Show both open and closed trades
+- **Open**: Show only open trades (trades without exit information)
+- **Closed**: Show only closed trades (trades with exit date and price)
+
 **Date Range Filter**:
 - Filter trades within a specific date range
 - Useful for monthly/quarterly analysis
@@ -476,6 +481,7 @@ Click **"Filters"** to access advanced filtering options:
 - **Winning**: Only profitable trades
 - **Losing**: Only unprofitable trades
 - **Breakeven**: Only zero P&L trades
+- **Note**: Open trades are not included in outcome filtering (they don't have outcomes yet)
 
 **Symbol Filter**:
 - Filter by specific trading symbol
@@ -658,12 +664,15 @@ The exported CSV includes:
 - Fees, Notes, Tags
 
 **Calculated Metrics**:
-- P&L (profit/loss)
-- P&L % (percentage)
-- Net P&L (after fees)
-- Entry Value, Exit Value
-- Holding Period (hours and days)
-- Is Winner, Is Loser, Is Breakeven
+- P&L (profit/loss) - shows empty for open trades
+- P&L % (percentage) - shows empty for open trades
+- Net P&L (after fees) - shows empty for open trades
+- Entry Value, Exit Value - shows empty for open trades
+- Holding Period (hours and days) - shows empty for open trades
+- Is Winner, Is Loser, Is Breakeven - false for open trades
+- **Status**: "Open" or "Closed" column indicates trade status
+
+**Note**: Open trades are included in CSV exports. Their exit-related fields (exitDate, exitPrice, P&L, etc.) will be empty in the CSV until the trade is closed.
 
 ### Using Exported Data
 
