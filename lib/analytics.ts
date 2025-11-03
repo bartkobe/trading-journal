@@ -1,4 +1,5 @@
 import { TradeWithCalculations } from './types';
+import { isTradeOpen } from './trades';
 
 // ============================================================================
 // Basic Metrics
@@ -22,7 +23,9 @@ export interface BasicMetrics {
 }
 
 export function calculateBasicMetrics(trades: TradeWithCalculations[]): BasicMetrics {
-  const totalTrades = trades.length;
+  // Filter out open trades - only calculate metrics for closed trades
+  const closedTrades = trades.filter((t) => !isTradeOpen(t));
+  const totalTrades = closedTrades.length;
 
   if (totalTrades === 0) {
     return {
@@ -43,29 +46,29 @@ export function calculateBasicMetrics(trades: TradeWithCalculations[]): BasicMet
     };
   }
 
-  const winningTrades = trades.filter((t) => t.calculations.isWinner);
-  const losingTrades = trades.filter((t) => t.calculations.isLoser);
-  const breakevenTrades = trades.filter((t) => t.calculations.isBreakeven);
+  const winningTrades = closedTrades.filter((t) => t.calculations.isWinner);
+  const losingTrades = closedTrades.filter((t) => t.calculations.isLoser);
+  const breakevenTrades = closedTrades.filter((t) => t.calculations.isBreakeven);
 
-  const totalPnl = trades.reduce((sum, t) => sum + t.calculations.netPnl, 0);
-  const grossProfit = winningTrades.reduce((sum, t) => sum + t.calculations.netPnl, 0);
-  const grossLoss = Math.abs(losingTrades.reduce((sum, t) => sum + t.calculations.netPnl, 0));
+  const totalPnl = closedTrades.reduce((sum, t) => sum + (t.calculations.netPnl ?? 0), 0);
+  const grossProfit = winningTrades.reduce((sum, t) => sum + (t.calculations.netPnl ?? 0), 0);
+  const grossLoss = Math.abs(losingTrades.reduce((sum, t) => sum + (t.calculations.netPnl ?? 0), 0));
 
   const averageWin =
     winningTrades.length > 0
-      ? winningTrades.reduce((sum, t) => sum + t.calculations.netPnl, 0) / winningTrades.length
+      ? winningTrades.reduce((sum, t) => sum + (t.calculations.netPnl ?? 0), 0) / winningTrades.length
       : 0;
 
   const averageLoss =
     losingTrades.length > 0
-      ? losingTrades.reduce((sum, t) => sum + t.calculations.netPnl, 0) / losingTrades.length
+      ? losingTrades.reduce((sum, t) => sum + (t.calculations.netPnl ?? 0), 0) / losingTrades.length
       : 0;
 
   const largestWin =
-    winningTrades.length > 0 ? Math.max(...winningTrades.map((t) => t.calculations.netPnl)) : 0;
+    winningTrades.length > 0 ? Math.max(...winningTrades.map((t) => t.calculations.netPnl ?? 0)) : 0;
 
   const largestLoss =
-    losingTrades.length > 0 ? Math.min(...losingTrades.map((t) => t.calculations.netPnl)) : 0;
+    losingTrades.length > 0 ? Math.min(...losingTrades.map((t) => t.calculations.netPnl ?? 0)) : 0;
 
   return {
     totalTrades,
@@ -95,14 +98,17 @@ export interface ExpectancyMetrics {
 }
 
 export function calculateExpectancy(trades: TradeWithCalculations[]): ExpectancyMetrics {
-  if (trades.length === 0) {
+  // Filter out open trades - only calculate metrics for closed trades
+  const closedTrades = trades.filter((t) => !isTradeOpen(t));
+  
+  if (closedTrades.length === 0) {
     return {
       expectancy: 0,
       expectancyPercent: 0,
     };
   }
 
-  const metrics = calculateBasicMetrics(trades);
+  const metrics = calculateBasicMetrics(closedTrades);
 
   // Expectancy = (Win Rate × Average Win) - (Loss Rate × |Average Loss|)
   const expectancy =
@@ -110,7 +116,7 @@ export function calculateExpectancy(trades: TradeWithCalculations[]): Expectancy
 
   // Calculate average trade size for percentage
   const averageTradeSize =
-    trades.reduce((sum, t) => sum + t.calculations.entryValue, 0) / trades.length;
+    closedTrades.reduce((sum, t) => sum + t.calculations.entryValue, 0) / closedTrades.length;
 
   const expectancyPercent = averageTradeSize > 0 ? (expectancy / averageTradeSize) * 100 : 0;
 
@@ -134,7 +140,10 @@ export function calculateSharpeRatio(
   trades: TradeWithCalculations[],
   riskFreeRate: number = 0
 ): SharpeRatioMetrics {
-  if (trades.length < 2) {
+  // Filter out open trades - only calculate metrics for closed trades
+  const closedTrades = trades.filter((t) => !isTradeOpen(t) && t.calculations.pnlPercent !== null);
+  
+  if (closedTrades.length < 2) {
     return {
       sharpeRatio: 0,
       averageReturn: 0,
@@ -142,8 +151,8 @@ export function calculateSharpeRatio(
     };
   }
 
-  // Calculate average return
-  const returns = trades.map((t) => t.calculations.pnlPercent);
+  // Calculate average return (only for closed trades with valid pnlPercent)
+  const returns = closedTrades.map((t) => t.calculations.pnlPercent!).filter((r) => r !== null);
   const averageReturn = returns.reduce((sum, r) => sum + r, 0) / returns.length;
 
   // Calculate standard deviation
@@ -186,7 +195,10 @@ export interface DrawdownPeriod {
 }
 
 export function calculateDrawdown(trades: TradeWithCalculations[]): DrawdownMetrics {
-  if (trades.length === 0) {
+  // Filter out open trades - only calculate drawdown from closed trades
+  const closedTrades = trades.filter((t) => !isTradeOpen(t) && t.calculations.netPnl !== null);
+  
+  if (closedTrades.length === 0) {
     return {
       maxDrawdown: 0,
       maxDrawdownPercent: 0,
@@ -198,18 +210,18 @@ export function calculateDrawdown(trades: TradeWithCalculations[]): DrawdownMetr
   }
 
   // Sort trades by entry date
-  const sortedTrades = [...trades].sort(
+  const sortedTrades = [...closedTrades].sort(
     (a, b) => new Date(a.entryDate).getTime() - new Date(b.entryDate).getTime()
   );
 
-  // Calculate cumulative P&L
+  // Calculate cumulative P&L (only from closed trades)
   let cumulativePnl = 0;
   const equityCurve: { date: Date; equity: number }[] = [];
 
   for (const trade of sortedTrades) {
-    cumulativePnl += trade.calculations.netPnl;
+    cumulativePnl += trade.calculations.netPnl ?? 0;
     equityCurve.push({
-      date: new Date(trade.entryDate),
+      date: new Date(trade.exitDate!), // Use exitDate since we filtered to closed trades
       equity: cumulativePnl,
     });
   }
@@ -319,8 +331,11 @@ export function calculateEquityCurve(trades: TradeWithCalculations[]): EquityCur
     return [];
   }
 
+  // Filter out open trades - equity curve only includes closed trades
+  const closedTrades = trades.filter((t) => !isTradeOpen(t) && t.calculations.netPnl !== null);
+  
   // Sort trades by entry date
-  const sortedTrades = [...trades].sort(
+  const sortedTrades = [...closedTrades].sort(
     (a, b) => new Date(a.entryDate).getTime() - new Date(b.entryDate).getTime()
   );
 
@@ -328,12 +343,12 @@ export function calculateEquityCurve(trades: TradeWithCalculations[]): EquityCur
   const equityCurve: EquityCurvePoint[] = [];
 
   sortedTrades.forEach((trade, index) => {
-    cumulativePnl += trade.calculations.netPnl;
+    cumulativePnl += trade.calculations.netPnl ?? 0;
     equityCurve.push({
-      date: new Date(trade.entryDate),
+      date: new Date(trade.exitDate!), // Use exitDate since we filtered to closed trades
       equity: cumulativePnl,
       tradeNumber: index + 1,
-      pnl: trade.calculations.netPnl,
+      pnl: trade.calculations.netPnl ?? 0,
       symbol: trade.symbol,
     });
   });
@@ -367,10 +382,13 @@ export function calculatePerformanceByDimension(
     | 'marketConditions'
     | 'emotionalStateEntry'
 ): DimensionPerformance[] {
+  // Filter out open trades - only calculate performance for closed trades
+  const closedTrades = trades.filter((t) => !isTradeOpen(t));
+  
   // Group trades by dimension
   const grouped = new Map<string, TradeWithCalculations[]>();
 
-  trades.forEach((trade) => {
+  closedTrades.forEach((trade) => {
     const value = (trade[dimension] || 'Unknown').toString();
     if (!grouped.has(value)) {
       grouped.set(value, []);
@@ -410,6 +428,9 @@ export interface TimeBasedMetrics {
 }
 
 export function calculateTimeBasedMetrics(trades: TradeWithCalculations[]): TimeBasedMetrics {
+  // Filter out open trades - only calculate time-based metrics for closed trades
+  const closedTrades = trades.filter((t) => !isTradeOpen(t));
+  
   const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   const monthNames = [
     'January',
@@ -433,7 +454,7 @@ export function calculateTimeBasedMetrics(trades: TradeWithCalculations[]): Time
   // Group by hour
   const hourGroups = new Map<string, TradeWithCalculations[]>();
 
-  trades.forEach((trade) => {
+  closedTrades.forEach((trade) => {
     const date = new Date(trade.entryDate);
     const day = dayNames[date.getDay()];
     const month = monthNames[date.getMonth()];
@@ -491,7 +512,10 @@ export interface StreakMetrics {
 }
 
 export function calculateStreaks(trades: TradeWithCalculations[]): StreakMetrics {
-  if (trades.length === 0) {
+  // Filter out open trades - only calculate streaks from closed trades
+  const closedTrades = trades.filter((t) => !isTradeOpen(t));
+  
+  if (closedTrades.length === 0) {
     return {
       currentStreak: 0,
       longestWinStreak: 0,
@@ -502,7 +526,7 @@ export function calculateStreaks(trades: TradeWithCalculations[]): StreakMetrics
   }
 
   // Sort trades by entry date
-  const sortedTrades = [...trades].sort(
+  const sortedTrades = [...closedTrades].sort(
     (a, b) => new Date(a.entryDate).getTime() - new Date(b.entryDate).getTime()
   );
 

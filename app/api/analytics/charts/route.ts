@@ -29,17 +29,18 @@ export async function GET(request: NextRequest) {
     // Build where clause
     const where: any = {
       userId: user.id,
+      // Exclude open trades - only include closed trades for analytics
+      exitDate: {
+        not: null,
+      },
     };
 
     // Apply date filters if provided
     if (startDate || endDate) {
-      where.entryDate = {};
-      if (startDate) {
-        where.entryDate.gte = new Date(startDate);
-      }
-      if (endDate) {
-        where.entryDate.lte = new Date(endDate);
-      }
+      where.entryDate = {
+        ...(startDate && { gte: new Date(startDate) }),
+        ...(endDate && { lte: new Date(endDate) }),
+      };
     }
 
     // Fetch trades from database

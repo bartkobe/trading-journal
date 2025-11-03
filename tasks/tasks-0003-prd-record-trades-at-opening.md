@@ -133,22 +133,22 @@
   - [x] 5.12 Update sorting logic: Ensure open trades can be sorted by entry date (most recent first by default)
   - [x] 5.13 Test filtering: Filter to show only open trades, only closed trades, and all trades
 
-- [ ] 6.0 Analytics Integration (Exclude Open Trades)
-  - [ ] 6.1 Open `lib/analytics.ts` - Update `calculateBasicMetrics` function
-  - [ ] 6.2 In `calculateBasicMetrics`: Filter out trades where `exitDate === null` at the start of function
-  - [ ] 6.3 In `calculateBasicMetrics`: Use filtered closed trades for all calculations
-  - [ ] 6.4 Update `calculateExpectancy` function: Filter out open trades before calculations
-  - [ ] 6.5 Update `calculateSharpeRatio` function: Filter out open trades before calculations
-  - [ ] 6.6 Update `calculateDrawdown` function: Filter out open trades before calculations
-  - [ ] 6.7 Update `calculateStreaks` function: Filter out open trades before calculations
-  - [ ] 6.8 Update all performance breakdown functions (by symbol, strategy, asset type, etc.): Filter out open trades
-  - [ ] 6.9 Open `app/api/analytics/dashboard/route.ts` - Filter trades before calculating metrics
-  - [ ] 6.10 In dashboard route: Add `exitDate: { not: null }` to where clause when fetching trades
-  - [ ] 6.11 Open `app/api/analytics/performance/route.ts` - Filter out open trades
-  - [ ] 6.12 Open `app/api/analytics/charts/route.ts` - Filter out open trades
-  - [ ] 6.13 Verify all analytics endpoints exclude open trades from calculations
-  - [ ] 6.14 Test analytics: Create open trades and verify they don't appear in dashboard metrics
-  - [ ] 6.15 Test analytics: Close open trades and verify they appear in metrics
+- [x] 6.0 Analytics Integration (Exclude Open Trades)
+  - [x] 6.1 Open `lib/analytics.ts` - Update `calculateBasicMetrics` function
+  - [x] 6.2 In `calculateBasicMetrics`: Filter out trades where `exitDate === null` at the start of function
+  - [x] 6.3 In `calculateBasicMetrics`: Use filtered closed trades for all calculations
+  - [x] 6.4 Update `calculateExpectancy` function: Filter out open trades before calculations
+  - [x] 6.5 Update `calculateSharpeRatio` function: Filter out open trades before calculations
+  - [x] 6.6 Update `calculateDrawdown` function: Filter out open trades before calculations
+  - [x] 6.7 Update `calculateStreaks` function: Filter out open trades before calculations
+  - [x] 6.8 Update all performance breakdown functions (by symbol, strategy, asset type, etc.): Filter out open trades
+  - [x] 6.9 Open `app/api/analytics/dashboard/route.ts` - Filter trades before calculating metrics
+  - [x] 6.10 In dashboard route: Add `exitDate: { not: null }` to where clause when fetching trades
+  - [x] 6.11 Open `app/api/analytics/performance/route.ts` - Filter out open trades
+  - [x] 6.12 Open `app/api/analytics/charts/route.ts` - Filter out open trades
+  - [x] 6.13 Verify all analytics endpoints exclude open trades from calculations
+  - [x] 6.14 Test analytics: Create open trades and verify they don't appear in dashboard metrics
+  - [x] 6.15 Test analytics: Close open trades and verify they appear in metrics
 
 - [ ] 7.0 Advanced Features (Solution C: Open Trades Section, Dashboard Enhancements, Export Updates)
   - [ ] 7.1 Create `components/trades/OpenTradesSection.tsx` component
