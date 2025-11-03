@@ -192,6 +192,71 @@ describe('Trade API Endpoints', () => {
       expect(data.error).toBe('Authentication required');
     });
 
+    it('should create a trade without exit fields (open trade)', async () => {
+      const mockTrade = {
+        id: 'trade-open-1',
+        userId: mockUser.id,
+        symbol: 'AAPL',
+        assetType: 'STOCK',
+        currency: 'USD',
+        entryDate: new Date('2024-01-01'),
+        entryPrice: 100,
+        exitDate: null,
+        exitPrice: null,
+        quantity: 10,
+        direction: 'LONG',
+        fees: 0,
+        setupType: null,
+        strategyName: null,
+        stopLoss: null,
+        takeProfit: null,
+        riskRewardRatio: null,
+        actualRiskReward: null,
+        timeOfDay: null,
+        marketConditions: null,
+        emotionalStateEntry: null,
+        emotionalStateExit: null,
+        notes: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        screenshots: [],
+        tags: [],
+      };
+
+      mockPrisma.trade.create.mockResolvedValue(mockTrade as any);
+
+      const requestBody = {
+        symbol: 'AAPL',
+        assetType: 'STOCK',
+        currency: 'USD',
+        entryDate: '2024-01-01T00:00:00.000Z',
+        entryPrice: 100,
+        quantity: 10,
+        direction: 'LONG',
+        // exitDate and exitPrice omitted for open trade
+      };
+
+      const request = createMockRequest('http://localhost/api/trades', {
+        method: 'POST',
+        body: JSON.stringify(requestBody),
+      });
+
+      const response = await POST(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(201);
+      expect(data.trade).toBeDefined();
+      expect(mockPrisma.trade.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            symbol: 'AAPL',
+            exitDate: null,
+            exitPrice: null,
+          }),
+        })
+      );
+    });
+
     it('should create trade with tags', async () => {
       const mockTrade = {
         id: 'trade-1',
@@ -502,6 +567,155 @@ describe('Trade API Endpoints', () => {
       expect(response.status).toBe(200);
       expect(data.trade).toBeDefined();
       expect(mockPrisma.trade.update).toHaveBeenCalled();
+    });
+
+    it('should update an open trade to add exit fields (closing the trade)', async () => {
+      const existingOpenTrade = {
+        id: 'trade-open-1',
+        userId: mockUser.id,
+        symbol: 'AAPL',
+        assetType: 'STOCK',
+        currency: 'USD',
+        entryDate: new Date('2024-01-01'),
+        entryPrice: 100,
+        exitDate: null,
+        exitPrice: null,
+        quantity: 10,
+        direction: 'LONG',
+        fees: 0,
+        setupType: null,
+        strategyName: null,
+        stopLoss: null,
+        takeProfit: null,
+        riskRewardRatio: null,
+        actualRiskReward: null,
+        timeOfDay: null,
+        marketConditions: null,
+        emotionalStateEntry: null,
+        emotionalStateExit: null,
+        notes: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        screenshots: [],
+        tags: [],
+      };
+
+      const updatedClosedTrade = {
+        ...existingOpenTrade,
+        exitDate: new Date('2024-01-02'),
+        exitPrice: 105,
+      };
+
+      mockPrisma.trade.findUnique.mockResolvedValue(existingOpenTrade as any);
+      mockPrisma.trade.update.mockResolvedValue(updatedClosedTrade as any);
+      mockPrisma.tradeTag.deleteMany.mockResolvedValue({ count: 0 });
+
+      const requestBody = {
+        symbol: 'AAPL',
+        assetType: 'STOCK',
+        currency: 'USD',
+        entryDate: '2024-01-01T00:00:00.000Z',
+        entryPrice: 100,
+        exitDate: '2024-01-02T00:00:00.000Z',
+        exitPrice: 105,
+        quantity: 10,
+        direction: 'LONG',
+        fees: 0,
+      };
+
+      const request = createMockRequest('http://localhost/api/trades/trade-open-1', {
+        method: 'PUT',
+        body: JSON.stringify(requestBody),
+      });
+      const params = Promise.resolve({ id: 'trade-open-1' });
+
+      const response = await PUT(request, { params });
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data.trade).toBeDefined();
+      expect(mockPrisma.trade.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            exitDate: expect.any(Date),
+            exitPrice: 105,
+          }),
+        })
+      );
+    });
+
+    it('should update a closed trade to remove exit fields (reopening the trade)', async () => {
+      const existingClosedTrade = {
+        id: 'trade-closed-1',
+        userId: mockUser.id,
+        symbol: 'AAPL',
+        assetType: 'STOCK',
+        currency: 'USD',
+        entryDate: new Date('2024-01-01'),
+        entryPrice: 100,
+        exitDate: new Date('2024-01-02'),
+        exitPrice: 105,
+        quantity: 10,
+        direction: 'LONG',
+        fees: 0,
+        setupType: null,
+        strategyName: null,
+        stopLoss: null,
+        takeProfit: null,
+        riskRewardRatio: null,
+        actualRiskReward: null,
+        timeOfDay: null,
+        marketConditions: null,
+        emotionalStateEntry: null,
+        emotionalStateExit: null,
+        notes: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        screenshots: [],
+        tags: [],
+      };
+
+      const updatedOpenTrade = {
+        ...existingClosedTrade,
+        exitDate: null,
+        exitPrice: null,
+      };
+
+      mockPrisma.trade.findUnique.mockResolvedValue(existingClosedTrade as any);
+      mockPrisma.trade.update.mockResolvedValue(updatedOpenTrade as any);
+      mockPrisma.tradeTag.deleteMany.mockResolvedValue({ count: 0 });
+
+      const requestBody = {
+        symbol: 'AAPL',
+        assetType: 'STOCK',
+        currency: 'USD',
+        entryDate: '2024-01-01T00:00:00.000Z',
+        entryPrice: 100,
+        // exitDate and exitPrice omitted to reopen the trade
+        quantity: 10,
+        direction: 'LONG',
+        fees: 0,
+      };
+
+      const request = createMockRequest('http://localhost/api/trades/trade-closed-1', {
+        method: 'PUT',
+        body: JSON.stringify(requestBody),
+      });
+      const params = Promise.resolve({ id: 'trade-closed-1' });
+
+      const response = await PUT(request, { params });
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data.trade).toBeDefined();
+      expect(mockPrisma.trade.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            exitDate: null,
+            exitPrice: null,
+          }),
+        })
+      );
     });
 
     it('should return 404 when trade not found', async () => {
