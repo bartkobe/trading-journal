@@ -208,6 +208,7 @@ Get a paginated list of trades with optional filtering, sorting, and search.
 | `setupType` | string | No | - | Filter by setup type |
 | `tags` | comma-separated string | No | - | Filter by tags (e.g., `tag1,tag2`) |
 | `outcome` | `winning`, `losing`, `breakeven` | No | - | Filter by trade outcome |
+| `status` | `open`, `closed` | No | - | Filter by trade status (open = no exitDate, closed = has exitDate) |
 | `search` | string | No | - | Search in symbol, notes, strategy, tags |
 | `sortBy` | `date`, `pnl`, `pnlPercent`, `symbol` | No | `date` | Sort field |
 | `sortOrder` | `asc`, `desc` | No | `desc` | Sort order |
@@ -217,6 +218,8 @@ Get a paginated list of trades with optional filtering, sorting, and search.
 **Example Request**:
 ```
 GET /api/trades?startDate=2024-01-01&endDate=2024-12-31&assetType=STOCK&sortBy=pnl&sortOrder=desc&limit=25&offset=0
+GET /api/trades?status=open
+GET /api/trades?status=closed
 ```
 
 **Success Response** (200 OK):
@@ -269,6 +272,45 @@ GET /api/trades?startDate=2024-01-01&endDate=2024-12-31&assetType=STOCK&sortBy=p
       ],
       "createdAt": "2024-01-15T10:05:00.000Z",
       "updatedAt": "2024-01-15T15:35:00.000Z"
+    },
+    {
+      "id": "clx9876543210",
+      "symbol": "TSLA",
+      "assetType": "STOCK",
+      "currency": "USD",
+      "entryDate": "2024-01-16T09:00:00.000Z",
+      "entryPrice": 200.00,
+      "exitDate": null,
+      "exitPrice": null,
+      "quantity": 50,
+      "direction": "LONG",
+      "setupType": null,
+      "strategyName": "Swing Trade",
+      "stopLoss": 195.00,
+      "takeProfit": 210.00,
+      "fees": 0,
+      "timeOfDay": "MARKET_OPEN",
+      "marketConditions": "TRENDING",
+      "emotionalStateEntry": "Confident",
+      "emotionalStateExit": null,
+      "notes": "Entered on breakout, trade still open",
+      "riskRewardRatio": 2.0,
+      "calculations": {
+        "pnl": null,
+        "pnlPercent": null,
+        "netPnl": null,
+        "entryValue": 10000.00,
+        "exitValue": null,
+        "holdingPeriod": null,
+        "holdingPeriodDays": null,
+        "isWinner": false,
+        "isLoser": false,
+        "isBreakeven": false
+      },
+      "screenshots": [],
+      "tags": [],
+      "createdAt": "2024-01-16T09:05:00.000Z",
+      "updatedAt": "2024-01-16T09:05:00.000Z"
     }
   ],
   "total": 150,
@@ -276,6 +318,8 @@ GET /api/trades?startDate=2024-01-01&endDate=2024-12-31&assetType=STOCK&sortBy=p
   "offset": 0
 }
 ```
+
+**Note**: The response may include both closed trades (with `exitDate` and `exitPrice`) and open trades (with `exitDate: null` and `exitPrice: null`). For open trades, P&L calculations (`pnl`, `pnlPercent`, `netPnl`, `exitValue`, `holdingPeriod`) will be `null`.
 
 **Error Responses**:
 - `400 Bad Request`: Invalid filter parameters
@@ -300,7 +344,7 @@ Get a single trade by ID with all details.
 GET /api/trades/clx1234567890
 ```
 
-**Success Response** (200 OK):
+**Success Response** (200 OK) - Closed Trade:
 ```json
 {
   "trade": {
@@ -363,6 +407,51 @@ GET /api/trades/clx1234567890
 }
 ```
 
+**Success Response** (200 OK) - Open Trade:
+```json
+{
+  "trade": {
+    "id": "clx9876543210",
+    "symbol": "TSLA",
+    "assetType": "STOCK",
+    "currency": "USD",
+    "entryDate": "2024-01-16T09:00:00.000Z",
+    "entryPrice": 200.00,
+    "exitDate": null,
+    "exitPrice": null,
+    "quantity": 50,
+    "direction": "LONG",
+    "setupType": null,
+    "strategyName": "Swing Trade",
+    "stopLoss": 195.00,
+    "takeProfit": 210.00,
+    "fees": 0,
+    "timeOfDay": "MARKET_OPEN",
+    "marketConditions": "TRENDING",
+    "emotionalStateEntry": "Confident",
+    "emotionalStateExit": null,
+    "notes": "Entered on breakout, trade still open",
+    "riskRewardRatio": 2.0,
+    "calculations": {
+      "pnl": null,
+      "pnlPercent": null,
+      "netPnl": null,
+      "entryValue": 10000.00,
+      "exitValue": null,
+      "holdingPeriod": null,
+      "holdingPeriodDays": null,
+      "isWinner": false,
+      "isLoser": false,
+      "isBreakeven": false
+    },
+    "screenshots": [],
+    "tags": [],
+    "createdAt": "2024-01-16T09:05:00.000Z",
+    "updatedAt": "2024-01-16T09:05:00.000Z"
+  }
+}
+```
+
 **Error Responses**:
 - `401 Unauthorized`: Authentication required
 - `404 Not Found`: Trade not found
@@ -383,7 +472,7 @@ Create a new trade entry.
 
 **Authentication**: Required
 
-**Request Body**:
+**Request Body** (Closed Trade):
 ```json
 {
   "symbol": "AAPL",
@@ -410,18 +499,41 @@ Create a new trade entry.
 }
 ```
 
+**Request Body** (Open Trade - exitDate and exitPrice omitted):
+```json
+{
+  "symbol": "TSLA",
+  "assetType": "STOCK",
+  "currency": "USD",
+  "entryDate": "2024-01-16T09:00:00.000Z",
+  "entryPrice": 200.00,
+  "quantity": 50,
+  "direction": "LONG",
+  "strategyName": "Swing Trade",
+  "stopLoss": 195.00,
+  "takeProfit": 210.00,
+  "fees": 0,
+  "timeOfDay": "MARKET_OPEN",
+  "marketConditions": "TRENDING",
+  "emotionalStateEntry": "Confident",
+  "notes": "Entered on breakout, trade still open",
+  "tags": ["swing"]
+}
+```
+
 **Required Fields**:
 - `symbol` (string): Trading symbol
 - `assetType` (`STOCK`, `FOREX`, `CRYPTO`, `OPTIONS`): Asset type
 - `currency` (string): Currency code (default: "USD"). Supported currencies include: USD, EUR, GBP, JPY, CAD, AUD, CHF, PLN, and more.
 - `entryDate` (ISO date string): Entry date/time
 - `entryPrice` (number): Entry price (must be positive)
-- `exitDate` (ISO date string): Exit date/time
-- `exitPrice` (number): Exit price (must be positive)
 - `quantity` (number): Quantity (must be positive)
 - `direction` (`LONG`, `SHORT`): Trade direction
 
 **Optional Fields**:
+- `exitDate` (ISO date string, optional): Exit date/time. If omitted or null, trade is marked as open
+- `exitPrice` (number, optional): Exit price (must be positive if provided). If omitted or null, trade is marked as open
+  - **Note**: `exitDate` and `exitPrice` must both be provided together or both be omitted (for open trades)
 - `setupType` (string): Setup type
 - `strategyName` (string): Strategy name
 - `stopLoss` (number): Stop loss price
@@ -495,6 +607,9 @@ Update an existing trade.
 **Notes**:
 - Only trades belonging to the authenticated user can be updated
 - Tags are replaced (not merged) if provided
+- **Open Trades**: To close an open trade, include both `exitDate` and `exitPrice` in the update
+- **Reopening Trades**: To reopen a closed trade, set both `exitDate` and `exitPrice` to `null` or omit them
+- **Cross-Validation**: `exitDate` and `exitPrice` must both be provided together or both be omitted/null
 
 ---
 
@@ -642,6 +757,8 @@ DELETE /api/trades/clx1234567890/screenshots?screenshotId=screenshot123
 
 Analytics endpoints require authentication and return data for the authenticated user's trades.
 
+**Important Note**: All analytics endpoints **exclude open trades** (trades without `exitDate` and `exitPrice`). Analytics calculations only include closed trades to ensure accurate performance metrics.
+
 ### Get Dashboard Metrics
 
 Get comprehensive dashboard metrics and KPIs.
@@ -666,6 +783,7 @@ GET /api/analytics/dashboard?startDate=2024-01-01&endDate=2024-12-31
 ```json
 {
   "totalTrades": 150,
+  "openTradesCount": 5,
   "winningTrades": 90,
   "losingTrades": 55,
   "breakevenTrades": 5,
@@ -701,6 +819,11 @@ GET /api/analytics/dashboard?startDate=2024-01-01&endDate=2024-12-31
   }
 }
 ```
+
+**Response Fields**:
+- `totalTrades`: Number of closed trades (open trades excluded from count)
+- `openTradesCount`: Count of currently open trades (informational only, not included in performance metrics)
+- All other metrics (`winRate`, `totalPnl`, etc.) are calculated from closed trades only
 
 **Error Responses**:
 - `401 Unauthorized`: Authentication required

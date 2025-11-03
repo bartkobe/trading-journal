@@ -10,13 +10,16 @@ A comprehensive single-user web application designed for day and swing traders t
 
 ### Trade Management
 - ✅ Complete trade entry with all relevant fields (symbol, asset type, prices, dates, quantities)
+- ✅ **Record trades at opening** - Capture trades immediately when entered, before they close
+- ✅ **Open trades support** - Track active positions with optional exit information
 - ✅ Support for multiple asset types: Stocks, Forex, Crypto, Options
 - ✅ Multi-currency support (USD, EUR, GBP, JPY, CAD, AUD, CHF, PLN, and more)
-- ✅ Automatic P&L calculations (gross, percentage, net after fees)
+- ✅ Automatic P&L calculations (gross, percentage, net after fees) for closed trades
 - ✅ Rich text editor for trade notes and journaling
 - ✅ Screenshot/image uploads for chart analysis
 - ✅ Custom tags and categorization
 - ✅ Full CRUD operations (Create, Read, Update, Delete)
+- ✅ Trade status filtering (open/closed) and visual indicators
 
 ### Analytics & Insights
 - ✅ Comprehensive dashboard with key performance metrics
@@ -31,9 +34,10 @@ A comprehensive single-user web application designed for day and swing traders t
 
 ### Organization & Search
 - ✅ Powerful search across symbols, notes, strategies, and tags
-- ✅ Advanced filtering by date range, asset type, outcome, strategy, tags, symbol
+- ✅ Advanced filtering by date range, asset type, outcome, strategy, tags, symbol, **trade status (open/closed)**
 - ✅ Flexible sorting by date, P&L, P&L%, symbol
 - ✅ Pagination for large trade lists
+- ✅ **Open Trades Dashboard** - Dedicated section showing all active positions
 
 ### User Experience
 - ✅ Clean, minimal, professional financial aesthetic
