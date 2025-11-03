@@ -14,6 +14,7 @@ export const CURRENCIES = [
   { code: 'CNY', name: 'Chinese Yuan', symbol: '¥' },
   { code: 'SEK', name: 'Swedish Krona', symbol: 'kr' },
   { code: 'NZD', name: 'New Zealand Dollar', symbol: 'NZ$' },
+  { code: 'PLN', name: 'Polish Złoty', symbol: 'PLN' },
 ] as const;
 
 export type CurrencyCode = (typeof CURRENCIES)[number]['code'];
