@@ -62,9 +62,25 @@ After logging in:
 
 The Dashboard is your command center, providing a comprehensive overview of your trading performance at a glance.
 
+### Open Trades Section
+
+At the top of the dashboard, you'll see a dedicated **Open Trades** section that displays:
+- All your currently open trades
+- Count of open positions
+- Quick access to close each trade
+- Link to view all open trades
+
+**To Close an Open Trade from Dashboard**:
+1. Find the open trade in the Open Trades section
+2. Click **"Close Trade"** button
+3. Fill in exit date and price
+4. Click **"Yes, Close Trade"** to confirm
+
 ### Key Metrics Display
 
-At the top of the dashboard, you'll see important metrics:
+Below the Open Trades section, you'll see important performance metrics:
+
+**Note**: All performance metrics (P&L, win rate, etc.) only include **closed trades**. Open trades are excluded from analytics calculations until they are closed. The dashboard also shows a count of your open trades as an informational metric (separate from performance calculations).
 
 - **Total Trades**: Total number of trades recorded
 - **Win Rate**: Percentage of winning trades
@@ -140,12 +156,47 @@ Recording trades is the core function of the journal. Follow these steps to add 
 - **Currency**: Currency for the trade (USD, EUR, GBP, JPY, PLN, etc.)
 - **Entry Date**: Date and time of trade entry
 - **Entry Price**: Price at which you entered
-- **Exit Date**: Date and time of trade exit
-- **Exit Price**: Price at which you exited
 - **Quantity**: Number of shares/units/contracts
 - **Direction**: 
   - LONG (buying/going long)
   - SHORT (selling/going short)
+
+**Exit Information** (Optional - for open trades):
+
+- **Exit Date**: Date and time of trade exit (optional if trade is still open)
+- **Exit Price**: Price at which you exited (optional if trade is still open)
+
+### Recording Open Trades
+
+You can record trades **at the moment of opening**, even before they close. This is especially useful for:
+- **Day traders**: Capture your emotional state immediately at entry
+- **Swing traders**: Record trades as you enter them, then close them later
+- **Active monitoring**: Track all your open positions in one place
+
+**To Record an Open Trade:**
+
+1. Fill in all the required information above
+2. Check the **"Trade is still open"** checkbox at the top of the Exit Details section
+3. Leave Exit Date and Exit Price empty
+4. Click **"Save Trade"** or **"Create Trade"**
+5. The trade will be marked as **OPEN** with a blue badge
+
+**To Close an Open Trade Later:**
+
+1. Navigate to the open trade's detail page
+2. Click **"Edit Trade"** or **"Close Trade"** button
+3. Uncheck the **"Trade is still open"** checkbox
+4. Fill in the Exit Date and Exit Price
+5. Click **"Update Trade"**
+6. A confirmation dialog will appear asking to confirm closing the trade
+7. Click **"Yes, Close Trade"** to finalize
+
+**Benefits of Recording Open Trades:**
+
+- **Capture Fresh Emotions**: Record how you feel at entry, before outcomes bias your memory
+- **Track Active Positions**: See all your open trades in one place on the dashboard
+- **Better Analysis**: Analyze your entry decisions separately from exit decisions
+- **Complete History**: Maintain a complete record of all trades, including those still in progress
 
 ### Optional Information
 
@@ -211,6 +262,7 @@ To add chart screenshots to your trade:
 
 After saving, the system automatically calculates:
 
+**For Closed Trades**:
 - **P&L**: Profit or loss amount
 - **P&L %**: Percentage profit/loss
 - **Net P&L**: P&L after fees
@@ -218,6 +270,11 @@ After saving, the system automatically calculates:
 - **Exit Value**: Exit price × quantity
 - **Holding Period**: Duration of the trade (hours and days)
 - **Actual Risk/Reward**: Calculated from actual outcome
+
+**For Open Trades**:
+- **Entry Value**: Entry price × quantity
+- P&L, Exit Value, and Holding Period are not calculated until the trade is closed
+- These fields will show "—" or "N/A" until exit information is added
 
 ---
 
@@ -229,12 +286,19 @@ Access all your trades from the **"Trades"** page in the navigation.
 
 **Trade Cards Display**:
 - Symbol and asset type
-- Entry and exit dates
-- Entry and exit prices
+- Entry and exit dates (or "In Progress" for open trades)
+- Entry and exit prices (or "In Progress" for open trades)
 - Quantity and direction (LONG/SHORT)
-- Calculated P&L (highlighted in green for wins, red for losses)
+- **Status Badge**: Blue "OPEN" badge for open trades
+- Calculated P&L (highlighted in green for wins, red for losses, or "—" for open trades)
 - Tags (as badges)
 - Quick access to view, edit, or delete
+
+**Open Trades**:
+- Display a blue **"OPEN"** status badge
+- Show "In Progress" instead of exit date/price
+- P&L shows "—" since the trade hasn't closed yet
+- Have a blue border highlight for easy identification
 
 ### Trade Detail View
 
@@ -242,15 +306,22 @@ Click on any trade card to view full details:
 
 **Information Displayed**:
 - All trade information
-- Calculated metrics (P&L, percentages, holding period)
+- **Status**: Shows "Open Trade" with blue badge or "Closed Trade"
+- Calculated metrics (P&L, percentages, holding period - shown as "N/A" or "Ongoing" for open trades)
 - Associated screenshots (with ability to delete)
 - Tags
 - Rich text notes (formatted)
 
 **Actions Available**:
 - **Edit**: Modify the trade details
+- **Close Trade**: For open trades, quickly access the edit form to add exit information
 - **Delete**: Remove the trade (with confirmation)
 - **View Screenshots**: Click to view full-size images
+
+**Open Trade Details**:
+- Exit section shows "Not yet closed" instead of exit date/price
+- P&L metrics show "N/A" since calculations require exit information
+- Holding period shows "Ongoing" instead of duration
 
 ### Editing Trades
 
