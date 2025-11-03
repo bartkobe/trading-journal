@@ -237,8 +237,8 @@ export interface TradeFormData {
   quantity: number;
 
   // Exit
-  exitDate: Date | string;
-  exitPrice: number;
+  exitDate?: Date | string;
+  exitPrice?: number;
 
   // Metadata
   setupType?: string;

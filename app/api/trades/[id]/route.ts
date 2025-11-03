@@ -133,7 +133,8 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
         emotionalStateEntry: tradeData.emotionalStateEntry ?? null,
         emotionalStateExit: tradeData.emotionalStateExit ?? null,
         entryDate: new Date(tradeData.entryDate),
-        exitDate: new Date(tradeData.exitDate),
+        exitDate: tradeData.exitDate ? new Date(tradeData.exitDate) : null,
+        exitPrice: tradeData.exitPrice ?? null,
       },
       include: {
         screenshots: true,

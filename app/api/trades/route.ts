@@ -51,7 +51,8 @@ export async function POST(request: NextRequest) {
         emotionalStateExit: tradeData.emotionalStateExit ?? null,
         userId: user.id,
         entryDate: new Date(tradeData.entryDate),
-        exitDate: new Date(tradeData.exitDate),
+        exitDate: tradeData.exitDate ? new Date(tradeData.exitDate) : null,
+        exitPrice: tradeData.exitPrice ?? null,
       },
       include: {
         screenshots: true,

@@ -33,8 +33,8 @@ export const tradeSchema = z.object({
   currency: z.string().default('USD'),
   entryDate: z.coerce.date(),
   entryPrice: z.number().positive('Entry price must be positive'),
-  exitDate: z.coerce.date(),
-  exitPrice: z.number().positive('Exit price must be positive'),
+  exitDate: z.coerce.date().optional(),
+  exitPrice: z.number().positive('Exit price must be positive').optional(),
   quantity: z.number().positive('Quantity must be positive'),
   direction: z.enum(['LONG', 'SHORT']),
 
@@ -62,7 +62,18 @@ export const tradeSchema = z.object({
 
   // Tags (array of tag IDs or names)
   tags: z.array(z.string()).optional(),
-});
+}).refine(
+  (data) => {
+    // If exitDate is provided, exitPrice must also be provided, and vice versa
+    const hasExitDate = data.exitDate !== undefined && data.exitDate !== null;
+    const hasExitPrice = data.exitPrice !== undefined && data.exitPrice !== null;
+    return hasExitDate === hasExitPrice;
+  },
+  {
+    message: 'Exit date and exit price must both be provided or both be empty',
+    path: ['exitDate'], // Show error on exitDate field
+  }
+);
 
 export type TradeInput = z.infer<typeof tradeSchema>;
 
