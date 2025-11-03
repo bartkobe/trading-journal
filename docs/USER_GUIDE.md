@@ -137,7 +137,7 @@ Recording trades is the core function of the journal. Follow these steps to add 
   - FOREX (foreign exchange)
   - CRYPTO (cryptocurrency)
   - OPTIONS (options trading)
-- **Currency**: Currency for the trade (USD, EUR, GBP, JPY, etc.)
+- **Currency**: Currency for the trade (USD, EUR, GBP, JPY, PLN, etc.)
 - **Entry Date**: Date and time of trade entry
 - **Entry Price**: Price at which you entered
 - **Exit Date**: Date and time of trade exit

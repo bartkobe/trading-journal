@@ -16,9 +16,9 @@
 - `__tests__/lib/currency.test.ts` - Currency formatting and utility function tests (✅ Modified - Added PLN formatting tests)
 - `__tests__/api/currency.test.ts` - API endpoint tests for currency support (✅ Modified - Added PLN API tests)
 - `lib/trades.ts` - Trade utility functions including formatCurrency
-- `README.md` - Project documentation mentioning supported currencies
-- `docs/USER_GUIDE.md` - User guide documentation
-- `docs/API_DOCUMENTATION.md` - API documentation
+- `README.md` - Project documentation mentioning supported currencies (✅ Modified - Added PLN to currency list)
+- `docs/USER_GUIDE.md` - User guide documentation (✅ Modified - Added PLN to currency examples)
+- `docs/API_DOCUMENTATION.md` - API documentation (✅ Modified - Added PLN to supported currencies list)
 
 ### Notes
 
@@ -59,11 +59,11 @@
   - [x] 3.11 Update `__tests__/components/TradeForm.test.tsx`: Add test case to verify creating a trade with PLN currency works correctly
   - [x] 3.12 Run all tests: `npx jest` and verify all tests pass including new PLN tests
 
-- [ ] 4.0 Update Documentation for PLN Support
-  - [ ] 4.1 Update `README.md` line 14: Change "USD, EUR, GBP, JPY, CAD, AUD, CHF, and more" to explicitly include PLN (e.g., "USD, EUR, GBP, JPY, CAD, AUD, CHF, PLN, and more")
-  - [ ] 4.2 Update `docs/USER_GUIDE.md` line 140: Update currency list example to include PLN (e.g., "USD, EUR, GBP, JPY, PLN, etc.")
-  - [ ] 4.3 Update `docs/API_DOCUMENTATION.md`: Add PLN to any currency code examples in request/response documentation
-  - [ ] 4.4 Verify all currency-related examples in documentation include PLN where appropriate
+- [x] 4.0 Update Documentation for PLN Support
+  - [x] 4.1 Update `README.md` line 14: Change "USD, EUR, GBP, JPY, CAD, AUD, CHF, and more" to explicitly include PLN (e.g., "USD, EUR, GBP, JPY, CAD, AUD, CHF, PLN, and more")
+  - [x] 4.2 Update `docs/USER_GUIDE.md` line 140: Update currency list example to include PLN (e.g., "USD, EUR, GBP, JPY, PLN, etc.")
+  - [x] 4.3 Update `docs/API_DOCUMENTATION.md`: Add PLN to any currency code examples in request/response documentation
+  - [x] 4.4 Verify all currency-related examples in documentation include PLN where appropriate
 
 - [ ] 5.0 Integration Verification and End-to-End Testing
   - [ ] 5.1 Manually test: Create a new trade with PLN currency through the UI and verify it saves correctly

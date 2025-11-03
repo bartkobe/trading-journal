@@ -413,7 +413,7 @@ Create a new trade entry.
 **Required Fields**:
 - `symbol` (string): Trading symbol
 - `assetType` (`STOCK`, `FOREX`, `CRYPTO`, `OPTIONS`): Asset type
-- `currency` (string): Currency code (default: "USD")
+- `currency` (string): Currency code (default: "USD"). Supported currencies include: USD, EUR, GBP, JPY, CAD, AUD, CHF, PLN, and more.
 - `entryDate` (ISO date string): Entry date/time
 - `entryPrice` (number): Entry price (must be positive)
 - `exitDate` (ISO date string): Exit date/time
