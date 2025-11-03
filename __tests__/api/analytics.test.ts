@@ -35,6 +35,7 @@ jest.mock('@/lib/db', () => {
   const mockPrismaInstance = {
     trade: {
       findMany: jest.fn(),
+      count: jest.fn(),
     },
   };
   return {
@@ -175,6 +176,25 @@ describe('Analytics API Endpoints', () => {
       expect(data.success).toBe(true);
       expect(data.metrics.totalTrades).toBe(0);
     });
+
+    it('should exclude open trades from dashboard metrics', async () => {
+      mockPrisma.trade.findMany.mockResolvedValue([]);
+      mockPrisma.trade.count.mockResolvedValue(0);
+
+      const request = createMockRequest('http://localhost/api/analytics/dashboard');
+      await GET_DASHBOARD(request);
+
+      // Verify that the where clause includes exitDate filter
+      expect(mockPrisma.trade.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            exitDate: expect.objectContaining({
+              not: null,
+            }),
+          }),
+        })
+      );
+    });
   });
 
   describe('GET /api/analytics/performance', () => {
@@ -264,6 +284,24 @@ describe('Analytics API Endpoints', () => {
       expect(data.error).toBe('Unauthorized');
     });
 
+    it('should exclude open trades from performance breakdowns', async () => {
+      mockPrisma.trade.findMany.mockResolvedValue([]);
+
+      const request = createMockRequest('http://localhost/api/analytics/performance');
+      await GET_PERFORMANCE(request);
+
+      // Verify that the where clause includes exitDate filter
+      expect(mockPrisma.trade.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            exitDate: expect.objectContaining({
+              not: null,
+            }),
+          }),
+        })
+      );
+    });
+
     it('should handle performance by strategyName dimension', async () => {
       const mockTrades = [
         createMockTrade({ strategyName: 'Momentum' }),
@@ -318,6 +356,17 @@ describe('Analytics API Endpoints', () => {
       expect(data.charts.bySymbol).toBeDefined();
       expect(data.charts.byMarketConditions).toBeDefined();
       expect(data.charts.monthlyPerformance).toBeDefined();
+      
+      // Verify that the where clause includes exitDate filter
+      expect(mockPrisma.trade.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            exitDate: expect.objectContaining({
+              not: null,
+            }),
+          }),
+        })
+      );
     });
 
     it('should return equity curve only when chartType=equity', async () => {

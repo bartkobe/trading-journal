@@ -9,6 +9,7 @@ import {
   calculateStreaks,
   type TradeWithCalculations,
 } from '@/lib/analytics';
+import { isTradeOpen } from '@/lib/trades';
 
 // Helper function to create mock trades with calculations
 function createMockTrade(
@@ -123,6 +124,67 @@ describe('Analytics Calculations', () => {
       expect(metrics.averageWin).toBe(74); // 148 / 2
       expect(metrics.largestWin).toBe(99);
       expect(metrics.profitFactor).toBe(Infinity); // No losses
+    });
+
+    it('should exclude open trades from total count', () => {
+      const trades = [
+        createMockTrade({
+          id: '1',
+          exitDate: null,
+          exitPrice: null,
+          calculations: {
+            pnl: null,
+            pnlPercent: null,
+            netPnl: null,
+            entryValue: 1000,
+            exitValue: null,
+            holdingPeriod: null,
+            holdingPeriodDays: null,
+            isWinner: false,
+            isLoser: false,
+            isBreakeven: false,
+          },
+        }),
+        createMockTrade({
+          id: '2',
+          calculations: {
+            pnl: 100,
+            pnlPercent: 10,
+            netPnl: 99,
+            entryValue: 1000,
+            exitValue: 1100,
+            holdingPeriod: 24,
+            holdingPeriodDays: 1,
+            isWinner: true,
+            isLoser: false,
+            isBreakeven: false,
+          },
+        }),
+        createMockTrade({
+          id: '3',
+          exitDate: null,
+          exitPrice: null,
+          calculations: {
+            pnl: null,
+            pnlPercent: null,
+            netPnl: null,
+            entryValue: 1000,
+            exitValue: null,
+            holdingPeriod: null,
+            holdingPeriodDays: null,
+            isWinner: false,
+            isLoser: false,
+            isBreakeven: false,
+          },
+        }),
+      ];
+
+      const metrics = calculateBasicMetrics(trades);
+
+      // Should only count closed trades
+      expect(metrics.totalTrades).toBe(1);
+      expect(metrics.winningTrades).toBe(1);
+      expect(metrics.totalPnl).toBe(99);
     });
 
     it('should calculate basic metrics for mixed trades', () => {

@@ -19,6 +19,7 @@ import {
   calculateSharpeRatio as calculateTradesSharpeRatio,
   calculateMaxDrawdown,
   generateEquityCurve,
+  isTradeOpen,
 } from '@/lib/trades';
 import type { Trade, TradeWithCalculations } from '@/lib/types';
 
@@ -70,6 +71,34 @@ function createMockTradeWithCalculations(overrides: Partial<TradeWithCalculation
 }
 
 describe('Trade Calculations', () => {
+  describe('isTradeOpen', () => {
+    it('should return true when exitDate is null', () => {
+      const trade = createMockTrade({
+        exitDate: null,
+        exitPrice: null,
+      });
+
+      expect(isTradeOpen(trade)).toBe(true);
+    });
+
+    it('should return false when exitDate is not null', () => {
+      const trade = createMockTrade({
+        exitDate: new Date('2024-01-02T10:00:00Z'),
+        exitPrice: 105,
+      });
+
+      expect(isTradeOpen(trade)).toBe(false);
+    });
+
+    it('should handle trade object with only exitDate property', () => {
+      const tradeObj = { exitDate: null };
+      expect(isTradeOpen(tradeObj)).toBe(true);
+
+      const tradeObj2 = { exitDate: new Date() };
+      expect(isTradeOpen(tradeObj2)).toBe(false);
+    });
+  });
+
   describe('calculateTradeMetrics', () => {
     it('should calculate P&L for LONG position', () => {
       const trade = createMockTrade({
@@ -192,6 +221,65 @@ describe('Trade Calculations', () => {
 
       expect(metrics.actualRiskReward).toBeUndefined();
     });
+
+    it('should return null P&L values for open trades (no exitDate)', () => {
+      const trade = createMockTrade({
+        exitDate: null,
+        exitPrice: null,
+      });
+
+      const metrics = calculateTradeMetrics(trade);
+
+      expect(metrics.pnl).toBeNull();
+      expect(metrics.pnlPercent).toBeNull();
+      expect(metrics.netPnl).toBeNull();
+      expect(metrics.exitValue).toBeNull();
+      expect(metrics.holdingPeriod).toBeNull();
+      expect(metrics.holdingPeriodDays).toBeNull();
+      expect(metrics.isWinner).toBe(false);
+      expect(metrics.isLoser).toBe(false);
+      expect(metrics.isBreakeven).toBe(false);
+      expect(metrics.entryValue).toBe(1000); // Entry value should still be calculated
+    });
+
+    it('should return null P&L values for open trades (no exitPrice)', () => {
+      const trade = createMockTrade({
+        exitDate: new Date('2024-01-02T10:00:00Z'),
+        exitPrice: null,
+      });
+
+      const metrics = calculateTradeMetrics(trade);
+
+      expect(metrics.pnl).toBeNull();
+      expect(metrics.pnlPercent).toBeNull();
+      expect(metrics.netPnl).toBeNull();
+      expect(metrics.exitValue).toBeNull();
+      expect(metrics.holdingPeriod).toBeNull();
+      expect(metrics.holdingPeriodDays).toBeNull();
+    });
+
+    it('should calculate correctly for closed trades', () => {
+      const trade = createMockTrade({
+        entryPrice: 100,
+        exitPrice: 105,
+        quantity: 10,
+        direction: 'LONG',
+        fees: 1,
+        exitDate: new Date('2024-01-02T10:00:00Z'),
+      });
+
+      const metrics = calculateTradeMetrics(trade);
+
+      expect(metrics.pnl).not.toBeNull();
+      expect(metrics.pnlPercent).not.toBeNull();
+      expect(metrics.netPnl).not.toBeNull();
+      expect(metrics.exitValue).not.toBeNull();
+      expect(metrics.holdingPeriod).not.toBeNull();
+      expect(metrics.holdingPeriodDays).not.toBeNull();
+      expect(metrics.pnl).toBe(50);
+      expect(metrics.netPnl).toBe(49);
+      expect(metrics.isWinner).toBe(true);
+    });
   });
 
   describe('enrichTradeWithCalculations', () => {
@@ -284,6 +372,38 @@ describe('Trade Calculations', () => {
       expect(sorted[0].symbol).toBe('AAPL');
       expect(sorted[1].symbol).toBe('MSFT');
     });
+
+    it('should sort open trades (null P&L) to the end when sorting by P&L', () => {
+      const trades = [
+        createMockTradeWithCalculations({
+          id: '1',
+          exitDate: null,
+          exitPrice: null,
+          calculations: { ...calculateTradeMetrics(createMockTrade({ exitDate: null, exitPrice: null })), netPnl: null, pnl: null },
+        }),
+        createMockTradeWithCalculations({
+          id: '2',
+          calculations: { ...calculateTradeMetrics(createMockTrade()), netPnl: 50, pnl: 50 },
+        }),
+        createMockTradeWithCalculations({
+          id: '3',
+          exitDate: null,
+          exitPrice: null,
+          calculations: { ...calculateTradeMetrics(createMockTrade({ exitDate: null, exitPrice: null })), netPnl: null, pnl: null },
+        }),
+        createMockTradeWithCalculations({
+          id: '4',
+          calculations: { ...calculateTradeMetrics(createMockTrade()), netPnl: 100, pnl: 100 },
+        }),
+      ];
+
+      const sorted = sortTrades(trades, 'pnl', 'desc');
+      expect(sorted[0].id).toBe('4');
+      expect(sorted[1].id).toBe('2');
+      // Open trades (null P&L) should be at the end
+      expect(sorted[2].calculations.netPnl).toBeNull();
+      expect(sorted[3].calculations.netPnl).toBeNull();
+    });
   });
 
   describe('formatCurrency', () => {
@@ -298,6 +418,11 @@ describe('Trade Calculations', () => {
       const formatted = formatCurrency(1234.56, 'EUR');
 
       expect(formatted).toContain('€');
+    });
+
+    it('should handle null values (open trades)', () => {
+      expect(formatCurrency(null, 'USD')).toBe('—');
+      expect(formatCurrency(undefined, 'USD')).toBe('—');
     });
   });
 

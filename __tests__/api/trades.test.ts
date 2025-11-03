@@ -427,6 +427,67 @@ describe('Trade API Endpoints', () => {
       );
     });
 
+    it('should filter trades by status (open)', async () => {
+      const mockOpenTrade = {
+        id: 'trade-open-1',
+        userId: mockUser.id,
+        symbol: 'AAPL',
+        exitDate: null,
+        exitPrice: null,
+      };
+
+      mockPrisma.trade.findMany.mockResolvedValue([mockOpenTrade] as any);
+      mockPrisma.trade.count.mockResolvedValue(1);
+
+      const request = createMockRequest('http://localhost/api/trades?status=open');
+
+      await GET(request);
+
+      expect(mockPrisma.trade.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            exitDate: null,
+          }),
+        })
+      );
+    });
+
+    it('should filter trades by status (closed)', async () => {
+      mockPrisma.trade.findMany.mockResolvedValue([]);
+      mockPrisma.trade.count.mockResolvedValue(0);
+
+      const request = createMockRequest('http://localhost/api/trades?status=closed');
+
+      await GET(request);
+
+      expect(mockPrisma.trade.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            exitDate: expect.objectContaining({
+              not: null,
+            }),
+          }),
+        })
+      );
+    });
+
+    it('should return all trades when status is not specified', async () => {
+      mockPrisma.trade.findMany.mockResolvedValue([]);
+      mockPrisma.trade.count.mockResolvedValue(0);
+
+      const request = createMockRequest('http://localhost/api/trades');
+
+      await GET(request);
+
+      expect(mockPrisma.trade.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.not.objectContaining({
+            exitDate: expect.anything(),
+          }),
+        })
+      );
+    });
+
     it('should return 401 when not authenticated', async () => {
       mockRequireAuth.mockRejectedValue(new Error('Authentication required'));
 
