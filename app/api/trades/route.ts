@@ -220,6 +220,7 @@ export async function GET(request: NextRequest) {
       setupType: searchParams.get('setupType') || undefined,
       tags: searchParams.get('tags')?.split(',').filter(Boolean) || undefined,
       outcome: searchParams.get('outcome') || undefined,
+      status: searchParams.get('status') || undefined,
       search: searchParams.get('search') || undefined,
       sortBy: searchParams.get('sortBy') || 'date',
       sortOrder: searchParams.get('sortOrder') || 'desc',
@@ -297,6 +298,16 @@ export async function GET(request: NextRequest) {
         },
       };
     }
+
+    // Filter by status (open/closed)
+    if (filters.status === 'open') {
+      where.exitDate = null;
+    } else if (filters.status === 'closed') {
+      where.exitDate = {
+        not: null,
+      };
+    }
+    // If status is not provided or is empty, return all trades (default behavior)
 
     // Free-text search across symbol, strategyName, notes, and tag names
     if (filters.search) {

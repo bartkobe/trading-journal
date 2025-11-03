@@ -7,6 +7,7 @@ export interface TradeFiltersState {
   endDate: string;
   assetType: string;
   outcome: string;
+  status: string;
   search: string;
   symbol: string;
   strategyName: string;
@@ -91,6 +92,23 @@ export function TradeFilters({ filters, onChange, onApply, onReset, onExportCsv 
             <option value="win">Wins</option>
             <option value="loss">Losses</option>
             <option value="breakeven">Break Even</option>
+          </select>
+        </div>
+
+        {/* Status */}
+        <div>
+          <label htmlFor="status" className="block text-sm font-medium mb-2 text-foreground">
+            Status
+          </label>
+          <select
+            id="status"
+            value={filters.status}
+            onChange={(e) => onChange('status', e.target.value)}
+            className="w-full px-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-background text-foreground transition-colors"
+          >
+            <option value="">All Trades</option>
+            <option value="open">Open</option>
+            <option value="closed">Closed</option>
           </select>
         </div>
 
@@ -205,6 +223,7 @@ export function TradeFilters({ filters, onChange, onApply, onReset, onExportCsv 
         filters.endDate ||
         filters.assetType ||
         filters.outcome ||
+        filters.status ||
         filters.search ||
         filters.symbol ||
         filters.strategyName ||
@@ -229,6 +248,11 @@ export function TradeFilters({ filters, onChange, onApply, onReset, onExportCsv 
           {filters.outcome && (
             <span className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-md">
               Outcome: {filters.outcome}
+            </span>
+          )}
+          {filters.status && (
+            <span className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-md">
+              Status: {filters.status === 'open' ? 'Open' : filters.status === 'closed' ? 'Closed' : filters.status}
             </span>
           )}
           {filters.search && (

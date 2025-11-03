@@ -269,7 +269,7 @@
   --border-radius-md: var(--radius-md);
   --border-radius-lg: var(--radius-lg);
   --border-radius-xl: var(--radius-xl);
-}
+  }
 
 /* Base Styles */
 body {

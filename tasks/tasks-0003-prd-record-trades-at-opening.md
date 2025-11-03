@@ -118,20 +118,20 @@
   - [x] 4.25 In TradeDetail: Show holding period as "N/A" or "Ongoing" for open trades
   - [x] 4.26 In TradeDetail: Add "Close Trade" quick action button for open trades (Solution C - opens edit form)
 
-- [ ] 5.0 Trade Filtering and Status Management
-  - [ ] 5.1 Open `components/trades/TradeFilters.tsx` - Add "Status" filter field
-  - [ ] 5.2 In TradeFilters: Add `status: string` to TradeFiltersState interface (values: '', 'open', 'closed')
-  - [ ] 5.3 In TradeFilters: Add status dropdown with options: "All", "Open", "Closed"
-  - [ ] 5.4 In TradeFilters: Position status filter next to "Outcome" filter in the grid
-  - [ ] 5.5 Open `components/trades/TradeList.tsx` - Update filters interface to include status
-  - [ ] 5.6 In TradeList: Pass status filter to API query parameters
-  - [ ] 5.7 Open `app/api/trades/route.ts` - Update GET handler to accept status query parameter
-  - [ ] 5.8 In GET handler: Add status filter logic - if status='open', filter where `exitDate IS NULL`
-  - [ ] 5.9 In GET handler: If status='closed', filter where `exitDate IS NOT NULL`
-  - [ ] 5.10 In GET handler: If status is empty or undefined, return all trades (default behavior)
-  - [ ] 5.11 Update `lib/validation.ts` - Add status to `tradeFilterSchema` (optional enum: 'open' | 'closed')
-  - [ ] 5.12 Update sorting logic: Ensure open trades can be sorted by entry date (most recent first by default)
-  - [ ] 5.13 Test filtering: Filter to show only open trades, only closed trades, and all trades
+- [x] 5.0 Trade Filtering and Status Management
+  - [x] 5.1 Open `components/trades/TradeFilters.tsx` - Add "Status" filter field
+  - [x] 5.2 In TradeFilters: Add `status: string` to TradeFiltersState interface (values: '', 'open', 'closed')
+  - [x] 5.3 In TradeFilters: Add status dropdown with options: "All", "Open", "Closed"
+  - [x] 5.4 In TradeFilters: Position status filter next to "Outcome" filter in the grid
+  - [x] 5.5 Open `components/trades/TradeList.tsx` - Update filters interface to include status
+  - [x] 5.6 In TradeList: Pass status filter to API query parameters
+  - [x] 5.7 Open `app/api/trades/route.ts` - Update GET handler to accept status query parameter
+  - [x] 5.8 In GET handler: Add status filter logic - if status='open', filter where `exitDate IS NULL`
+  - [x] 5.9 In GET handler: If status='closed', filter where `exitDate IS NOT NULL`
+  - [x] 5.10 In GET handler: If status is empty or undefined, return all trades (default behavior)
+  - [x] 5.11 Update `lib/validation.ts` - Add status to `tradeFilterSchema` (optional enum: 'open' | 'closed')
+  - [x] 5.12 Update sorting logic: Ensure open trades can be sorted by entry date (most recent first by default)
+  - [x] 5.13 Test filtering: Filter to show only open trades, only closed trades, and all trades
 
 - [ ] 6.0 Analytics Integration (Exclude Open Trades)
   - [ ] 6.1 Open `lib/analytics.ts` - Update `calculateBasicMetrics` function

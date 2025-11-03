@@ -1,0 +1,1 @@
+I'd like to be able to record trades at the moment of opening, not only when trades are already closed. The key is to record my emotional state at opening because I may already forget how I felt on closing moment.  

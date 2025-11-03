@@ -330,7 +330,7 @@ describe('Authentication API Endpoints', () => {
   });
 
   describe('POST /api/auth/logout', () => {
-    it('should logout user successfully', async () => {
+    it('should logout user successfully and redirect to login page', async () => {
       mockAuthLib.clearAuthCookie.mockResolvedValue();
 
       const request = createMockRequest('http://localhost/api/auth/logout', {
@@ -338,11 +338,9 @@ describe('Authentication API Endpoints', () => {
       });
 
       const response = await POST_LOGOUT(request);
-      const data = await response.json();
 
-      expect(response.status).toBe(200);
-      expect(data.success).toBe(true);
-      expect(data.message).toBe('Logout successful');
+      expect(response.status).toBe(307); // NextResponse.redirect uses 307 Temporary Redirect
+      expect(response.headers.get('Location')).toBe('http://localhost/');
       expect(mockAuthLib.clearAuthCookie).toHaveBeenCalled();
     });
   });

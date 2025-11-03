@@ -144,6 +144,7 @@ export const tradeFilterSchema = z.object({
   setupType: z.string().optional(),
   tags: z.array(z.string()).optional(),
   outcome: z.enum(['winning', 'losing', 'breakeven']).optional(),
+  status: z.enum(['open', 'closed']).optional(),
   sortBy: z.enum(['date', 'pnl', 'pnlPercent', 'symbol']).optional().default('date'),
   sortOrder: z.enum(['asc', 'desc']).optional().default('desc'),
   limit: z.number().int().positive().optional().default(50),

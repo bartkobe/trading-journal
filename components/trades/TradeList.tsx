@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { TradeWithCalculations } from '@/lib/types';
-import { formatCurrency, formatPercent, formatDate } from '@/lib/trades';
+import { formatCurrency, formatPercent, formatDate, isTradeOpen } from '@/lib/trades';
 import { TradeCard } from './TradeCard';
 import { ErrorMessage, EmptyState } from '@/components/ui/ErrorMessage';
 
@@ -17,6 +17,7 @@ interface TradeListProps {
     symbol?: string;
     tags?: string[];
     outcome?: string;
+    status?: string;
     sortBy?: 'date' | 'pnl' | 'pnlPercent' | 'symbol';
     sortOrder?: 'asc' | 'desc';
   };
@@ -55,6 +56,7 @@ export function TradeList({ filters, sortBy, initialTrades }: TradeListProps) {
       if (filters?.symbol) params.set('symbol', filters.symbol);
       if (filters?.strategyName) params.set('strategyName', filters.strategyName);
       if (filters?.outcome) params.set('outcome', filters.outcome);
+      if (filters?.status) params.set('status', filters.status);
       if (filters?.tags && filters.tags.length > 0) {
         params.set('tags', filters.tags.join(','));
       }
@@ -96,12 +98,14 @@ export function TradeList({ filters, sortBy, initialTrades }: TradeListProps) {
   }, [filters, sortBy, page]);
 
   const getOutcomeColor = (trade: TradeWithCalculations) => {
+    if (isTradeOpen(trade)) return 'text-foreground';
     if (trade.calculations.isWinner) return 'profit';
     if (trade.calculations.isLoser) return 'loss';
     return 'breakeven';
   };
 
   const getOutcomeIcon = (trade: TradeWithCalculations) => {
+    if (isTradeOpen(trade)) return null;
     if (trade.calculations.isWinner) {
       return (
         <svg
@@ -294,7 +298,13 @@ export function TradeList({ filters, sortBy, initialTrades }: TradeListProps) {
                     {formatCurrency(trade.entryPrice, trade.currency)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-foreground">
-                    {trade.exitPrice ? formatCurrency(trade.exitPrice, trade.currency) : '-'}
+                    {isTradeOpen(trade) ? (
+                      <span className="text-blue-600 dark:text-blue-400">In Progress</span>
+                    ) : trade.exitPrice ? (
+                      formatCurrency(trade.exitPrice, trade.currency)
+                    ) : (
+                      '-'
+                    )}
                   </td>
                   <td
                     className={`px-6 py-4 whitespace-nowrap text-sm text-right font-medium ${getOutcomeColor(trade)}`}
@@ -307,7 +317,7 @@ export function TradeList({ filters, sortBy, initialTrades }: TradeListProps) {
                     {formatPercent(trade.calculations.pnlPercent)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-center">
-                    {getOutcomeIcon(trade)}
+                    {getOutcomeIcon(trade) || (isTradeOpen(trade) && <span className="text-blue-600 dark:text-blue-400 text-xs">Open</span>)}
                   </td>
                 </tr>
               ))}
@@ -323,19 +333,28 @@ export function TradeList({ filters, sortBy, initialTrades }: TradeListProps) {
             key={trade.id}
             href={`/trades/${trade.id}`}
             className={`block rounded-lg border p-4 hover:shadow-md transition-shadow ${
-              trade.calculations.isWinner
-                ? 'profit-bg border-success'
-                : trade.calculations.isLoser
-                  ? 'loss-bg border-danger'
-                  : 'bg-card border-border'
+              isTradeOpen(trade)
+                ? 'bg-card border-blue-300 dark:border-blue-700'
+                : trade.calculations.isWinner
+                  ? 'profit-bg border-success'
+                  : trade.calculations.isLoser
+                    ? 'loss-bg border-danger'
+                    : 'bg-card border-border'
             }`}
           >
             {/* Header Row */}
             <div className="flex items-start justify-between mb-4">
               <div>
-                <h3 className="text-lg font-semibold text-foreground">
-                  {trade.symbol.toUpperCase()}
-                </h3>
+                <div className="flex items-center gap-2 mb-1">
+                  <h3 className="text-lg font-semibold text-foreground">
+                    {trade.symbol.toUpperCase()}
+                  </h3>
+                  {isTradeOpen(trade) && (
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                      OPEN
+                    </span>
+                  )}
+                </div>
                 <p className="text-sm text-muted-foreground">
                   {formatDate(trade.entryDate)}
                 </p>
@@ -367,9 +386,18 @@ export function TradeList({ filters, sortBy, initialTrades }: TradeListProps) {
               </div>
               <div className="text-right">
                 <p className="text-xs text-muted-foreground mb-1">Exit</p>
-                <p className="text-base font-medium text-foreground">
-                  {trade.exitPrice ? formatCurrency(trade.exitPrice, trade.currency) : 'Open'}
-                </p>
+                {isTradeOpen(trade) ? (
+                  <>
+                    <p className="text-base font-medium text-blue-600 dark:text-blue-400">
+                      In Progress
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-0.5">Not yet closed</p>
+                  </>
+                ) : (
+                  <p className="text-base font-medium text-foreground">
+                    {trade.exitPrice ? formatCurrency(trade.exitPrice, trade.currency) : 'Open'}
+                  </p>
+                )}
               </div>
             </div>
 

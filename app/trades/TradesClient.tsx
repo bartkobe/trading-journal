@@ -10,6 +10,7 @@ export function TradesClient() {
     endDate: '',
     assetType: '',
     outcome: '',
+    status: '',
     search: '',
     symbol: '',
     strategyName: '',
@@ -32,6 +33,7 @@ export function TradesClient() {
       endDate: '',
       assetType: '',
       outcome: '',
+      status: '',
       search: '',
       symbol: '',
       strategyName: '',
@@ -72,18 +74,31 @@ export function TradesClient() {
   };
 
   // Convert filters to TradeList format
-  const tradeListFilters = {
-    startDate: filters.startDate || undefined,
-    endDate: filters.endDate || undefined,
-    assetType: filters.assetType || undefined,
-    outcome: filters.outcome || undefined,
-    search: filters.search || undefined,
-    symbol: filters.symbol || undefined,
-    strategyName: filters.strategyName || undefined,
-    tags: filters.tags && filters.tags.length ? filters.tags : undefined,
+  const tradeListFilters: {
+    startDate?: string;
+    endDate?: string;
+    assetType?: string;
+    outcome?: string;
+    status?: string;
+    search?: string;
+    symbol?: string;
+    strategyName?: string;
+    tags?: string[];
+    sortBy?: 'date' | 'pnl' | 'pnlPercent' | 'symbol';
+    sortOrder?: 'asc' | 'desc';
+  } = {
+    ...(filters.startDate && { startDate: filters.startDate }),
+    ...(filters.endDate && { endDate: filters.endDate }),
+    ...(filters.assetType && { assetType: filters.assetType }),
+    ...(filters.outcome && { outcome: filters.outcome }),
+    ...(filters.status && { status: filters.status }),
+    ...(filters.search && { search: filters.search }),
+    ...(filters.symbol && { symbol: filters.symbol }),
+    ...(filters.strategyName && { strategyName: filters.strategyName }),
+    ...(filters.tags && filters.tags.length > 0 && { tags: filters.tags }),
     sortBy: filters.sortBy,
     sortOrder: filters.sortOrder,
-  } as const;
+  };
 
   return (
     <div className="min-h-screen bg-background">

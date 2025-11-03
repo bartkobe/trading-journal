@@ -21,8 +21,8 @@ export default async function DashboardPage() {
           <div className="space-y-1">
             <h1 className="text-4xl font-bold text-foreground tracking-tight">Dashboard</h1>
             <p className="text-base text-muted-foreground">
-              Welcome back, {user.name || user.email}
-            </p>
+                Welcome back, {user.name || user.email}
+              </p>
           </div>
         </div>
       </div>

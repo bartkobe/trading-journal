@@ -180,7 +180,10 @@ export function sortTrades(
 /**
  * Format currency value
  */
-export function formatCurrency(value: number, currency: string = 'USD'): string {
+export function formatCurrency(value: number | null | undefined, currency: string = 'USD'): string {
+  if (value === null || value === undefined || isNaN(value)) {
+    return '—';
+  }
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: currency,
@@ -192,7 +195,10 @@ export function formatCurrency(value: number, currency: string = 'USD'): string 
 /**
  * Format percentage value
  */
-export function formatPercent(value: number, decimals: number = 2): string {
+export function formatPercent(value: number | null | undefined, decimals: number = 2): string {
+  if (value === null || value === undefined || isNaN(value)) {
+    return '—';
+  }
   return `${value >= 0 ? '+' : ''}${value.toFixed(decimals)}%`;
 }
 
