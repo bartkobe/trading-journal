@@ -143,10 +143,10 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
             control={control}
             render={({ field }) => (
               <CurrencySelector
-                value={field.value}
+                value={field.value || 'USD'}
                 onChange={field.onChange}
                 disabled={isLoading}
-                error={errors.currency?.message}
+                error={errors.currency?.message || undefined}
                 label="Currency"
                 showSymbol={true}
               />
