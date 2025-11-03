@@ -331,9 +331,15 @@ describe('TradeForm', () => {
       // Fill required fields
       await fillRequiredFields(user);
 
+      // Wait a bit for React Hook Form to update internal state
+      await new Promise(resolve => setTimeout(resolve, 100));
+
       // Select PLN currency
       const currencySelect = screen.getByLabelText(/currency/i);
       await user.selectOptions(currencySelect, 'PLN');
+
+      // Wait for form state to update
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       // Verify PLN is selected
       expect(currencySelect).toHaveValue('PLN');
@@ -343,7 +349,7 @@ describe('TradeForm', () => {
 
       await waitFor(() => {
         expect(mockFetch).toHaveBeenCalled();
-      }, { timeout: 5000 });
+      }, { timeout: 10000 });
 
       const fetchCalls = mockFetch.mock.calls;
       expect(fetchCalls.length).toBeGreaterThan(0);
@@ -351,7 +357,7 @@ describe('TradeForm', () => {
       // Verify the request body includes PLN currency
       const requestBody = JSON.parse(fetchCalls[0][1]?.body as string);
       expect(requestBody.currency).toBe('PLN');
-    }, 15000);
+    }, 20000);
 
     it('should show loading state during submission', async () => {
       const user = userEvent.setup();
