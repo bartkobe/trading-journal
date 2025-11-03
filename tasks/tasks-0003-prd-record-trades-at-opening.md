@@ -150,27 +150,27 @@
   - [x] 6.14 Test analytics: Create open trades and verify they don't appear in dashboard metrics
   - [x] 6.15 Test analytics: Close open trades and verify they appear in metrics
 
-- [ ] 7.0 Advanced Features (Solution C: Open Trades Section, Dashboard Enhancements, Export Updates)
-  - [ ] 7.1 Create `components/trades/OpenTradesSection.tsx` component
-  - [ ] 7.2 In OpenTradesSection: Fetch and display list of open trades
-  - [ ] 7.3 In OpenTradesSection: Show count of open trades in section header
-  - [ ] 7.4 In OpenTradesSection: Display open trades in a card/list format
-  - [ ] 7.5 In OpenTradesSection: Add "Close Trade" quick action button for each open trade
-  - [ ] 7.6 In OpenTradesSection: Link to trade detail page for each trade
-  - [ ] 7.7 Open `app/dashboard/page.tsx` or `components/analytics/DashboardContent.tsx` - Add OpenTradesSection
-  - [ ] 7.8 Add OpenTradesSection to dashboard layout (above or below metrics section)
-  - [ ] 7.9 Open `components/analytics/DashboardMetrics.tsx` - Add open trades count display
-  - [ ] 7.10 In DashboardMetrics: Fetch count of open trades (separate API call or include in metrics)
-  - [ ] 7.11 In DashboardMetrics: Display open trades count as informational metric (not in performance calculations)
-  - [ ] 7.12 Update TradeCard: Add color-coded borders (blue border for open trades, standard for closed)
-  - [ ] 7.13 Update TradeStatusBadge: Add icon support (clock icon for open, checkmark icon for closed)
-  - [ ] 7.14 Open `app/api/trades/route.ts` - Add query parameter support for counting open trades
-  - [ ] 7.15 Open `lib/export.ts` - Update `tradesToCsv` function to handle open trades
-  - [ ] 7.16 In `tradesToCsv`: Add "Status" column to CSV export (values: "Open" or "Closed")
-  - [ ] 7.17 In `tradesToCsv`: Handle null exitDate/exitPrice - show "N/A" or empty string in CSV
-  - [ ] 7.18 Open `app/api/export/csv/route.ts` - Ensure open trades are included in export
-  - [ ] 7.19 Add separate export option for open trades only (optional enhancement - new endpoint or query param)
-  - [ ] 7.20 Update navigation: Consider adding "Open Trades" link (optional - if not using dashboard section)
+- [x] 7.0 Advanced Features (Solution C: Open Trades Section, Dashboard Enhancements, Export Updates)
+  - [x] 7.1 Create `components/trades/OpenTradesSection.tsx` component
+  - [x] 7.2 In OpenTradesSection: Fetch and display list of open trades
+  - [x] 7.3 In OpenTradesSection: Show count of open trades in section header
+  - [x] 7.4 In OpenTradesSection: Display open trades in a card/list format
+  - [x] 7.5 In OpenTradesSection: Add "Close Trade" quick action button for each open trade
+  - [x] 7.6 In OpenTradesSection: Link to trade detail page for each trade
+  - [x] 7.7 Open `app/dashboard/page.tsx` or `components/analytics/DashboardContent.tsx` - Add OpenTradesSection
+  - [x] 7.8 Add OpenTradesSection to dashboard layout (above or below metrics section)
+  - [x] 7.9 Open `components/analytics/DashboardMetrics.tsx` - Add open trades count display
+  - [x] 7.10 In DashboardMetrics: Fetch count of open trades (separate API call or include in metrics)
+  - [x] 7.11 In DashboardMetrics: Display open trades count as informational metric (not in performance calculations)
+  - [x] 7.12 Update TradeCard: Add color-coded borders (blue border for open trades, standard for closed)
+  - [x] 7.13 Update TradeStatusBadge: Add icon support (clock icon for open, checkmark icon for closed)
+  - [x] 7.14 Open `app/api/trades/route.ts` - Add query parameter support for counting open trades
+  - [x] 7.15 Open `lib/export.ts` - Update `tradesToCsv` function to handle open trades
+  - [x] 7.16 In `tradesToCsv`: Add "Status" column to CSV export (values: "Open" or "Closed")
+  - [x] 7.17 In `tradesToCsv`: Handle null exitDate/exitPrice - show "N/A" or empty string in CSV
+  - [x] 7.18 Open `app/api/export/csv/route.ts` - Ensure open trades are included in export
+  - [x] 7.19 Add separate export option for open trades only (optional enhancement - new endpoint or query param) - Skipped (optional)
+  - [x] 7.20 Update navigation: Consider adding "Open Trades" link (optional - if not using dashboard section) - Skipped (optional)
 
 - [ ] 8.0 Testing and Integration Verification
   - [ ] 8.1 Update `__tests__/lib/trades.test.ts`: Add test cases for `isTradeOpen` function

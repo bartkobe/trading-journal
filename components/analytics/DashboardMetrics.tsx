@@ -9,6 +9,7 @@ import { formatCurrency, formatPercent } from '@/lib/trades';
 
 interface DashboardMetricsData {
   totalTrades: number;
+  openTradesCount: number;
   dateRange: {
     start: string | null;
     end: string | null;
@@ -219,8 +220,15 @@ export default function DashboardMetrics({ startDate, endDate }: DashboardMetric
           <MetricCard
             title="Total Trades"
             value={metrics?.totalTrades ?? 0}
-            subtitle="All recorded trades"
+            subtitle="All closed trades"
             trend="neutral"
+          />
+          <MetricCard
+            title="Open Trades"
+            value={metrics?.openTradesCount ?? 0}
+            subtitle="Currently active positions"
+            trend="neutral"
+            className="border-blue-300 dark:border-blue-700"
           />
           <MetricCard
             title="Total P&L"

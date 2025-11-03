@@ -62,6 +62,14 @@ export async function GET(request: NextRequest) {
       },
     });
 
+    // Count open trades (separate from closed trades used for analytics)
+    const openTradesCount = await prisma.trade.count({
+      where: {
+        userId: user.id,
+        exitDate: null,
+      },
+    });
+
     // Enrich trades with calculations
     const trades = enrichTradesWithCalculations(rawTrades);
 
@@ -76,6 +84,7 @@ export async function GET(request: NextRequest) {
     const dashboardMetrics = {
       // Overview
       totalTrades: basicMetrics.totalTrades,
+      openTradesCount: openTradesCount,
       dateRange: {
         start: startDate || null,
         end: endDate || null,

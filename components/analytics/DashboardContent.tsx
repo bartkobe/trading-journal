@@ -5,6 +5,7 @@ import Link from 'next/link';
 import DashboardMetrics from './DashboardMetrics';
 import PerformanceCharts from './PerformanceCharts';
 import DateRangeFilter from '../ui/DateRangeFilter';
+import { OpenTradesSection } from '../trades/OpenTradesSection';
 
 export default function DashboardContent() {
   const [startDate, setStartDate] = useState<string | undefined>();
@@ -33,6 +34,11 @@ export default function DashboardContent() {
           </div>
         </div>
         <DateRangeFilter onDateRangeChange={handleDateRangeChange} />
+      </section>
+
+      {/* Open Trades Section */}
+      <section className="mt-8">
+        <OpenTradesSection />
       </section>
 
       {/* Key Metrics Section */}
