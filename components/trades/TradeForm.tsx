@@ -51,15 +51,46 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
   const exitPrice = watch('exitPrice');
   const wasOpenInitially = !initialData?.exitDate && !initialData?.exitPrice;
 
+  // Track if user has manually toggled the checkbox (to prevent auto-reset)
+  const [manualToggle, setManualToggle] = useState(false);
+  
+  // Ref for the confirmation dialog to scroll into view when it appears
+  const [confirmDialogElement, setConfirmDialogElement] = useState<HTMLDivElement | null>(null);
+
   // Update isTradeOpen when exit fields change
+  // Only automatically close the trade when BOTH fields are filled
+  // Don't reset it to open if user manually unchecked and is filling fields
   useEffect(() => {
     const hasExitData = exitDate && exitPrice;
-    setIsTradeOpen(!hasExitData);
-  }, [exitDate, exitPrice]);
+    // Only auto-update if both fields are filled (close the trade automatically)
+    // Or if both are empty (open the trade automatically) AND user hasn't manually toggled
+    if (hasExitData) {
+      setIsTradeOpen(false);
+      setManualToggle(false); // Reset manual toggle since both fields are now filled
+    } else if (!exitDate && !exitPrice && !manualToggle) {
+      // Only auto-open if both are empty AND user hasn't manually unchecked
+      setIsTradeOpen(true);
+    }
+    // If user manually unchecked and is filling fields (one or neither filled), don't reset
+  }, [exitDate, exitPrice, manualToggle]);
+
+  // Scroll confirmation dialog into view when it appears
+  useEffect(() => {
+    if (showCloseConfirm && confirmDialogElement) {
+      // Small delay to ensure DOM has updated
+      setTimeout(() => {
+        confirmDialogElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        });
+      }, 100);
+    }
+  }, [showCloseConfirm, confirmDialogElement]);
 
   // Handle "Trade is still open" toggle
   const handleTradeOpenToggle = (checked: boolean) => {
     setIsTradeOpen(checked);
+    setManualToggle(true); // Mark as manual toggle to prevent auto-reset
     if (checked) {
       // Clear exit fields when marking as open
       setValue('exitDate', undefined);
@@ -385,7 +416,10 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
         )}
 
         {showCloseConfirm && (
-          <div className="mb-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+          <div
+            ref={setConfirmDialogElement}
+            className="mb-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg"
+          >
             <p className="text-sm text-yellow-800 dark:text-yellow-200 mb-3">
               <strong>Mark this trade as closed?</strong> This will finalize the trade and include it in performance calculations.
             </p>
