@@ -60,7 +60,12 @@ export async function GET(request: NextRequest) {
     });
 
     // Enrich trades with calculations
-    const trades = enrichTradesWithCalculations(rawTrades);
+    const allTrades = enrichTradesWithCalculations(rawTrades);
+
+    // Filter out any trades with null netPnl (shouldn't happen if database query is correct, but ensures type safety)
+    // Type guard ensures TypeScript knows netPnl is non-null
+    type ClosedTrade = TradeWithCalculations & { calculations: { netPnl: number } };
+    const trades = allTrades.filter((t): t is ClosedTrade => t.calculations.netPnl !== null);
 
     const chartData: any = {};
 
@@ -160,7 +165,7 @@ export async function GET(request: NextRequest) {
         'Saturday',
       ];
 
-      trades.forEach((trade: TradeWithCalculations) => {
+      trades.forEach((trade) => {
         const dayOfWeek = dayNames[trade.entryDate.getDay()];
         if (!byDayOfWeek[dayOfWeek]) {
           byDayOfWeek[dayOfWeek] = { totalPnl: 0, count: 0, wins: 0 };
@@ -209,9 +214,11 @@ export async function GET(request: NextRequest) {
         if (!monthlyData[monthKey]) {
           monthlyData[monthKey] = { totalPnl: 0, count: 0, wins: 0 };
         }
-        monthlyData[monthKey].totalPnl += trade.calculations.netPnl;
+        // TypeScript knows netPnl is number here due to the type guard filter
+        const netPnl = trade.calculations.netPnl;
+        monthlyData[monthKey].totalPnl += netPnl;
         monthlyData[monthKey].count += 1;
-        if (trade.calculations.netPnl > 0) monthlyData[monthKey].wins += 1;
+        if (netPnl > 0) monthlyData[monthKey].wins += 1;
       });
 
       chartData.monthlyPerformance = Object.entries(monthlyData)

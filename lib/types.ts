@@ -318,7 +318,7 @@ export interface TradeCSVRow {
   entryDate: string;
   entryPrice: number;
   exitDate: string;
-  exitPrice: number;
+  exitPrice: number | null;
   quantity: number;
   stopLoss: number | null;
   takeProfit: number | null;

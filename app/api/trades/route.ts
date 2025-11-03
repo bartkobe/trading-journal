@@ -50,8 +50,9 @@ export async function POST(request: NextRequest) {
     }
 
     let exitDate = null;
-    if (tradeData.exitDate !== undefined && tradeData.exitDate !== null && tradeData.exitDate !== '') {
-      exitDate = new Date(tradeData.exitDate);
+    if (tradeData.exitDate !== undefined && tradeData.exitDate !== null) {
+      // tradeData.exitDate is already a Date object after Zod validation
+      exitDate = tradeData.exitDate instanceof Date ? tradeData.exitDate : new Date(tradeData.exitDate);
       if (isNaN(exitDate.getTime())) {
         return NextResponse.json(
           {
