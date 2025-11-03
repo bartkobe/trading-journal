@@ -45,6 +45,13 @@ describe('Multi-Currency Support', () => {
       expect(formatted).toContain('1,234.56');
     });
 
+    it('should format PLN amounts correctly', () => {
+      const formatted = formatCurrency(1234.56, 'PLN');
+      expect(formatted).toContain('1,234.56');
+      // PLN should be formatted, either via Intl.NumberFormat or fallback
+      expect(formatted).toMatch(/1,?234\.?56/);
+    });
+
     it('should format negative amounts correctly', () => {
       const formatted = formatCurrency(-1234.56, 'USD');
       expect(formatted).toContain('-');
@@ -85,6 +92,13 @@ describe('Multi-Currency Support', () => {
       expect(formatted).toContain('€');
     });
 
+    it('should format PLN amounts correctly', () => {
+      const formatted = formatCurrencyAmount(1234.56, 'PLN');
+      expect(formatted).toContain('1,234.56');
+      // PLN symbol should be included (either via Intl or fallback)
+      expect(formatted).toMatch(/PLN|zł/);
+    });
+
     it('should handle invalid currency code with fallback', () => {
       const formatted = formatCurrencyAmount(1234.56, 'INVALID');
       expect(formatted).toContain('1234.56');
@@ -110,6 +124,10 @@ describe('Multi-Currency Support', () => {
 
     it('should return correct symbol for CAD', () => {
       expect(getCurrencySymbol('CAD')).toBe('C$');
+    });
+
+    it('should return correct symbol for PLN', () => {
+      expect(getCurrencySymbol('PLN')).toBe('PLN');
     });
 
     it('should return code as fallback for unknown currency', () => {

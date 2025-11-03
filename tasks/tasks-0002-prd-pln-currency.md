@@ -10,11 +10,11 @@
 ## Relevant Files
 
 - `components/ui/CurrencySelector.tsx` - Currency selector component containing CURRENCIES array and formatting functions (✅ Modified - Added PLN currency)
-- `components/ui/CurrencySelector.test.tsx` - Unit tests for CurrencySelector component
+- `components/ui/CurrencySelector.test.tsx` - Unit tests for CurrencySelector component (✅ Modified - Added PLN test cases)
 - `components/trades/TradeForm.tsx` - Trade form component (✅ Modified - Refactored to use CurrencySelector component)
-- `components/trades/TradeForm.test.tsx` - Unit tests for TradeForm component
-- `__tests__/lib/currency.test.ts` - Currency formatting and utility function tests
-- `__tests__/api/currency.test.ts` - API endpoint tests for currency support
+- `components/trades/TradeForm.test.tsx` - Unit tests for TradeForm component (✅ Modified - Added PLN test cases)
+- `__tests__/lib/currency.test.ts` - Currency formatting and utility function tests (✅ Modified - Added PLN formatting tests)
+- `__tests__/api/currency.test.ts` - API endpoint tests for currency support (✅ Modified - Added PLN API tests)
 - `lib/trades.ts` - Trade utility functions including formatCurrency
 - `README.md` - Project documentation mentioning supported currencies
 - `docs/USER_GUIDE.md` - User guide documentation
@@ -45,19 +45,19 @@
   - [x] 2.6 Ensure the component maintains the same styling and behavior as before (disabled state, error messages, etc.)
   - [x] 2.7 Test that the form submission includes the currency value correctly
 
-- [ ] 3.0 Add Comprehensive Test Coverage for PLN Currency
-  - [ ] 3.1 Update `__tests__/components/CurrencySelector.test.tsx`: Add test case to verify PLN appears in currency options list
-  - [ ] 3.2 Update `__tests__/components/CurrencySelector.test.tsx`: Add test case for selecting PLN currency and verifying onChange is called with 'PLN'
-  - [ ] 3.3 Update `__tests__/components/CurrencySelector.test.tsx`: Add test case to verify PLN option displays as "PLN - Polish Złoty (PLN)"
-  - [ ] 3.4 Update `__tests__/lib/currency.test.ts`: Add test case for `formatCurrency(1234.56, 'PLN')` to verify PLN formatting
-  - [ ] 3.5 Update `__tests__/lib/currency.test.ts`: Add test case for `formatCurrencyAmount(1234.56, 'PLN')` to verify PLN formatting with symbol
-  - [ ] 3.6 Update `__tests__/lib/currency.test.ts`: Add test case for `getCurrencySymbol('PLN')` to return 'PLN'
-  - [ ] 3.7 Update `__tests__/api/currency.test.ts`: Add test case to create a trade with PLN currency via POST /api/trades
-  - [ ] 3.8 Update `__tests__/api/currency.test.ts`: Add test case to retrieve and verify PLN trade via GET /api/trades/[id]
-  - [ ] 3.9 Update `__tests__/api/currency.test.ts`: Add test case for filtering trades by PLN currency (if currency filtering exists)
-  - [ ] 3.10 Update `__tests__/components/TradeForm.test.tsx`: Add test case to verify PLN appears in TradeForm currency dropdown after refactoring
-  - [ ] 3.11 Update `__tests__/components/TradeForm.test.tsx`: Add test case to verify creating a trade with PLN currency works correctly
-  - [ ] 3.12 Run all tests: `npx jest` and verify all tests pass including new PLN tests
+- [x] 3.0 Add Comprehensive Test Coverage for PLN Currency
+  - [x] 3.1 Update `__tests__/components/CurrencySelector.test.tsx`: Add test case to verify PLN appears in currency options list
+  - [x] 3.2 Update `__tests__/components/CurrencySelector.test.tsx`: Add test case for selecting PLN currency and verifying onChange is called with 'PLN'
+  - [x] 3.3 Update `__tests__/components/CurrencySelector.test.tsx`: Add test case to verify PLN option displays as "PLN - Polish Złoty (PLN)"
+  - [x] 3.4 Update `__tests__/lib/currency.test.ts`: Add test case for `formatCurrency(1234.56, 'PLN')` to verify PLN formatting
+  - [x] 3.5 Update `__tests__/lib/currency.test.ts`: Add test case for `formatCurrencyAmount(1234.56, 'PLN')` to verify PLN formatting with symbol
+  - [x] 3.6 Update `__tests__/lib/currency.test.ts`: Add test case for `getCurrencySymbol('PLN')` to return 'PLN'
+  - [x] 3.7 Update `__tests__/api/currency.test.ts`: Add test case to create a trade with PLN currency via POST /api/trades
+  - [x] 3.8 Update `__tests__/api/currency.test.ts`: Add test case to retrieve and verify PLN trade via GET /api/trades/[id]
+  - [x] 3.9 Update `__tests__/api/currency.test.ts`: Add test case for filtering trades by PLN currency (if currency filtering exists)
+  - [x] 3.10 Update `__tests__/components/TradeForm.test.tsx`: Add test case to verify PLN appears in TradeForm currency dropdown after refactoring
+  - [x] 3.11 Update `__tests__/components/TradeForm.test.tsx`: Add test case to verify creating a trade with PLN currency works correctly
+  - [x] 3.12 Run all tests: `npx jest` and verify all tests pass including new PLN tests
 
 - [ ] 4.0 Update Documentation for PLN Support
   - [ ] 4.1 Update `README.md` line 14: Change "USD, EUR, GBP, JPY, CAD, AUD, CHF, and more" to explicitly include PLN (e.g., "USD, EUR, GBP, JPY, CAD, AUD, CHF, PLN, and more")

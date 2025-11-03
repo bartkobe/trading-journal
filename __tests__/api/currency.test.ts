@@ -247,6 +247,64 @@ describe('Multi-Currency Support in API', () => {
       expect(data.trade.currency).toBe('GBP');
     });
 
+    it('should create trade with PLN currency', async () => {
+      const mockTrade = {
+        id: 'trade-1',
+        userId: mockUser.id,
+        symbol: 'PKN',
+        assetType: 'STOCK',
+        currency: 'PLN',
+        entryDate: new Date('2024-01-01'),
+        entryPrice: 45.50,
+        exitDate: new Date('2024-01-02'),
+        exitPrice: 47.25,
+        quantity: 100,
+        direction: 'LONG',
+        fees: 5,
+        setupType: null,
+        strategyName: null,
+        stopLoss: null,
+        takeProfit: null,
+        riskRewardRatio: null,
+        timeOfDay: null,
+        marketConditions: null,
+        emotionalStateEntry: null,
+        emotionalStateExit: null,
+        notes: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        screenshots: [],
+        tags: [],
+      };
+
+      mockPrisma.trade.create.mockResolvedValue(mockTrade as any);
+      mockPrisma.trade.findUnique.mockResolvedValue(mockTrade as any);
+
+      const requestBody = {
+        symbol: 'PKN',
+        assetType: 'STOCK',
+        currency: 'PLN',
+        entryDate: '2024-01-01T00:00:00.000Z',
+        entryPrice: 45.50,
+        exitDate: '2024-01-02T00:00:00.000Z',
+        exitPrice: 47.25,
+        quantity: 100,
+        direction: 'LONG',
+        fees: 5,
+      };
+
+      const request = createMockRequest('http://localhost/api/trades', {
+        method: 'POST',
+        body: JSON.stringify(requestBody),
+      });
+
+      const response = await POST(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(201);
+      expect(data.trade.currency).toBe('PLN');
+    });
+
     it('should default to USD when currency is not provided', async () => {
       const mockTrade = {
         id: 'trade-1',
@@ -347,6 +405,47 @@ describe('Multi-Currency Support in API', () => {
 
       expect(response.status).toBe(200);
       expect(data.trade.currency).toBe('USD');
+    });
+
+    it('should return PLN trade with correct currency', async () => {
+      const mockTrade = {
+        id: 'trade-1',
+        userId: mockUser.id,
+        symbol: 'PKN',
+        assetType: 'STOCK',
+        currency: 'PLN',
+        entryDate: new Date('2024-01-01'),
+        entryPrice: 45.50,
+        exitDate: new Date('2024-01-02'),
+        exitPrice: 47.25,
+        quantity: 100,
+        direction: 'LONG',
+        fees: 5,
+        setupType: null,
+        strategyName: null,
+        stopLoss: null,
+        takeProfit: null,
+        riskRewardRatio: null,
+        timeOfDay: null,
+        marketConditions: null,
+        emotionalStateEntry: null,
+        emotionalStateExit: null,
+        notes: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        screenshots: [],
+        tags: [],
+      };
+
+      mockPrisma.trade.findUnique.mockResolvedValue(mockTrade as any);
+
+      const request = createMockRequest('http://localhost/api/trades/trade-1');
+      const params = Promise.resolve({ id: 'trade-1' });
+      const response = await GET_TRADE(request, { params });
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data.trade.currency).toBe('PLN');
     });
   });
 

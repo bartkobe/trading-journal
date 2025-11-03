@@ -123,6 +123,15 @@ describe('TradeForm', () => {
       expect(screen.getByLabelText(/asset type/i)).toHaveValue('STOCK');
     });
 
+    it('should include PLN in currency dropdown', () => {
+      render(<TradeForm />);
+
+      const currencySelect = screen.getByLabelText(/currency/i);
+      const plnOption = within(currencySelect).getByRole('option', { name: /PLN/i });
+      expect(plnOption).toBeInTheDocument();
+      expect(plnOption).toHaveAttribute('value', 'PLN');
+    });
+
     it('should render with initial data in edit mode', () => {
       const initialData = {
         ...defaultFormData,
@@ -307,6 +316,41 @@ describe('TradeForm', () => {
       }, { timeout: 10000 });
 
       expect(mockPush).not.toHaveBeenCalled();
+    }, 15000);
+
+    it('should create trade with PLN currency', async () => {
+      const user = userEvent.setup();
+      const mockResponse = {
+        ok: true,
+        json: async () => ({ trade: { id: 'new-trade-123', currency: 'PLN' } }),
+      };
+      mockFetch.mockResolvedValue(mockResponse as Response);
+
+      render(<TradeForm />);
+
+      // Fill required fields
+      await fillRequiredFields(user);
+
+      // Select PLN currency
+      const currencySelect = screen.getByLabelText(/currency/i);
+      await user.selectOptions(currencySelect, 'PLN');
+
+      // Verify PLN is selected
+      expect(currencySelect).toHaveValue('PLN');
+
+      const submitButton = screen.getByRole('button', { name: /create trade/i });
+      await user.click(submitButton);
+
+      await waitFor(() => {
+        expect(mockFetch).toHaveBeenCalled();
+      }, { timeout: 5000 });
+
+      const fetchCalls = mockFetch.mock.calls;
+      expect(fetchCalls.length).toBeGreaterThan(0);
+      
+      // Verify the request body includes PLN currency
+      const requestBody = JSON.parse(fetchCalls[0][1]?.body as string);
+      expect(requestBody.currency).toBe('PLN');
     }, 15000);
 
     it('should show loading state during submission', async () => {

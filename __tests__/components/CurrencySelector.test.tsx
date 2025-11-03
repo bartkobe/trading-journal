@@ -103,6 +103,16 @@ describe('CurrencySelector', () => {
         mockOnChange.mockClear();
       }
     });
+
+    it('should select PLN currency and call onChange with PLN', async () => {
+      const user = userEvent.setup();
+      render(<CurrencySelector value="USD" onChange={mockOnChange} />);
+
+      const select = screen.getByLabelText(/currency/i);
+      await user.selectOptions(select, 'PLN');
+
+      expect(mockOnChange).toHaveBeenCalledWith('PLN');
+    });
   });
 
   describe('Currency Options', () => {
@@ -125,6 +135,23 @@ describe('CurrencySelector', () => {
         expect(option.textContent).toContain(currency.code);
         expect(option.textContent).toContain(currency.name);
       });
+    });
+
+    it('should include PLN in currency options list', () => {
+      render(<CurrencySelector value="USD" onChange={mockOnChange} />);
+
+      const plnOption = screen.getByRole('option', { name: /PLN/i });
+      expect(plnOption).toBeInTheDocument();
+      expect(plnOption).toHaveAttribute('value', 'PLN');
+    });
+
+    it('should display PLN option as "PLN - Polish Złoty (PLN)"', () => {
+      render(<CurrencySelector value="USD" onChange={mockOnChange} />);
+
+      const plnOption = screen.getByRole('option', { name: /PLN/i });
+      expect(plnOption.textContent).toContain('PLN');
+      expect(plnOption.textContent).toContain('Polish Złoty');
+      expect(plnOption.textContent).toContain('(PLN)');
     });
   });
 
