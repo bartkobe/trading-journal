@@ -5,6 +5,13 @@ import { Trade, TradeCalculations, TradeWithCalculations } from './types';
 // ============================================================================
 
 /**
+ * Check if a trade is open (has no exit date)
+ */
+export function isTradeOpen(trade: Trade | { exitDate: Date | null }): boolean {
+  return trade.exitDate === null;
+}
+
+/**
  * Calculate all metrics for a trade
  */
 export function calculateTradeMetrics(trade: Trade): TradeCalculations {
@@ -13,8 +20,27 @@ export function calculateTradeMetrics(trade: Trade): TradeCalculations {
   // Handle null fees
   const tradeFees = fees ?? 0;
 
-  // Entry and exit values
+  // Entry value (always calculated)
   const entryValue = entryPrice * quantity;
+
+  // If trade is open (no exitDate or exitPrice), return early with null P&L values
+  if (exitDate === null || exitPrice === null) {
+    const result: TradeCalculations = {
+      pnl: null,
+      pnlPercent: null,
+      netPnl: null,
+      entryValue,
+      exitValue: null,
+      holdingPeriod: null,
+      holdingPeriodDays: null,
+      isWinner: false,
+      isLoser: false,
+      isBreakeven: false,
+    } as TradeCalculations;
+    return result;
+  }
+
+  // Exit value (only for closed trades)
   const exitValue = exitPrice * quantity;
 
   // Calculate P&L based on direction
@@ -123,10 +149,18 @@ export function sortTrades(
         comparison = new Date(a.entryDate).getTime() - new Date(b.entryDate).getTime();
         break;
       case 'pnl':
-        comparison = a.calculations.pnl - b.calculations.pnl;
+        // Handle null P&L values (open trades) - sort them to the end
+        if (a.calculations.pnl === null && b.calculations.pnl === null) comparison = 0;
+        else if (a.calculations.pnl === null) comparison = 1; // a comes after b
+        else if (b.calculations.pnl === null) comparison = -1; // b comes after a
+        else comparison = a.calculations.pnl - b.calculations.pnl;
         break;
       case 'pnlPercent':
-        comparison = a.calculations.pnlPercent - b.calculations.pnlPercent;
+        // Handle null P&L values (open trades) - sort them to the end
+        if (a.calculations.pnlPercent === null && b.calculations.pnlPercent === null) comparison = 0;
+        else if (a.calculations.pnlPercent === null) comparison = 1; // a comes after b
+        else if (b.calculations.pnlPercent === null) comparison = -1; // b comes after a
+        else comparison = a.calculations.pnlPercent - b.calculations.pnlPercent;
         break;
       case 'symbol':
         comparison = a.symbol.localeCompare(b.symbol);
@@ -248,17 +282,20 @@ export function calculatePositionSize(
  */
 export function calculateWinRate(trades: TradeWithCalculations[]): number {
   if (trades.length === 0) return 0;
-  const winners = trades.filter((t) => t.calculations.isWinner).length;
-  return (winners / trades.length) * 100;
+  // Filter out open trades (netPnl is null)
+  const closedTrades = trades.filter((t) => t.calculations.netPnl !== null);
+  if (closedTrades.length === 0) return 0;
+  const winners = closedTrades.filter((t) => t.calculations.isWinner).length;
+  return (winners / closedTrades.length) * 100;
 }
 
 /**
  * Calculate average win
  */
 export function calculateAverageWin(trades: TradeWithCalculations[]): number {
-  const winners = trades.filter((t) => t.calculations.isWinner);
+  const winners = trades.filter((t) => t.calculations.isWinner && t.calculations.netPnl !== null);
   if (winners.length === 0) return 0;
-  const totalWins = winners.reduce((sum, t) => sum + t.calculations.netPnl, 0);
+  const totalWins = winners.reduce((sum, t) => sum + (t.calculations.netPnl ?? 0), 0);
   return totalWins / winners.length;
 }
 
@@ -266,9 +303,9 @@ export function calculateAverageWin(trades: TradeWithCalculations[]): number {
  * Calculate average loss
  */
 export function calculateAverageLoss(trades: TradeWithCalculations[]): number {
-  const losers = trades.filter((t) => t.calculations.isLoser);
+  const losers = trades.filter((t) => t.calculations.isLoser && t.calculations.netPnl !== null);
   if (losers.length === 0) return 0;
-  const totalLosses = losers.reduce((sum, t) => sum + t.calculations.netPnl, 0);
+  const totalLosses = losers.reduce((sum, t) => sum + (t.calculations.netPnl ?? 0), 0);
   return totalLosses / losers.length;
 }
 
@@ -277,11 +314,13 @@ export function calculateAverageLoss(trades: TradeWithCalculations[]): number {
  */
 export function calculateProfitFactor(trades: TradeWithCalculations[]): number {
   const grossProfit = trades
-    .filter((t) => t.calculations.isWinner)
-    .reduce((sum, t) => sum + t.calculations.netPnl, 0);
+    .filter((t) => t.calculations.isWinner && t.calculations.netPnl !== null)
+    .reduce((sum, t) => sum + (t.calculations.netPnl ?? 0), 0);
 
   const grossLoss = Math.abs(
-    trades.filter((t) => t.calculations.isLoser).reduce((sum, t) => sum + t.calculations.netPnl, 0)
+    trades
+      .filter((t) => t.calculations.isLoser && t.calculations.netPnl !== null)
+      .reduce((sum, t) => sum + (t.calculations.netPnl ?? 0), 0)
   );
 
   if (grossLoss === 0) return grossProfit > 0 ? Infinity : 0;
@@ -305,9 +344,11 @@ export function calculateExpectancy(trades: TradeWithCalculations[]): number {
  * Calculate Sharpe ratio (simplified - assuming risk-free rate = 0)
  */
 export function calculateSharpeRatio(trades: TradeWithCalculations[]): number {
-  if (trades.length === 0) return 0;
+  // Filter out open trades (pnlPercent is null)
+  const closedTrades = trades.filter((t) => t.calculations.pnlPercent !== null);
+  if (closedTrades.length === 0) return 0;
 
-  const returns = trades.map((t) => t.calculations.pnlPercent);
+  const returns = closedTrades.map((t) => t.calculations.pnlPercent!);
   const avgReturn = returns.reduce((sum, r) => sum + r, 0) / returns.length;
 
   // Calculate standard deviation
@@ -334,6 +375,9 @@ export function calculateMaxDrawdown(trades: TradeWithCalculations[]): number {
   let cumulative = 0;
 
   for (const trade of sortedTrades) {
+    // Skip trades with null netPnl (open trades should be filtered out before calling this)
+    if (trade.calculations.netPnl === null) continue;
+    
     cumulative += trade.calculations.netPnl;
 
     if (cumulative > peak) {
@@ -360,14 +404,19 @@ export function generateEquityCurve(
   );
 
   let cumulative = 0;
-  const equityCurve = sortedTrades.map((trade, index) => {
-    cumulative += trade.calculations.netPnl;
-    return {
-      date: new Date(trade.exitDate || trade.entryDate),
-      cumulativePnl: cumulative,
-      tradeNumber: index + 1,
-    };
-  });
+  let tradeNumber = 0;
+  const equityCurve = sortedTrades
+    .filter((trade) => trade.calculations.netPnl !== null) // Filter out open trades
+    .map((trade) => {
+      tradeNumber++;
+      // netPnl is guaranteed to be non-null after filter
+      cumulative += trade.calculations.netPnl!;
+      return {
+        date: new Date(trade.exitDate || trade.entryDate),
+        cumulativePnl: cumulative,
+        tradeNumber,
+      };
+    });
 
   return equityCurve;
 }

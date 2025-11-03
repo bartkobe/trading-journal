@@ -42,14 +42,14 @@ export type AssetType = 'STOCK' | 'FOREX' | 'CRYPTO' | 'OPTIONS';
 // ============================================================================
 
 export interface TradeCalculations {
-  pnl: number; // Profit/Loss in trade currency
-  pnlPercent: number; // P&L as percentage of entry value
-  netPnl: number; // P&L after fees
+  pnl: number | null; // Profit/Loss in trade currency (null for open trades)
+  pnlPercent: number | null; // P&L as percentage of entry value (null for open trades)
+  netPnl: number | null; // P&L after fees (null for open trades)
   entryValue: number; // Entry price * quantity
-  exitValue: number; // Exit price * quantity
+  exitValue: number | null; // Exit price * quantity (null for open trades)
   actualRiskReward?: number; // Actual R:R based on outcome
-  holdingPeriod: number; // Duration in hours
-  holdingPeriodDays: number; // Duration in days
+  holdingPeriod: number | null; // Duration in hours (null for open trades)
+  holdingPeriodDays: number | null; // Duration in days (null for open trades)
   isWinner: boolean; // Is this a winning trade
   isLoser: boolean; // Is this a losing trade
   isBreakeven: boolean; // Is this a breakeven trade
