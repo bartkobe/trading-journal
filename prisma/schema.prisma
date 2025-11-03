@@ -28,8 +28,8 @@ model Trade {
   currency            String            @default("USD")
   entryDate           DateTime
   entryPrice          Float
-  exitDate            DateTime
-  exitPrice           Float
+  exitDate            DateTime?
+  exitPrice           Float?
   quantity            Float
   direction           Direction
   setupType           String?
