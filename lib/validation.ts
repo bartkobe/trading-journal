@@ -33,21 +33,57 @@ export const tradeSchema = z.object({
   currency: z.string().default('USD'),
   entryDate: z.coerce.date(),
   entryPrice: z.number().positive('Entry price must be positive'),
-  exitDate: z.coerce.date().optional(),
-  exitPrice: z.number().positive('Exit price must be positive').optional(),
+  exitDate: z.preprocess(
+    (val) => {
+      // Convert empty strings, null, or undefined to undefined
+      if (val === '' || val === null || val === undefined) {
+        return undefined;
+      }
+      // If it's already a Date object, convert to ISO string first
+      if (val instanceof Date) {
+        return val.toISOString();
+      }
+      return val;
+    },
+    z.coerce.date().optional()
+  ),
+  exitPrice: z.preprocess(
+    (val) => (val === '' || val === null || (typeof val === 'number' && isNaN(val)) ? undefined : val),
+    z.number().positive('Exit price must be positive').optional()
+  ),
   quantity: z.number().positive('Quantity must be positive'),
   direction: z.enum(['LONG', 'SHORT']),
 
   // Optional metadata
   setupType: z.string().optional(),
   strategyName: z.string().optional(),
-  stopLoss: z.number().positive().optional(),
-  takeProfit: z.number().positive().optional(),
-  riskRewardRatio: z.number().optional(),
-  actualRiskReward: z.number().optional(),
+  stopLoss: z.preprocess(
+    (val) => (val === '' || val === null || (typeof val === 'number' && isNaN(val)) ? undefined : val),
+    z.number().positive().optional()
+  ),
+  takeProfit: z.preprocess(
+    (val) => (val === '' || val === null || (typeof val === 'number' && isNaN(val)) ? undefined : val),
+    z.number().positive().optional()
+  ),
+  riskRewardRatio: z.preprocess(
+    (val) => (val === '' || val === null || (typeof val === 'number' && isNaN(val)) ? undefined : val),
+    z.number().optional()
+  ),
+  actualRiskReward: z.preprocess(
+    (val) => (val === '' || val === null || (typeof val === 'number' && isNaN(val)) ? undefined : val),
+    z.number().optional()
+  ),
 
   // Fees
-  fees: z.number().min(0).optional().default(0),
+  fees: z.preprocess(
+    (val) => {
+      if (val === '' || val === null || (typeof val === 'number' && isNaN(val))) {
+        return 0; // Default to 0 for fees if empty
+      }
+      return val;
+    },
+    z.number().min(0).optional().default(0)
+  ),
 
   // Context
   timeOfDay: z

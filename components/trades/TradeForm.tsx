@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -17,6 +17,15 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
   const router = useRouter();
   const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isTradeOpen, setIsTradeOpen] = useState<boolean>(() => {
+    // Check if trade is initially open (no exitDate/exitPrice in initialData)
+    if (initialData) {
+      return !initialData.exitDate && !initialData.exitPrice;
+    }
+    return true; // Default to open for new trades
+  });
+  const [showCloseConfirm, setShowCloseConfirm] = useState(false);
+  const [pendingSubmit, setPendingSubmit] = useState<any>(null);
 
   const isEditMode = !!tradeId;
 
@@ -26,6 +35,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
     formState: { errors },
     watch,
     control,
+    setValue,
   } = useForm({
     resolver: zodResolver(tradeSchema) as any,
     defaultValues: initialData || {
@@ -36,7 +46,79 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
     },
   });
 
-  const onSubmit = async (data: any) => {
+  // Watch exit fields to determine if trade is open
+  const exitDate = watch('exitDate');
+  const exitPrice = watch('exitPrice');
+  const wasOpenInitially = !initialData?.exitDate && !initialData?.exitPrice;
+
+  // Update isTradeOpen when exit fields change
+  useEffect(() => {
+    const hasExitData = exitDate && exitPrice;
+    setIsTradeOpen(!hasExitData);
+  }, [exitDate, exitPrice]);
+
+  // Handle "Trade is still open" toggle
+  const handleTradeOpenToggle = (checked: boolean) => {
+    setIsTradeOpen(checked);
+    if (checked) {
+      // Clear exit fields when marking as open
+      setValue('exitDate', undefined);
+      setValue('exitPrice', undefined);
+    }
+  };
+
+  const doSubmit = async (data: any) => {
+    // Helper function to convert NaN to undefined for optional number fields
+    const cleanNumber = (val: any): number | undefined => {
+      if (val === null || val === '' || (typeof val === 'number' && isNaN(val))) {
+        return undefined;
+      }
+      return val;
+    };
+
+    // Prepare data: convert NaN/empty to undefined/null for optional fields
+    // Handle exitDate: convert empty string/undefined to null
+    let exitDateValue: string | null = null;
+    if (data.exitDate) {
+      if (typeof data.exitDate === 'string' && data.exitDate.trim() !== '') {
+        exitDateValue = data.exitDate;
+      }
+      // If it's a Date object, convert to ISO string
+      else if (data.exitDate instanceof Date) {
+        exitDateValue = data.exitDate.toISOString().slice(0, 16); // Format for datetime-local
+      }
+    }
+    const exitPriceValue = cleanNumber(data.exitPrice);
+    
+    const submitData: any = {
+      ...data,
+    };
+    
+    // Ensure both exit fields are either both null or both have values
+    // If trade is open (checkbox checked), both should be null
+    if (isTradeOpen || (!exitDateValue && !exitPriceValue)) {
+      submitData.exitDate = null;
+      submitData.exitPrice = null;
+    } else {
+      submitData.exitDate = exitDateValue;
+      submitData.exitPrice = exitPriceValue ?? null;
+    }
+
+    // Only include optional number fields if they have values (omit undefined)
+    const optionalFields = ['stopLoss', 'takeProfit', 'riskRewardRatio', 'actualRiskReward'];
+    optionalFields.forEach((field) => {
+      const cleaned = cleanNumber(data[field]);
+      if (cleaned !== undefined) {
+        submitData[field] = cleaned;
+      } else {
+        // Remove the field if it's undefined to avoid sending it
+        delete submitData[field];
+      }
+    });
+
+    // Fees defaults to 0 if empty
+    submitData.fees = cleanNumber(data.fees) ?? 0;
+
     try {
       setIsLoading(true);
       setError('');
@@ -49,19 +131,35 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(submitData),
       });
 
       if (!response.ok) {
         const result = await response.json();
         if (response.status === 400) {
-          setError(result.error || 'Invalid trade data. Please check all required fields and try again.');
+          // Display detailed validation errors if available
+          if (result.details) {
+            const errorMessages: string[] = [];
+            Object.entries(result.details).forEach(([field, errors]) => {
+              if (Array.isArray(errors)) {
+                errorMessages.push(`${field}: ${errors.join(', ')}`);
+              }
+            });
+            setError(errorMessages.length > 0 
+              ? `Validation errors: ${errorMessages.join('; ')}` 
+              : result.error || 'Invalid trade data. Please check all required fields and try again.');
+          } else {
+            setError(result.error || 'Invalid trade data. Please check all required fields and try again.');
+          }
+          console.error('Validation error details:', result.details);
         } else if (response.status === 401) {
           setError('Your session has expired. Please log in again.');
         } else if (response.status === 404 && isEditMode) {
           setError('Trade not found. It may have been deleted.');
         } else if (response.status === 500) {
-          setError('Unable to save trade due to a server error. Please try again in a moment.');
+          const errorMsg = result.details ? `${result.error}: ${result.details}` : result.error || 'Unable to save trade due to a server error. Please try again in a moment.';
+          setError(errorMsg);
+          console.error('Server error details:', result);
         } else {
           setError(result.error || `Failed to ${isEditMode ? 'update' : 'create'} trade. Please try again.`);
         }
@@ -86,6 +184,36 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const onSubmit = async (data: any) => {
+    // If trade is marked as open, clear exit fields before validation/submission
+    if (isTradeOpen) {
+      data.exitDate = undefined;
+      data.exitPrice = undefined;
+      // Also clear from form state to prevent validation errors
+      setValue('exitDate', undefined);
+      setValue('exitPrice', undefined);
+    }
+    
+    // Convert Date objects to ISO strings for exitDate if present
+    if (data.exitDate instanceof Date) {
+      data.exitDate = data.exitDate.toISOString();
+    }
+    
+    // Check if we're closing an open trade (adding exit data where it didn't exist before)
+    const isClosingTrade = isEditMode && wasOpenInitially && data.exitDate && data.exitPrice;
+    
+    if (isClosingTrade && !showCloseConfirm) {
+      // Show confirmation dialog before closing
+      setPendingSubmit(data);
+      setShowCloseConfirm(true);
+      return;
+    }
+
+    // Clear confirmation state
+    setShowCloseConfirm(false);
+    await doSubmit(data);
   };
 
   return (
@@ -234,18 +362,72 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
 
       {/* Exit Details Section */}
       <div className="bg-card shadow rounded-lg p-6">
-        <h2 className="text-lg font-semibold mb-4">Exit Details</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold">Exit Details</h2>
+          <label className="flex items-center space-x-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={isTradeOpen}
+              onChange={(e) => handleTradeOpenToggle(e.target.checked)}
+              disabled={isLoading}
+              className="w-4 h-4 rounded border-border text-primary focus:ring-2 focus:ring-ring"
+            />
+            <span className="text-sm font-medium text-foreground">Trade is still open</span>
+          </label>
+        </div>
+        
+        {isTradeOpen && (
+          <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+            <p className="text-sm text-blue-800 dark:text-blue-200">
+              <strong>Trade will be marked as open.</strong> You can add exit information later to close this trade.
+            </p>
+          </div>
+        )}
+
+        {showCloseConfirm && (
+          <div className="mb-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+            <p className="text-sm text-yellow-800 dark:text-yellow-200 mb-3">
+              <strong>Mark this trade as closed?</strong> This will finalize the trade and include it in performance calculations.
+            </p>
+            <div className="flex space-x-3">
+              <button
+                type="button"
+                onClick={async () => {
+                  if (pendingSubmit) {
+                    setShowCloseConfirm(false);
+                    await doSubmit(pendingSubmit);
+                    setPendingSubmit(null);
+                  }
+                }}
+                className="px-4 py-2 bg-primary hover:bg-primary-hover text-primary-foreground text-sm font-medium rounded-lg transition-colors"
+              >
+                Yes, Close Trade
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowCloseConfirm(false);
+                  setPendingSubmit(null);
+                }}
+                className="px-4 py-2 border border-border hover:bg-muted text-foreground text-sm font-medium rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label htmlFor="exitDate" className="block text-sm font-medium text-foreground mb-2">
-              Exit Date & Time <span className="text-danger">*</span>
+              Exit Date & Time <span className="text-muted-foreground font-normal">(Optional)</span>
             </label>
             <input
               id="exitDate"
               type="datetime-local"
               {...register('exitDate')}
-              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card text-foreground transition-colors"
-              disabled={isLoading}
+              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card text-foreground transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={isLoading || isTradeOpen}
             />
             {errors.exitDate && (
               <p className="mt-1 text-sm text-danger">{errors.exitDate.message}</p>
@@ -254,16 +436,16 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
 
           <div>
             <label htmlFor="exitPrice" className="block text-sm font-medium text-foreground mb-2">
-              Exit Price <span className="text-danger">*</span>
+              Exit Price <span className="text-muted-foreground font-normal">(Optional)</span>
             </label>
             <input
               id="exitPrice"
               type="number"
               step="0.01"
               {...register('exitPrice', { valueAsNumber: true })}
-              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card text-foreground transition-colors"
+              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card text-foreground transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               placeholder="0.00"
-              disabled={isLoading}
+              disabled={isLoading || isTradeOpen}
             />
             {errors.exitPrice && (
               <p className="mt-1 text-sm text-danger">{errors.exitPrice.message}</p>

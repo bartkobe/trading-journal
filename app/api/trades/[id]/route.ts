@@ -118,23 +118,31 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     // Prepare trade data without tags
     const { tags: _tags, ...tradeData } = data;
 
-    // Update the trade
+    // Update the trade - explicitly set each field to avoid passing invalid fields
     const updatedTrade = await prisma.trade.update({
       where: { id },
       data: {
-        ...tradeData,
+        symbol: tradeData.symbol,
+        assetType: tradeData.assetType,
+        currency: tradeData.currency || 'USD',
+        entryDate: new Date(tradeData.entryDate),
+        entryPrice: tradeData.entryPrice,
+        quantity: tradeData.quantity,
+        direction: tradeData.direction,
+        exitDate: tradeData.exitDate !== undefined && tradeData.exitDate !== null ? new Date(tradeData.exitDate) : null,
+        exitPrice: tradeData.exitPrice !== undefined ? tradeData.exitPrice : null,
         setupType: tradeData.setupType ?? null,
         strategyName: tradeData.strategyName ?? null,
         stopLoss: tradeData.stopLoss ?? null,
         takeProfit: tradeData.takeProfit ?? null,
         riskRewardRatio: tradeData.riskRewardRatio ?? null,
+        actualRiskReward: tradeData.actualRiskReward ?? null,
         timeOfDay: tradeData.timeOfDay ?? null,
         marketConditions: tradeData.marketConditions ?? null,
         emotionalStateEntry: tradeData.emotionalStateEntry ?? null,
         emotionalStateExit: tradeData.emotionalStateExit ?? null,
-        entryDate: new Date(tradeData.entryDate),
-        exitDate: tradeData.exitDate ? new Date(tradeData.exitDate) : null,
-        exitPrice: tradeData.exitPrice ?? null,
+        notes: tradeData.notes ?? null,
+        fees: tradeData.fees ?? 0,
       },
       include: {
         screenshots: true,

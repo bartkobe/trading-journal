@@ -12,6 +12,7 @@ export async function POST(request: NextRequest) {
   try {
     // Require authentication
     const user = await requireAuth();
+    
 
     const body = await request.json();
 
@@ -36,24 +37,63 @@ export async function POST(request: NextRequest) {
     // Prepare trade data without tags
     const { tags: _tags, ...tradeData } = data;
 
+    // Prepare Prisma data object - handle empty strings as null for optional fields
+    const entryDate = new Date(tradeData.entryDate);
+    if (isNaN(entryDate.getTime())) {
+      return NextResponse.json(
+        {
+          error: 'Validation failed',
+          details: { entryDate: ['Invalid entry date'] },
+        },
+        { status: 400 }
+      );
+    }
+
+    let exitDate = null;
+    if (tradeData.exitDate !== undefined && tradeData.exitDate !== null && tradeData.exitDate !== '') {
+      exitDate = new Date(tradeData.exitDate);
+      if (isNaN(exitDate.getTime())) {
+        return NextResponse.json(
+          {
+            error: 'Validation failed',
+            details: { exitDate: ['Invalid exit date'] },
+          },
+          { status: 400 }
+        );
+      }
+    }
+
+    const prismaData: any = {
+      userId: user.id,
+      symbol: tradeData.symbol,
+      assetType: tradeData.assetType,
+      currency: tradeData.currency || 'USD',
+      entryDate: entryDate,
+      entryPrice: tradeData.entryPrice,
+      quantity: tradeData.quantity,
+      direction: tradeData.direction,
+      exitDate: exitDate,
+      exitPrice: tradeData.exitPrice !== undefined && tradeData.exitPrice !== null 
+        ? tradeData.exitPrice 
+        : null,
+      setupType: tradeData.setupType && typeof tradeData.setupType === 'string' && tradeData.setupType.trim() !== '' ? tradeData.setupType : null,
+      strategyName: tradeData.strategyName && typeof tradeData.strategyName === 'string' && tradeData.strategyName.trim() !== '' ? tradeData.strategyName : null,
+      stopLoss: tradeData.stopLoss !== undefined && tradeData.stopLoss !== null ? tradeData.stopLoss : null,
+      takeProfit: tradeData.takeProfit !== undefined && tradeData.takeProfit !== null ? tradeData.takeProfit : null,
+      riskRewardRatio: tradeData.riskRewardRatio !== undefined && tradeData.riskRewardRatio !== null ? tradeData.riskRewardRatio : null,
+      actualRiskReward: tradeData.actualRiskReward !== undefined && tradeData.actualRiskReward !== null ? tradeData.actualRiskReward : null,
+      timeOfDay: tradeData.timeOfDay ?? null,
+      marketConditions: tradeData.marketConditions ?? null,
+      emotionalStateEntry: tradeData.emotionalStateEntry && typeof tradeData.emotionalStateEntry === 'string' && tradeData.emotionalStateEntry.trim() !== '' ? tradeData.emotionalStateEntry : null,
+      emotionalStateExit: tradeData.emotionalStateExit && typeof tradeData.emotionalStateExit === 'string' && tradeData.emotionalStateExit.trim() !== '' ? tradeData.emotionalStateExit : null,
+      notes: tradeData.notes && typeof tradeData.notes === 'string' && tradeData.notes.trim() !== '' ? tradeData.notes : null,
+      fees: tradeData.fees !== undefined && tradeData.fees !== null ? tradeData.fees : 0,
+    };
+
+
     // Create the trade
     const trade = await prisma.trade.create({
-      data: {
-        ...tradeData,
-        setupType: tradeData.setupType ?? null,
-        strategyName: tradeData.strategyName ?? null,
-        stopLoss: tradeData.stopLoss ?? null,
-        takeProfit: tradeData.takeProfit ?? null,
-        riskRewardRatio: tradeData.riskRewardRatio ?? null,
-        timeOfDay: tradeData.timeOfDay ?? null,
-        marketConditions: tradeData.marketConditions ?? null,
-        emotionalStateEntry: tradeData.emotionalStateEntry ?? null,
-        emotionalStateExit: tradeData.emotionalStateExit ?? null,
-        userId: user.id,
-        entryDate: new Date(tradeData.entryDate),
-        exitDate: tradeData.exitDate ? new Date(tradeData.exitDate) : null,
-        exitPrice: tradeData.exitPrice ?? null,
-      },
+      data: prismaData,
       include: {
         screenshots: true,
         tags: {
@@ -126,6 +166,8 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     console.error('Create trade error:', error);
+    console.error('Error details:', error instanceof Error ? error.message : String(error));
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
 
     if (error instanceof Error) {
       if (error.message === 'Authentication required') {
@@ -136,11 +178,21 @@ export async function POST(request: NextRequest) {
           { status: 401 }
         );
       }
+      
+      // Include error message in response for debugging
+      return NextResponse.json(
+        {
+          error: 'Failed to create trade',
+          details: error.message,
+        },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json(
       {
         error: 'Failed to create trade',
+        details: String(error),
       },
       { status: 500 }
     );

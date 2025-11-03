@@ -1,12 +1,17 @@
 import { TradeWithCalculations } from '@/lib/types';
-import { formatCurrency, formatPercent, formatDateTime } from '@/lib/trades';
+import { formatCurrency, formatPercent, formatDateTime, isTradeOpen } from '@/lib/trades';
+import { TradeStatusBadge } from './TradeStatusBadge';
+import Link from 'next/link';
 
 interface TradeDetailProps {
   trade: TradeWithCalculations;
 }
 
 export function TradeDetail({ trade }: TradeDetailProps) {
+  const tradeIsOpen = isTradeOpen(trade);
+
   const getOutcomeColor = () => {
+    if (tradeIsOpen) return 'text-foreground';
     if (trade.calculations.isWinner) return 'profit';
     if (trade.calculations.isLoser) return 'loss';
     return 'breakeven';
@@ -47,47 +52,96 @@ export function TradeDetail({ trade }: TradeDetailProps) {
 
   return (
     <div className="space-y-6">
+      {/* Trade Status Header */}
+      <div className="bg-card rounded-lg shadow-sm border border-border p-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <TradeStatusBadge isOpen={tradeIsOpen} />
+            <h1 className="text-2xl font-bold text-foreground">
+              {tradeIsOpen ? 'Open Trade' : 'Closed Trade'}
+            </h1>
+          </div>
+          {tradeIsOpen && (
+            <Link
+              href={`/trades/${trade.id}/edit`}
+              className="px-4 py-2 bg-primary hover:bg-primary-hover text-primary-foreground font-medium rounded-lg transition-colors"
+            >
+              Close Trade
+            </Link>
+          )}
+        </div>
+      </div>
+
       {/* Key Metrics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {/* P&L Card */}
         <div className="bg-card rounded-lg shadow-sm border border-border p-4">
           <p className="text-sm text-muted-foreground mb-1">Net P&L</p>
-          <p className={`text-2xl font-bold ${getOutcomeColor()}`}>
-            {formatCurrency(trade.calculations.netPnl, trade.currency)}
-          </p>
-          {trade.fees && trade.fees > 0 && (
-            <p className="text-xs text-muted-foreground mt-1">
-              Fees: {formatCurrency(trade.fees, trade.currency)}
-            </p>
+          {tradeIsOpen ? (
+            <p className="text-2xl font-bold text-muted-foreground">N/A</p>
+          ) : (
+            <>
+              <p className={`text-2xl font-bold ${getOutcomeColor()}`}>
+                {formatCurrency(trade.calculations.netPnl!, trade.currency)}
+              </p>
+              {trade.fees && trade.fees > 0 && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  Fees: {formatCurrency(trade.fees, trade.currency)}
+                </p>
+              )}
+            </>
           )}
         </div>
 
         {/* Return % Card */}
         <div className="bg-card rounded-lg shadow-sm border border-border p-4">
           <p className="text-sm text-muted-foreground mb-1">Return</p>
-          <p className={`text-2xl font-bold ${getOutcomeColor()}`}>
-            {formatPercent(trade.calculations.pnlPercent)}
-          </p>
-          <p className="text-xs text-muted-foreground mt-1">
-            {formatCurrency(trade.calculations.pnl, trade.currency)} gross
-          </p>
+          {tradeIsOpen ? (
+            <p className="text-2xl font-bold text-muted-foreground">N/A</p>
+          ) : (
+            <>
+              <p className={`text-2xl font-bold ${getOutcomeColor()}`}>
+                {formatPercent(trade.calculations.pnlPercent!)}
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {formatCurrency(trade.calculations.pnl!, trade.currency)} gross
+              </p>
+            </>
+          )}
         </div>
 
         {/* Holding Period Card */}
         <div className="bg-card rounded-lg shadow-sm border border-border p-4">
           <p className="text-sm text-muted-foreground mb-1">Holding Period</p>
-          <p className="text-2xl font-bold text-foreground">
-            {trade.calculations.holdingPeriodDays.toFixed(1)}d
-          </p>
-          <p className="text-xs text-muted-foreground mt-1">
-            {trade.calculations.holdingPeriod.toFixed(1)} hours
-          </p>
+          {tradeIsOpen ? (
+            <>
+              <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">Ongoing</p>
+              <p className="text-xs text-muted-foreground mt-1">Trade still open</p>
+            </>
+          ) : (
+            <>
+              <p className="text-2xl font-bold text-foreground">
+                {trade.calculations.holdingPeriodDays!.toFixed(1)}d
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {trade.calculations.holdingPeriod!.toFixed(1)} hours
+              </p>
+            </>
+          )}
         </div>
 
         {/* Outcome Card */}
         <div className="bg-card rounded-lg shadow-sm border border-border p-4">
           <p className="text-sm text-muted-foreground mb-1">Outcome</p>
-          <div className="mt-2">{getOutcomeBadge()}</div>
+          <div className="mt-2">
+            {tradeIsOpen ? (
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400">
+                Open
+              </span>
+            ) : (
+              getOutcomeBadge()
+            )}
+          </div>
         </div>
       </div>
 
@@ -161,24 +215,34 @@ export function TradeDetail({ trade }: TradeDetailProps) {
 
             <div>
               <p className="text-sm text-muted-foreground mb-1">Exit Date</p>
-              <p className="text-base text-foreground">
-                {trade.exitDate ? formatDateTime(trade.exitDate) : 'Still open'}
-              </p>
+              {tradeIsOpen ? (
+                <p className="text-base text-blue-600 dark:text-blue-400">Not yet closed</p>
+              ) : (
+                <p className="text-base text-foreground">
+                  {formatDateTime(trade.exitDate!)}
+                </p>
+              )}
             </div>
 
             <div>
               <p className="text-sm text-muted-foreground mb-1">Exit Price</p>
-              <p className="text-base font-medium text-foreground">
-                {trade.exitPrice ? formatCurrency(trade.exitPrice, trade.currency) : 'N/A'}
-              </p>
+              {tradeIsOpen ? (
+                <p className="text-base font-medium text-blue-600 dark:text-blue-400">Not yet closed</p>
+              ) : (
+                <p className="text-base font-medium text-foreground">
+                  {formatCurrency(trade.exitPrice!, trade.currency)}
+                </p>
+              )}
             </div>
 
-            <div>
-              <p className="text-sm text-muted-foreground mb-1">Exit Value</p>
-              <p className="text-base text-foreground">
-                {formatCurrency(trade.calculations.exitValue, trade.currency)}
-              </p>
-            </div>
+            {!tradeIsOpen && (
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Exit Value</p>
+                <p className="text-base text-foreground">
+                  {formatCurrency(trade.calculations.exitValue!, trade.currency)}
+                </p>
+              </div>
+            )}
 
             {trade.stopLoss && (
               <div>

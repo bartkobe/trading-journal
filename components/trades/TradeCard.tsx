@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { TradeWithCalculations } from '@/lib/types';
-import { formatCurrency, formatPercent, formatDate } from '@/lib/trades';
+import { formatCurrency, formatPercent, formatDate, isTradeOpen } from '@/lib/trades';
+import { TradeStatusBadge } from './TradeStatusBadge';
 
 interface TradeCardProps {
   trade: TradeWithCalculations;
@@ -8,13 +9,17 @@ interface TradeCardProps {
 }
 
 export function TradeCard({ trade, onClick }: TradeCardProps) {
+  const tradeIsOpen = isTradeOpen(trade);
+
   const getOutcomeColor = () => {
+    if (tradeIsOpen) return 'text-foreground';
     if (trade.calculations.isWinner) return 'profit';
     if (trade.calculations.isLoser) return 'loss';
     return 'breakeven';
   };
 
   const getOutcomeBg = () => {
+    if (tradeIsOpen) return 'bg-card border-blue-300 dark:border-blue-700';
     if (trade.calculations.isWinner) return 'profit-bg border-success';
     if (trade.calculations.isLoser) return 'loss-bg border-danger';
     return 'bg-card border-border';
@@ -77,11 +82,12 @@ export function TradeCard({ trade, onClick }: TradeCardProps) {
       {/* Header: Symbol, Date, and Outcome */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1">
-          <div className="flex items-center gap-2 mb-1">
+          <div className="flex items-center gap-2 mb-1 flex-wrap">
             <h3 className="text-lg font-semibold text-foreground">
               {trade.symbol.toUpperCase()}
             </h3>
             {getDirectionBadge()}
+            <TradeStatusBadge isOpen={tradeIsOpen} />
           </div>
           <p className="text-sm text-muted-foreground">{formatDate(trade.entryDate)}</p>
           {trade.strategyName && (
@@ -90,7 +96,7 @@ export function TradeCard({ trade, onClick }: TradeCardProps) {
             </p>
           )}
         </div>
-        <div className="flex items-center gap-2">{getOutcomeIcon()}</div>
+        <div className="flex items-center gap-2">{!tradeIsOpen && getOutcomeIcon()}</div>
       </div>
 
       {/* Asset Type Badge */}
@@ -115,13 +121,20 @@ export function TradeCard({ trade, onClick }: TradeCardProps) {
           <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
             Exit
           </p>
-          <p className="text-sm font-medium text-foreground">
-            {trade.exitPrice ? formatCurrency(trade.exitPrice, trade.currency) : 'Open'}
-          </p>
-          {trade.exitDate && (
-            <p className="text-xs text-muted-foreground mt-0.5">
-              {formatDate(trade.exitDate)}
-            </p>
+          {tradeIsOpen ? (
+            <>
+              <p className="text-sm font-medium text-blue-600 dark:text-blue-400">In Progress</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Not yet closed</p>
+            </>
+          ) : (
+            <>
+              <p className="text-sm font-medium text-foreground">
+                {formatCurrency(trade.exitPrice!, trade.currency)}
+              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {formatDate(trade.exitDate!)}
+              </p>
+            </>
           )}
         </div>
       </div>
@@ -132,17 +145,25 @@ export function TradeCard({ trade, onClick }: TradeCardProps) {
           <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
             P&L
           </p>
-          <p className={`text-xl font-bold ${getOutcomeColor()}`}>
-            {formatCurrency(trade.calculations.netPnl, trade.currency)}
-          </p>
+          {tradeIsOpen ? (
+            <p className="text-xl font-bold text-muted-foreground">—</p>
+          ) : (
+            <p className={`text-xl font-bold ${getOutcomeColor()}`}>
+              {formatCurrency(trade.calculations.netPnl!, trade.currency)}
+            </p>
+          )}
         </div>
         <div className="text-right">
           <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
             Return
           </p>
-          <p className={`text-xl font-bold ${getOutcomeColor()}`}>
-            {formatPercent(trade.calculations.pnlPercent)}
-          </p>
+          {tradeIsOpen ? (
+            <p className="text-xl font-bold text-muted-foreground">—</p>
+          ) : (
+            <p className={`text-xl font-bold ${getOutcomeColor()}`}>
+              {formatPercent(trade.calculations.pnlPercent!)}
+            </p>
+          )}
         </div>
       </div>
 
