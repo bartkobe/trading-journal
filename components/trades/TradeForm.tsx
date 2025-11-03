@@ -2,9 +2,10 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { tradeSchema, type TradeInput } from '@/lib/validation';
+import { CurrencySelector } from '@/components/ui/CurrencySelector';
 
 interface TradeFormProps {
   tradeId?: string;
@@ -24,6 +25,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
     handleSubmit,
     formState: { errors },
     watch,
+    control,
   } = useForm({
     resolver: zodResolver(tradeSchema) as any,
     defaultValues: initialData || {
@@ -136,28 +138,20 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
           </div>
 
           {/* Currency */}
-          <div>
-            <label htmlFor="currency" className="block text-sm font-medium text-foreground mb-2">
-              Currency
-            </label>
-            <select
-              id="currency"
-              {...register('currency')}
-              className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card text-foreground transition-colors"
-              disabled={isLoading}
-            >
-              <option value="USD">USD - US Dollar</option>
-              <option value="EUR">EUR - Euro</option>
-              <option value="GBP">GBP - British Pound</option>
-              <option value="JPY">JPY - Japanese Yen</option>
-              <option value="CAD">CAD - Canadian Dollar</option>
-              <option value="AUD">AUD - Australian Dollar</option>
-              <option value="CHF">CHF - Swiss Franc</option>
-            </select>
-            {errors.currency && (
-              <p className="mt-1 text-sm text-danger">{errors.currency.message}</p>
+          <Controller
+            name="currency"
+            control={control}
+            render={({ field }) => (
+              <CurrencySelector
+                value={field.value}
+                onChange={field.onChange}
+                disabled={isLoading}
+                error={errors.currency?.message}
+                label="Currency"
+                showSymbol={true}
+              />
             )}
-          </div>
+          />
 
           {/* Direction */}
           <div>

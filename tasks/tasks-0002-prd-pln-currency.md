@@ -9,10 +9,10 @@
 
 ## Relevant Files
 
-- `components/ui/CurrencySelector.tsx` - Currency selector component containing CURRENCIES array and formatting functions
+- `components/ui/CurrencySelector.tsx` - Currency selector component containing CURRENCIES array and formatting functions (✅ Modified - Added PLN currency)
 - `components/ui/CurrencySelector.test.tsx` - Unit tests for CurrencySelector component
-- `components/trades/TradeForm.tsx` - Trade form component with hardcoded currency dropdown
-- `components/trades/TradeForm.test.tsx` - Unit tests for TradeForm component (if exists)
+- `components/trades/TradeForm.tsx` - Trade form component (✅ Modified - Refactored to use CurrencySelector component)
+- `components/trades/TradeForm.test.tsx` - Unit tests for TradeForm component
 - `__tests__/lib/currency.test.ts` - Currency formatting and utility function tests
 - `__tests__/api/currency.test.ts` - API endpoint tests for currency support
 - `lib/trades.ts` - Trade utility functions including formatCurrency
@@ -36,14 +36,14 @@
   - [x] 1.4 Verify `getCurrencySymbol('PLN')` returns 'PLN'
   - [x] 1.5 Verify `formatCurrencyAmount(1234.56, 'PLN')` works correctly (should use Intl.NumberFormat or fallback to 'PLN1234.56' format)
 
-- [ ] 2.0 Refactor TradeForm to Use CurrencySelector Component
-  - [ ] 2.1 Open `components/trades/TradeForm.tsx` and locate the currency dropdown section (around line 138-156)
-  - [ ] 2.2 Import CurrencySelector component at the top of the file
-  - [ ] 2.3 Replace the hardcoded `<select>` element and its `<option>` children with `<CurrencySelector>` component
-  - [ ] 2.4 Ensure CurrencySelector integrates with React Hook Form by using `{...register('currency')}` or converting to controlled component pattern
-  - [ ] 2.5 Verify the currency label and error display still work correctly
-  - [ ] 2.6 Ensure the component maintains the same styling and behavior as before (disabled state, error messages, etc.)
-  - [ ] 2.7 Test that the form submission includes the currency value correctly
+- [x] 2.0 Refactor TradeForm to Use CurrencySelector Component
+  - [x] 2.1 Open `components/trades/TradeForm.tsx` and locate the currency dropdown section (around line 138-156)
+  - [x] 2.2 Import CurrencySelector component at the top of the file
+  - [x] 2.3 Replace the hardcoded `<select>` element and its `<option>` children with `<CurrencySelector>` component
+  - [x] 2.4 Ensure CurrencySelector integrates with React Hook Form by using `{...register('currency')}` or converting to controlled component pattern
+  - [x] 2.5 Verify the currency label and error display still work correctly
+  - [x] 2.6 Ensure the component maintains the same styling and behavior as before (disabled state, error messages, etc.)
+  - [x] 2.7 Test that the form submission includes the currency value correctly
 
 - [ ] 3.0 Add Comprehensive Test Coverage for PLN Currency
   - [ ] 3.1 Update `__tests__/components/CurrencySelector.test.tsx`: Add test case to verify PLN appears in currency options list
