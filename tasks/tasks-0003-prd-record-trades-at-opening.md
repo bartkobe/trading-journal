@@ -198,12 +198,12 @@
   - [x] 8.23 Add test: Performance breakdowns exclude open trades
   - [x] 8.24 Run full test suite: Execute `npm test` and verify all tests pass
   - [x] 8.25 Run type checking: Execute `npm run type-check` and fix any TypeScript errors
-  - [ ] 8.26 Manual testing: Create an open trade through UI and verify it saves correctly
-  - [ ] 8.27 Manual testing: Update open trade to add exit information and verify it closes correctly
-  - [ ] 8.28 Manual testing: Filter trades by status (open/closed) and verify results
-  - [ ] 8.29 Manual testing: Verify open trades are excluded from dashboard analytics
-  - [ ] 8.30 Manual testing: Verify open trades appear in trade list with correct status badges
-  - [ ] 8.31 Manual testing: Verify CSV export includes status column and handles open trades correctly
-  - [ ] 8.32 Manual testing: Test reopening a closed trade (removing exit information)
-  - [ ] 8.33 Verify backward compatibility: Existing closed trades still work correctly after migration
+  - [x] 8.26 Manual testing: Create an open trade through UI and verify it saves correctly
+  - [x] 8.27 Manual testing: Update open trade to add exit information and verify it closes correctly
+  - [x] 8.28 Manual testing: Filter trades by status (open/closed) and verify results
+  - [x] 8.29 Manual testing: Verify open trades are excluded from dashboard analytics
+  - [x] 8.30 Manual testing: Verify open trades appear in trade list with correct status badges
+  - [x] 8.31 Manual testing: Verify CSV export includes status column and handles open trades correctly
+  - [x] 8.32 Manual testing: Test reopening a closed trade (removing exit information)
+  - [x] 8.33 Verify backward compatibility: Existing closed trades still work correctly after migration
 
