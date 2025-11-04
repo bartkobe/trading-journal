@@ -1,0 +1,13 @@
+{
+  "dashboard": "Panel",
+  "trades": "Transakcje",
+  "newTrade": "Nowa Transakcja",
+  "logout": "Wyloguj",
+  "createNewTrade": "Utwórz nową transakcję",
+  "tradingJournalHome": "Strona główna Dziennika Tradingowego",
+  "openMobileMenu": "Otwórz menu mobilne",
+  "logOutOfTradingJournal": "Wyloguj się z Dziennika Tradingowego",
+  "mainNavigation": "Główna nawigacja",
+  "mobileNavigation": "Nawigacja mobilna",
+  "primary": "Główna"
+}

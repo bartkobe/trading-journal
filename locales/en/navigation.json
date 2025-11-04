@@ -1,0 +1,13 @@
+{
+  "dashboard": "Dashboard",
+  "trades": "Trades",
+  "newTrade": "New Trade",
+  "logout": "Logout",
+  "createNewTrade": "Create new trade",
+  "tradingJournalHome": "Trading Journal home",
+  "openMobileMenu": "Open mobile menu",
+  "logOutOfTradingJournal": "Log out of Trading Journal",
+  "mainNavigation": "Main navigation",
+  "mobileNavigation": "Mobile navigation",
+  "primary": "Primary"
+}
