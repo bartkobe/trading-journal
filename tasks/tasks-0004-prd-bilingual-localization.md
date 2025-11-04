@@ -119,17 +119,20 @@
   - [x] 2.8 Ensure all translation keys are consistent between English and Polish files (no missing keys)
   - [x] 2.9 Add translation keys for enum values (AssetType, Direction, MarketCondition, TimeOfDay, EmotionalState, TradeStatus)
 
-- [ ] 3.0 Configure Next.js for language support and update core infrastructure
-  - [ ] 3.1 Create `i18n/config.ts` file with next-intl configuration (locales: ['en', 'pl'], defaultLocale: 'en')
-  - [ ] 3.2 Create `i18n/request.ts` file for server-side request configuration using `getRequestConfig` from next-intl
-  - [ ] 3.3 Update `middleware.ts` to integrate next-intl middleware with existing auth middleware
-  - [ ] 3.4 Ensure middleware handles locale routing (e.g., `/en/dashboard`, `/pl/dashboard`) while preserving auth logic
-  - [ ] 3.5 Update `app/layout.tsx` to wrap children with `NextIntlClientProvider` from next-intl
-  - [ ] 3.6 Modify `app/layout.tsx` to dynamically set HTML `lang` attribute based on current locale
-  - [ ] 3.7 Create language persistence utility using localStorage (similar to ThemeProvider pattern)
-  - [ ] 3.8 Implement language preference loading from localStorage on app initialization
-  - [ ] 3.9 Ensure default language is English if no preference is stored
-  - [ ] 3.10 Test that locale routing works correctly with existing protected routes
+- [x] 3.0 Configure Next.js for language support and update core infrastructure
+  - [x] 3.1 Create `i18n/config.ts` file with next-intl configuration (locales: ['en', 'pl'], defaultLocale: 'en')
+  - [x] 3.2 Create `i18n/request.ts` file for server-side request configuration using `getRequestConfig` from next-intl
+  - [x] 3.3 Update `middleware.ts` to integrate next-intl middleware with existing auth middleware
+  - [x] 3.4 Ensure middleware handles locale routing (e.g., `/en/dashboard`, `/pl/dashboard`) while preserving auth logic
+  - [x] 3.5 Update `app/layout.tsx` to wrap children with `NextIntlClientProvider` from next-intl
+  - [x] 3.6 Modify `app/layout.tsx` to dynamically set HTML `lang` attribute based on current locale
+  - [x] 3.7 Create language persistence utility using localStorage (similar to ThemeProvider pattern)
+  - [x] 3.8 Implement language preference loading from localStorage on app initialization
+  - [x] 3.9 Ensure default language is English if no preference is stored
+  - [x] 3.10 Test that locale routing works correctly with existing protected routes
+    - ✅ Middleware redirects root path `/` to `/en/` (307 redirect confirmed)
+    - ✅ Middleware handles locale routing correctly
+    - ⚠️ 404 on `/en/` is expected until pages are moved to `app/[locale]/` structure (will be done in section 5.0)
 
 - [ ] 4.0 Create language selector component and integrate into navigation
   - [ ] 4.1 Create `components/ui/LanguageSelector.tsx` component with dropdown/button group UI

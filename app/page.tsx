@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { LoginForm } from '@/components/auth/LoginForm';
 import { RegisterForm } from '@/components/auth/RegisterForm';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
@@ -10,6 +10,17 @@ export default function HomePage() {
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+  const pathname = usePathname();
+
+  // Redirect to /en/ if on root path (client-side fallback)
+  useEffect(() => {
+    if (pathname === '/') {
+      // Check localStorage for preferred locale, otherwise use 'en'
+      const storedLocale = localStorage.getItem('trading-journal-locale') || 'en';
+      router.replace(`/${storedLocale}`);
+      return;
+    }
+  }, [pathname, router]);
 
   // Check if user is already authenticated
   useEffect(() => {

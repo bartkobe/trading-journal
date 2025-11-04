@@ -4,6 +4,8 @@ import './globals.css';
 import { ThemeProvider, themeScript } from '@/components/providers/ThemeProvider';
 import { Navigation } from '@/components/ui/Navigation';
 import { getCurrentUser } from '@/lib/auth';
+import { NextIntlClientProvider } from 'next-intl';
+import { getMessages } from 'next-intl/server';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -49,34 +51,77 @@ export default async function RootLayout({
     console.error('Layout: Failed to get current user:', error);
   }
 
+  // Get messages for next-intl (default to 'en' for now)
+  // This will be properly handled when pages are moved to [locale]
+  const messages = await getMessages().catch(() => null);
+
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html suppressHydrationWarning>
       <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                const path = window.location.pathname;
+                const localeMatch = path.match(/^\\/(en|pl)(\\/|$)/);
+                const locale = localeMatch ? localeMatch[1] : 'en';
+                document.documentElement.lang = locale;
+              })();
+            `,
+          }}
+        />
         {/* Prevent flash of unstyled content (FOUC) by applying theme before render */}
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ThemeProvider defaultTheme="system">
-          {/* Skip link for keyboard navigation - hidden until focused */}
-          <a
-            href="#main-content"
-            className="absolute left-[-9999px] focus:left-4 focus:top-4 focus:z-50 px-4 py-2 bg-primary text-primary-foreground rounded-lg shadow-lg focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-all"
-          >
-            Skip to main content
-          </a>
+          {messages ? (
+            <NextIntlClientProvider messages={messages}>
+              {/* Skip link for keyboard navigation - hidden until focused */}
+              <a
+                href="#main-content"
+                className="absolute left-[-9999px] focus:left-4 focus:top-4 focus:z-50 px-4 py-2 bg-primary text-primary-foreground rounded-lg shadow-lg focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-all"
+              >
+                Skip to main content
+              </a>
 
-          {/* Show navigation only for authenticated users */}
-          {user && <Navigation user={user} />}
-          
-          {/* Main content */}
-          <main 
-            id="main-content" 
-            tabIndex={-1}
-            className={user ? '' : 'min-h-screen'}
-            aria-label="Main content"
-          >
-            {children}
-          </main>
+              {/* Show navigation only for authenticated users */}
+              {user && <Navigation user={user} />}
+              
+              {/* Main content */}
+              <main 
+                id="main-content" 
+                tabIndex={-1}
+                className={user ? '' : 'min-h-screen'}
+                aria-label="Main content"
+              >
+                {children}
+              </main>
+            </NextIntlClientProvider>
+          ) : (
+            <>
+              {/* Skip link for keyboard navigation - hidden until focused */}
+              <a
+                href="#main-content"
+                className="absolute left-[-9999px] focus:left-4 focus:top-4 focus:z-50 px-4 py-2 bg-primary text-primary-foreground rounded-lg shadow-lg focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-all"
+              >
+                Skip to main content
+              </a>
+
+              {/* Show navigation only for authenticated users */}
+              {user && <Navigation user={user} />}
+              
+              {/* Main content */}
+              <main 
+                id="main-content" 
+                tabIndex={-1}
+                className={user ? '' : 'min-h-screen'}
+                aria-label="Main content"
+              >
+                {children}
+              </main>
+            </>
+          )}
         </ThemeProvider>
       </body>
     </html>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { TradeWithCalculations } from '@/lib/types';
 import { formatCurrency, formatDate, isTradeOpen } from '@/lib/trades';
@@ -9,6 +10,7 @@ import { ErrorMessage, EmptyState } from '@/components/ui/ErrorMessage';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 
 export function OpenTradesSection() {
+  const router = useRouter();
   const [openTrades, setOpenTrades] = useState<TradeWithCalculations[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string>('');
@@ -106,10 +108,10 @@ export function OpenTradesSection() {
       ) : (
         <div className="space-y-4">
           {openTrades.map((trade) => (
-            <Link
+            <div
               key={trade.id}
-              href={`/trades/${trade.id}`}
-              className="block p-4 rounded-lg border border-blue-300 dark:border-blue-700 bg-blue-50/50 dark:bg-blue-900/10 hover:bg-blue-100/50 dark:hover:bg-blue-900/20 transition-colors"
+              onClick={() => router.push(`/trades/${trade.id}`)}
+              className="block p-4 rounded-lg border border-blue-300 dark:border-blue-700 bg-blue-50/50 dark:bg-blue-900/10 hover:bg-blue-100/50 dark:hover:bg-blue-900/20 transition-colors cursor-pointer"
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
@@ -166,7 +168,7 @@ export function OpenTradesSection() {
                   </Link>
                 </div>
               </div>
-            </Link>
+            </div>
           ))}
         </div>
       )}
