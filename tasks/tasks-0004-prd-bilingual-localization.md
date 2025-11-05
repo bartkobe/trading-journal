@@ -148,7 +148,7 @@
   - [x] 4.11 Test language switching works without page reload and maintains current route
   - [x] 4.12 Create `components/ui/LanguageSelector.test.tsx` with tests for language switching
 
-- [ ] 5.0 Translate all UI components and pages
+- [x] 5.0 Translate all UI components and pages
   - [x] 5.1 Update `components/ui/Navigation.tsx`: Replace hardcoded strings with `useTranslations('navigation')` hook
   - [x] 5.2 Update `components/auth/LoginForm.tsx`: Replace all labels, placeholders, buttons, and error messages with translation keys
   - [x] 5.3 Update `components/auth/RegisterForm.tsx`: Replace all labels, placeholders, buttons, and error messages with translation keys
