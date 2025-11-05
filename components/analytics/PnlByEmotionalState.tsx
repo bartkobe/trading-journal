@@ -239,7 +239,7 @@ export default function PnlByEmotionalState({ startDate, endDate }: PnlByEmotion
             bestState: bestState.emotionalStateEntry,
             winRate: (bestState.winRate ?? 0).toFixed(1),
             worstState: worstState.emotionalStateEntry,
-            hasOtherNegative: negativeStates.length > 2
+            hasOtherNegative: negativeStates.length > 2 ? 'true' : 'false'
           })}
         </p>
       </div>
