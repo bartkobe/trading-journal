@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import {
   BarChart,
   Bar,
@@ -41,30 +42,6 @@ interface PnlByStrategyProps {
 // Custom Tooltip
 // ============================================================================
 
-const CustomTooltip = ({ active, payload }: any) => {
-  if (!active || !payload || !payload.length) return null;
-
-  const data = payload[0].payload;
-
-  return (
-    <div style={chartConfig.tooltip.contentStyle}>
-      <p style={chartConfig.tooltip.labelStyle}>{data.name}</p>
-      <p style={{ color: getPnlColor(data.totalPnl) }}>
-        <strong>Total P&L:</strong> {formatChartCurrency(data.totalPnl)}
-      </p>
-      <p style={{ color: chartColors.bar.neutral }}>
-        <strong>Trades:</strong> {data.tradeCount}
-      </p>
-      <p style={{ color: chartColors.bar.neutral }}>
-        <strong>Win Rate:</strong> {data.winRate.toFixed(1)}%
-      </p>
-      <p style={{ color: chartColors.bar.neutral }}>
-        <strong>Avg P&L:</strong> {formatChartCurrency(data.totalPnl / data.tradeCount)}
-      </p>
-    </div>
-  );
-};
-
 // ============================================================================
 // PnlByStrategy Component
 // ============================================================================
@@ -74,9 +51,38 @@ export default function PnlByStrategy({
   endDate,
   height = chartDimensions.height.medium,
 }: PnlByStrategyProps) {
+  const tTitles = useTranslations('analytics.chartTitles');
+  const tLabels = useTranslations('analytics.chartLabels');
+  const tErrors = useTranslations('analytics.chartErrors');
+  const tEmpty = useTranslations('analytics.chartEmptyStates');
+  const t = useTranslations('analytics');
   const [data, setData] = useState<StrategyData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const CustomTooltip = ({ active, payload }: any) => {
+    if (!active || !payload || !payload.length) return null;
+
+    const data = payload[0].payload;
+
+    return (
+      <div style={chartConfig.tooltip.contentStyle}>
+        <p style={chartConfig.tooltip.labelStyle}>{data.name}</p>
+        <p style={{ color: getPnlColor(data.totalPnl) }}>
+          <strong>{tLabels('totalPnl')}:</strong> {formatChartCurrency(data.totalPnl)}
+        </p>
+        <p style={{ color: chartColors.bar.neutral }}>
+          <strong>{tLabels('trades')}:</strong> {data.tradeCount}
+        </p>
+        <p style={{ color: chartColors.bar.neutral }}>
+          <strong>{tLabels('winRate')}:</strong> {data.winRate.toFixed(1)}%
+        </p>
+        <p style={{ color: chartColors.bar.neutral }}>
+          <strong>{tLabels('avgPnl')}:</strong> {formatChartCurrency(data.totalPnl / data.tradeCount)}
+        </p>
+      </div>
+    );
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -93,14 +99,14 @@ export default function PnlByStrategy({
         const response = await fetch(url);
 
         if (!response.ok) {
-          throw new Error('Failed to fetch strategy data');
+          throw new Error(tErrors('failedToFetchStrategyPerformance'));
         }
 
         const result = await response.json();
         setData(result.charts.byStrategy || []);
       } catch (err: any) {
         console.error('Error fetching strategy data:', err);
-        setError(err.message || 'An error occurred');
+        setError(err.message || tErrors('anErrorOccurred'));
       } finally {
         setLoading(false);
       }
@@ -117,7 +123,7 @@ export default function PnlByStrategy({
       >
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-sm text-muted-foreground">Loading chart data...</p>
+          <p className="text-sm text-muted-foreground">{t('loading')}</p>
         </div>
       </div>
     );
@@ -127,7 +133,7 @@ export default function PnlByStrategy({
     return (
       <div className="rounded-lg border border-danger loss-bg p-6">
         <h3 className="text-lg font-semibold loss mb-2">
-          Error Loading Chart
+          {tErrors('anErrorOccurred')}
         </h3>
         <p className="loss">{error}</p>
       </div>
@@ -142,10 +148,10 @@ export default function PnlByStrategy({
       >
         <div>
           <h3 className="text-lg font-semibold text-foreground dark:text-gray-100 mb-2">
-            No Data Available
+            {tEmpty('noStrategyData')}
           </h3>
           <p className="text-muted-foreground">
-            Start logging trades with different strategies.
+            {tEmpty('startLoggingTradesEquity')}
           </p>
         </div>
       </div>
@@ -158,9 +164,9 @@ export default function PnlByStrategy({
   return (
     <div className="rounded-lg border border-border bg-card p-6">
       <div className="mb-4">
-        <h3 className="text-lg font-semibold text-foreground dark:text-gray-100">P&L by Strategy</h3>
+        <h3 className="text-lg font-semibold text-foreground dark:text-gray-100">{tTitles('pnlByStrategy')}</h3>
         <p className="text-sm text-muted-foreground">
-          Performance of different trading strategies
+          {t('byStrategy')}
         </p>
       </div>
 
@@ -172,7 +178,7 @@ export default function PnlByStrategy({
             tickFormatter={(value) => formatChartCurrency(value)}
             {...chartConfig.axis}
             label={{
-              value: 'Total P&L',
+              value: tLabels('totalPnl'),
               angle: -90,
               position: 'insideLeft',
             }}
@@ -212,10 +218,10 @@ export default function PnlByStrategy({
                   {formatChartCurrency(strategy.totalPnl)}
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  {strategy.tradeCount} trades • {strategy.winRate.toFixed(0)}% win
+                  {tLabels('tradesWithWinRate', { trades: strategy.tradeCount, winRate: strategy.winRate.toFixed(0) })}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Avg: {formatChartCurrency(avgPnl)}
+                  {tLabels('avgPnl')}: {formatChartCurrency(avgPnl)}
                 </p>
               </div>
             );

@@ -8,7 +8,6 @@ import React, {
   useMemo,
   useCallback,
 } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 
 /**
@@ -51,8 +50,6 @@ export function LanguageProvider({
   defaultLocale = 'en',
   storageKey = LANGUAGE_STORAGE_KEY,
 }: LanguageProviderProps) {
-  const router = useRouter();
-  const pathname = usePathname();
   const [locale, setLocaleState] = useState<Locale>(defaultLocale);
   const [mounted, setMounted] = useState(false);
 
@@ -72,7 +69,8 @@ export function LanguageProvider({
     return defaultLocale;
   }, [defaultLocale, storageKey]);
 
-  // Set locale and persist to localStorage
+  // Set locale and persist to localStorage and cookie
+  // Note: Navigation is handled by LanguageSelector component
   const setLocale = useCallback(
     (newLocale: Locale) => {
       // Validate locale
@@ -87,50 +85,57 @@ export function LanguageProvider({
       try {
         localStorage.setItem(storageKey, newLocale);
       } catch (error) {
-        console.error('Failed to save language preference:', error);
+        console.error('Failed to save language preference to localStorage:', error);
       }
 
-      // Update URL path if we're on a page with locale prefix
-      // Extract current path without locale
-      const pathWithoutLocale = pathname.replace(/^\/(en|pl)/, '') || '/';
-      const newPath = `/${newLocale}${pathWithoutLocale}`;
-      
-      // Only navigate if the path actually changed
-      if (newPath !== pathname) {
-        router.push(newPath);
+      // Save to cookie (so middleware can read it on server-side)
+      try {
+        if (typeof document !== 'undefined') {
+          document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=${60 * 60 * 24 * 365}; SameSite=Lax`;
+        }
+      } catch (error) {
+        console.error('Failed to save language preference to cookie:', error);
       }
     },
-    [storageKey, pathname, router, defaultLocale]
+    [storageKey, defaultLocale]
   );
 
   // Initialize locale on mount
   useEffect(() => {
-    // Try to get locale from current pathname first
-    const pathLocale = pathname.match(/^\/(en|pl)(\/|$)/)?.[1];
+    // Try to get locale from current URL path first
     let initialLocale: Locale = defaultLocale;
-
-    if (pathLocale && routing.locales.includes(pathLocale as Locale)) {
-      // Use locale from URL path
-      initialLocale = pathLocale as Locale;
-    } else {
-      // Try to load from localStorage
-      initialLocale = getStoredLocale();
+    
+    if (typeof window !== 'undefined') {
+      const pathname = window.location.pathname;
+      const pathLocale = pathname.match(/^\/(en|pl)(\/|$)/)?.[1];
+      
+      if (pathLocale && routing.locales.includes(pathLocale as Locale)) {
+        // Use locale from URL path
+        initialLocale = pathLocale as Locale;
+      } else {
+        // Try to load from localStorage
+        initialLocale = getStoredLocale();
+      }
     }
 
     setLocaleState(initialLocale);
     
-    // Save to localStorage if not already set
-    try {
-      const stored = localStorage.getItem(storageKey);
-      if (!stored || stored !== initialLocale) {
-        localStorage.setItem(storageKey, initialLocale);
+    // Save to localStorage and cookie if not already set
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem(storageKey);
+        if (!stored || stored !== initialLocale) {
+          localStorage.setItem(storageKey, initialLocale);
+        }
+        // Also set cookie to match localStorage
+        document.cookie = `NEXT_LOCALE=${initialLocale}; path=/; max-age=${60 * 60 * 24 * 365}; SameSite=Lax`;
+      } catch (error) {
+        console.error('Failed to save initial language preference:', error);
       }
-    } catch (error) {
-      console.error('Failed to save initial language preference:', error);
     }
 
     setMounted(true);
-  }, [defaultLocale, storageKey, getStoredLocale, pathname]);
+  }, [defaultLocale, storageKey, getStoredLocale]);
 
   const contextValue = useMemo(
     () => ({

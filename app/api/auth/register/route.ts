@@ -1,12 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { registerUser, setAuthCookie } from '@/lib/auth';
 import { registerSchema } from '@/lib/validation';
+import { getApiTranslations } from '@/lib/api-translations';
 
 /**
  * POST /api/auth/register
  * Register a new user account
  */
 export async function POST(request: NextRequest) {
+  const t = await getApiTranslations(request, 'errors');
+  
   try {
     const body = await request.json();
 
@@ -16,7 +19,7 @@ export async function POST(request: NextRequest) {
     if (!validationResult.success) {
       return NextResponse.json(
         {
-          error: 'Validation failed',
+          error: t('validationFailed'),
           details: validationResult.error.flatten().fieldErrors,
         },
         { status: 400 }
@@ -35,7 +38,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         success: true,
-        message: 'User registered successfully',
+        message: t('userRegisteredSuccessfully'),
         user: {
           id: user.id,
           email: user.email,
@@ -52,7 +55,7 @@ export async function POST(request: NextRequest) {
       if (error.message.includes('already exists')) {
         return NextResponse.json(
           {
-            error: 'User with this email already exists',
+            error: t('accountExists'),
           },
           { status: 409 }
         );
@@ -62,7 +65,7 @@ export async function POST(request: NextRequest) {
       if (process.env.NODE_ENV !== 'production') {
         return NextResponse.json(
           {
-            error: 'Failed to register user',
+            error: t('failedToCreateAccount'),
             details: error.message,
             stack: error.stack,
           },
@@ -81,7 +84,7 @@ export async function POST(request: NextRequest) {
     // Generic error response
     return NextResponse.json(
       {
-        error: 'Failed to register user',
+        error: t('failedToCreateAccount'),
       },
       { status: 500 }
     );

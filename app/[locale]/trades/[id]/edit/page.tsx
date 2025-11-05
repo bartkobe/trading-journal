@@ -6,21 +6,19 @@ import { TradeForm } from '@/components/trades/TradeForm';
 
 export const dynamic = 'force-dynamic';
 
-interface TradeEditPageProps {
-  params: {
-    id: string;
-  };
-}
+type TradeEditPageProps = {
+  params: Promise<{ locale: string; id: string }>;
+};
 
 export default async function TradeEditPage({ params }: TradeEditPageProps) {
   // Await params (Next.js 15+ requirement)
-  const { id } = await params;
+  const { locale, id } = await params;
 
   let user;
   try {
     user = await requireAuth();
   } catch (error) {
-    redirect('/');
+    redirect(`/${locale}`);
   }
 
   // Fetch trade data directly from database
@@ -73,7 +71,7 @@ export default async function TradeEditPage({ params }: TradeEditPageProps) {
         {/* Header */}
         <div className="mb-8">
           <Link
-            href={`/trades/${id}`}
+            href={`/${locale}/trades/${id}`}
             className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground dark:hover:text-gray-100 mb-4"
           >
             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

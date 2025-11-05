@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 // ============================================================================
 // Types
@@ -19,6 +20,7 @@ export default function DateRangeFilter({
   onDateRangeChange,
   className = '',
 }: DateRangeFilterProps) {
+  const t = useTranslations('analytics');
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
 
@@ -58,7 +60,7 @@ export default function DateRangeFilter({
               htmlFor="start-date"
               className="block text-sm font-medium text-foreground mb-2"
             >
-              Start Date
+              {t('startDate')}
             </label>
             <input
               type="date"
@@ -73,7 +75,7 @@ export default function DateRangeFilter({
               htmlFor="end-date"
               className="block text-sm font-medium text-foreground mb-2"
             >
-              End Date
+              {t('endDate')}
             </label>
             <input
               type="date"
@@ -91,17 +93,17 @@ export default function DateRangeFilter({
             type="button"
             onClick={handleApply}
             className="px-4 py-2 bg-primary hover:bg-primary-hover text-primary-foreground font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-            aria-label="Apply date range filter"
+            aria-label={t('applyFilters')}
           >
-            Apply
+            {t('applyFilters')}
           </button>
           <button
             type="button"
             onClick={handleClear}
             className="px-4 py-2 border border-border hover:bg-muted text-foreground font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-            aria-label="Clear date range filter"
+            aria-label={t('clearFilters')}
           >
-            Clear
+            {t('clearFilters')}
           </button>
         </div>
       </div>
@@ -109,46 +111,46 @@ export default function DateRangeFilter({
       {/* Quick Presets */}
       <div className="mt-4 flex flex-wrap gap-2">
         <span className="text-sm font-medium text-foreground self-center">
-          Quick Select:
+          {t('quickSelect')}
         </span>
         <button
           type="button"
           onClick={() => handlePreset(7)}
           className="px-3 py-1 text-sm border border-border hover:bg-muted text-foreground rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-ring"
         >
-          Last 7 days
+          {t('last7Days')}
         </button>
         <button
           type="button"
           onClick={() => handlePreset(30)}
           className="px-3 py-1 text-sm border border-border hover:bg-muted text-foreground rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-ring"
         >
-          Last 30 days
+          {t('last30Days')}
         </button>
         <button
           type="button"
           onClick={() => handlePreset(90)}
           className="px-3 py-1 text-sm border border-border hover:bg-muted text-foreground rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-ring"
         >
-          Last 90 days
+          {t('last90Days')}
         </button>
         <button
           type="button"
           onClick={() => handlePreset(365)}
           className="px-3 py-1 text-sm border border-border hover:bg-muted text-foreground rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-ring"
         >
-          Last Year
+          {t('lastYear')}
         </button>
       </div>
 
       {/* Active Filter Indicator */}
       {(startDate || endDate) && (
         <div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
-          <span className="font-medium">Active Filter:</span>
+          <span className="font-medium">{t('activeFilter')}</span>
           <span>
-            {startDate && `From ${new Date(startDate).toLocaleDateString()}`}
+            {startDate && `${t('from')} ${new Date(startDate).toLocaleDateString()}`}
             {startDate && endDate && ' - '}
-            {endDate && `To ${new Date(endDate).toLocaleDateString()}`}
+            {endDate && `${t('to')} ${new Date(endDate).toLocaleDateString()}`}
           </span>
         </div>
       )}

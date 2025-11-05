@@ -1,15 +1,24 @@
 import { requireAuth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { TradeForm } from '@/components/trades/TradeForm';
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
+import { getTranslations } from 'next-intl/server';
 
 export const dynamic = 'force-dynamic';
 
-export default async function NewTradePage() {
+type NewTradePageProps = {
+  params: Promise<{ locale: string }>;
+};
+
+export default async function NewTradePage({ params }: NewTradePageProps) {
+  const { locale } = await params;
+  const t = await getTranslations('trades');
+  const tNav = await getTranslations('navigation');
+  
   try {
     await requireAuth();
   } catch (error) {
-    redirect('/');
+    redirect(`/${locale}`);
   }
 
   return (
@@ -29,12 +38,12 @@ export default async function NewTradePage() {
                 d="M15 19l-7-7 7-7"
               />
             </svg>
-            Back to Trades
+            {t('backToTrades')}
           </Link>
 
-          <h1 className="text-3xl font-bold text-foreground">New Trade</h1>
+          <h1 className="text-3xl font-bold text-foreground">{tNav('newTrade')}</h1>
           <p className="mt-2 text-muted-foreground">
-            Record a new trade with all the details, screenshots, and notes.
+            {t('recordNewTradeDescription')}
           </p>
         </div>
 
@@ -46,14 +55,14 @@ export default async function NewTradePage() {
         {/* Help Text */}
         <div className="mt-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
           <h3 className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-2">
-            Tips for Recording Trades
+            {t('tipsForRecordingTrades')}
           </h3>
           <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1 list-disc list-inside">
-            <li>Record trades as soon as possible for accuracy</li>
-            <li>Include screenshots of your entry and exit points</li>
-            <li>Document your reasoning and emotional state</li>
-            <li>Tag trades with strategies and setups for better analysis</li>
-            <li>Review and update trade notes after the trade closes</li>
+            <li>{t('tipRecordAsSoonAsPossible')}</li>
+            <li>{t('tipIncludeScreenshots')}</li>
+            <li>{t('tipDocumentReasoning')}</li>
+            <li>{t('tipTagTrades')}</li>
+            <li>{t('tipReviewAndUpdate')}</li>
           </ul>
         </div>
       </div>

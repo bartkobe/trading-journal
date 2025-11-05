@@ -1,12 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { loginUser, setAuthCookie } from '@/lib/auth';
 import { loginSchema } from '@/lib/validation';
+import { getApiTranslations } from '@/lib/api-translations';
 
 /**
  * POST /api/auth/login
  * Authenticate a user and create session
  */
 export async function POST(request: NextRequest) {
+  const t = await getApiTranslations(request, 'errors');
+  
   try {
     const body = await request.json();
 
@@ -16,7 +19,7 @@ export async function POST(request: NextRequest) {
     if (!validationResult.success) {
       return NextResponse.json(
         {
-          error: 'Validation failed',
+          error: t('validationFailed'),
           details: validationResult.error.flatten().fieldErrors,
         },
         { status: 400 }
@@ -34,7 +37,7 @@ export async function POST(request: NextRequest) {
     // Return success response
     return NextResponse.json({
       success: true,
-      message: 'Login successful',
+      message: t('loginSuccessful'),
       user: {
         id: user.id,
         email: user.email,
@@ -49,7 +52,7 @@ export async function POST(request: NextRequest) {
       if (error.message.includes('Invalid email or password')) {
         return NextResponse.json(
           {
-            error: 'Invalid email or password',
+            error: t('invalidEmailOrPassword'),
           },
           { status: 401 }
         );
@@ -58,7 +61,7 @@ export async function POST(request: NextRequest) {
       // Return detailed error in development/for debugging
       return NextResponse.json(
         {
-          error: 'Failed to login',
+          error: t('failedToSignIn'),
           details: error.message,
           stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
         },
@@ -69,7 +72,7 @@ export async function POST(request: NextRequest) {
     // Generic error response
     return NextResponse.json(
       {
-        error: 'Failed to login',
+        error: t('failedToSignIn'),
         details: String(error),
       },
       { status: 500 }

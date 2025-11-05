@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { formatCurrency, formatPercent } from '@/lib/trades';
 
 // ============================================================================
@@ -101,6 +102,7 @@ const MetricCard = ({ title, value, subtitle, trend, className = '' }: MetricCar
 // ============================================================================
 
 export default function DashboardMetrics({ startDate, endDate }: DashboardMetricsProps) {
+  const t = useTranslations('analytics');
   const [metrics, setMetrics] = useState<DashboardMetricsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -121,14 +123,14 @@ export default function DashboardMetrics({ startDate, endDate }: DashboardMetric
         });
 
         if (!response.ok) {
-          throw new Error('Failed to fetch dashboard metrics');
+          throw new Error(t('failedToFetchMetrics'));
         }
 
         const data = await response.json();
         setMetrics(data.metrics);
       } catch (err: any) {
         console.error('Error fetching dashboard metrics:', err);
-        setError(err.message || 'An error occurred');
+        setError(err.message || t('anErrorOccurred'));
       } finally {
         setLoading(false);
       }
@@ -175,7 +177,7 @@ export default function DashboardMetrics({ startDate, endDate }: DashboardMetric
     return (
       <div className="rounded-lg border border-danger loss-bg p-6">
         <h3 className="text-lg font-semibold loss mb-2">
-          Error Loading Metrics
+          {t('errorLoadingMetrics')}
         </h3>
         <p className="loss">{error}</p>
       </div>
@@ -194,10 +196,10 @@ export default function DashboardMetrics({ startDate, endDate }: DashboardMetric
     return (
       <div className="rounded-lg border border-border bg-card p-12 text-center">
         <h3 className="text-lg font-semibold text-foreground dark:text-gray-100 mb-2">
-          No Trading Data
+          {t('noTradingData')}
         </h3>
         <p className="text-muted-foreground">
-          Start logging trades to see your performance metrics.
+          {t('startLoggingTradesMetrics')}
         </p>
       </div>
     );
@@ -214,38 +216,38 @@ export default function DashboardMetrics({ startDate, endDate }: DashboardMetric
       {/* Overview Section */}
       <div>
         <h2 className="text-xl font-bold text-foreground dark:text-gray-100 mb-4">
-          Performance Overview
+          {t('performanceOverview')}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <MetricCard
-            title="Total Trades"
+            title={t('totalTrades')}
             value={metrics?.totalTrades ?? 0}
-            subtitle="All closed trades"
+            subtitle={t('allClosedTrades')}
             trend="neutral"
           />
           <MetricCard
-            title="Open Trades"
+            title={t('openTradesCount')}
             value={metrics?.openTradesCount ?? 0}
-            subtitle="Currently active positions"
+            subtitle={t('currentlyActivePositions')}
             trend="neutral"
             className="border-blue-300 dark:border-blue-700"
           />
           <MetricCard
-            title="Total P&L"
+            title={t('totalPnl')}
             value={formatCurrency(metrics.performance?.totalPnl ?? 0)}
-            subtitle="Net profit/loss"
+            subtitle={t('netProfitLoss')}
             trend={getPnlTrend(metrics.performance?.totalPnl ?? 0)}
           />
           <MetricCard
-            title="Average P&L"
+            title={t('averagePnl')}
             value={formatCurrency(metrics.performance?.averagePnl ?? 0)}
-            subtitle="Per trade"
+            subtitle={t('perTrade')}
             trend={getPnlTrend(metrics.performance?.averagePnl ?? 0)}
           />
           <MetricCard
-            title="Win Rate"
+            title={t('winRate')}
             value={`${(metrics.performance?.winRate ?? 0).toFixed(1)}%`}
-            subtitle={`${metrics.winLoss?.winningTrades ?? 0} wins, ${metrics.winLoss?.losingTrades ?? 0} losses`}
+            subtitle={t('winsLosses', { wins: metrics.winLoss?.winningTrades ?? 0, losses: metrics.winLoss?.losingTrades ?? 0 })}
             trend={(metrics.performance?.winRate ?? 0) >= 50 ? 'positive' : 'negative'}
           />
         </div>
@@ -254,31 +256,31 @@ export default function DashboardMetrics({ startDate, endDate }: DashboardMetric
       {/* Win/Loss Analysis */}
       <div>
         <h2 className="text-xl font-bold text-foreground dark:text-gray-100 mb-4">
-          Win/Loss Analysis
+          {t('winLossAnalysis')}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <MetricCard
-            title="Average Win"
+            title={t('averageWin')}
             value={formatCurrency(metrics.winLoss?.averageWin ?? 0)}
-            subtitle={`${metrics.winLoss?.winningTrades ?? 0} winning trades`}
+            subtitle={`${metrics.winLoss?.winningTrades ?? 0} ${t('winningTrades').toLowerCase()}`}
             trend="positive"
           />
           <MetricCard
-            title="Average Loss"
+            title={t('averageLoss')}
             value={formatCurrency(metrics.winLoss?.averageLoss ?? 0)}
-            subtitle={`${metrics.winLoss?.losingTrades ?? 0} losing trades`}
+            subtitle={`${metrics.winLoss?.losingTrades ?? 0} ${t('losingTrades').toLowerCase()}`}
             trend="negative"
           />
           <MetricCard
-            title="Largest Win"
+            title={t('largestWin')}
             value={formatCurrency(metrics.winLoss?.largestWin ?? 0)}
-            subtitle="Best trade"
+            subtitle={t('bestTrade')}
             trend="positive"
           />
           <MetricCard
-            title="Largest Loss"
+            title={t('largestLoss')}
             value={formatCurrency(metrics.winLoss?.largestLoss ?? 0)}
-            subtitle="Worst trade"
+            subtitle={t('worstTrade')}
             trend="negative"
           />
         </div>
@@ -287,31 +289,31 @@ export default function DashboardMetrics({ startDate, endDate }: DashboardMetric
       {/* Advanced Metrics */}
       <div>
         <h2 className="text-xl font-bold text-foreground dark:text-gray-100 mb-4">
-          Advanced Metrics
+          {t('advancedMetrics')}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <MetricCard
-            title="Profit Factor"
+            title={t('profitFactor')}
             value={(metrics.performance?.profitFactor ?? 0).toFixed(2)}
-            subtitle="Gross profit / Gross loss"
+            subtitle={t('grossProfitGrossLoss')}
             trend={(metrics.performance?.profitFactor ?? 0) > 1 ? 'positive' : 'negative'}
           />
           <MetricCard
-            title="Expectancy"
+            title={t('expectancy')}
             value={formatCurrency(metrics.advanced?.expectancy ?? 0)}
-            subtitle={`${formatPercent(metrics.advanced?.expectancyPercent ?? 0)} per trade`}
+            subtitle={`${formatPercent(metrics.advanced?.expectancyPercent ?? 0)} ${t('perTrade')}`}
             trend={getPnlTrend(metrics.advanced?.expectancy ?? 0)}
           />
           <MetricCard
-            title="Sharpe Ratio"
+            title={t('sharpeRatio')}
             value={(metrics.advanced?.sharpeRatio ?? 0).toFixed(2)}
-            subtitle="Risk-adjusted return"
+            subtitle={t('riskAdjustedReturn')}
             trend={(metrics.advanced?.sharpeRatio ?? 0) > 1 ? 'positive' : 'neutral'}
           />
           <MetricCard
-            title="Std Deviation"
+            title={t('standardDeviation')}
             value={formatPercent(metrics.advanced?.standardDeviation ?? 0)}
-            subtitle="Return volatility"
+            subtitle={t('returnVolatility')}
             trend="neutral"
           />
         </div>
@@ -319,28 +321,28 @@ export default function DashboardMetrics({ startDate, endDate }: DashboardMetric
 
       {/* Risk Metrics */}
       <div>
-        <h2 className="text-xl font-bold text-foreground dark:text-gray-100 mb-4">Risk Metrics</h2>
+        <h2 className="text-xl font-bold text-foreground dark:text-gray-100 mb-4">{t('riskMetrics')}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <MetricCard
-            title="Max Drawdown"
+            title={t('maxDrawdown')}
             value={formatCurrency(metrics.drawdown?.maxDrawdown ?? 0)}
-            subtitle={`${formatPercent(metrics.drawdown?.maxDrawdownPercent ?? 0)} peak to trough`}
+            subtitle={t('peakToTrough', { percent: formatPercent(metrics.drawdown?.maxDrawdownPercent ?? 0) })}
             trend="negative"
           />
           <MetricCard
-            title="Current Drawdown"
+            title={t('currentDrawdown')}
             value={formatCurrency(metrics.drawdown?.currentDrawdown ?? 0)}
             subtitle={formatPercent(metrics.drawdown?.currentDrawdownPercent ?? 0)}
             trend={(metrics.drawdown?.currentDrawdown ?? 0) === 0 ? 'neutral' : 'negative'}
           />
           <MetricCard
-            title="Average Drawdown"
+            title={t('averageDrawdown')}
             value={formatCurrency(metrics.drawdown?.averageDrawdown ?? 0)}
-            subtitle="Typical drawdown"
+            subtitle={t('typicalDrawdown')}
             trend="neutral"
           />
           <MetricCard
-            title="Current Streak"
+            title={t('currentStreak')}
             value={
               (metrics.streaks?.currentStreak ?? 0) > 0
                 ? `+${metrics.streaks?.currentStreak}`
@@ -348,10 +350,10 @@ export default function DashboardMetrics({ startDate, endDate }: DashboardMetric
             }
             subtitle={
               (metrics.streaks?.currentStreak ?? 0) > 0
-                ? 'Winning streak'
+                ? t('winningStreak')
                 : (metrics.streaks?.currentStreak ?? 0) < 0
-                  ? 'Losing streak'
-                  : 'No streak'
+                  ? t('losingStreak')
+                  : t('noStreak')
             }
             trend={
               (metrics.streaks?.currentStreak ?? 0) > 0
@@ -366,30 +368,30 @@ export default function DashboardMetrics({ startDate, endDate }: DashboardMetric
 
       {/* Streak Analysis */}
       <div>
-        <h2 className="text-xl font-bold text-foreground dark:text-gray-100 mb-4">Streak Analysis</h2>
+        <h2 className="text-xl font-bold text-foreground dark:text-gray-100 mb-4">{t('streakAnalysis')}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <MetricCard
-            title="Longest Win Streak"
+            title={t('longestWinStreak')}
             value={metrics.streaks?.longestWinStreak ?? 0}
-            subtitle="Consecutive wins"
+            subtitle={t('consecutiveWins')}
             trend="positive"
           />
           <MetricCard
-            title="Longest Loss Streak"
+            title={t('longestLossStreak')}
             value={metrics.streaks?.longestLossStreak ?? 0}
-            subtitle="Consecutive losses"
+            subtitle={t('consecutiveLosses')}
             trend="negative"
           />
           <MetricCard
-            title="Avg Win Streak"
+            title={t('averageWinStreak')}
             value={(metrics.streaks?.averageWinStreak ?? 0).toFixed(1)}
-            subtitle="Typical winning run"
+            subtitle={t('typicalWinningRun')}
             trend="neutral"
           />
           <MetricCard
-            title="Avg Loss Streak"
+            title={t('averageLossStreak')}
             value={(metrics.streaks?.averageLossStreak ?? 0).toFixed(1)}
-            subtitle="Typical losing run"
+            subtitle={t('typicalLosingRun')}
             trend="neutral"
           />
         </div>

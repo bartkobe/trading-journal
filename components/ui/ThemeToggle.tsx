@@ -2,6 +2,7 @@
 
 import { useTheme } from '@/components/providers/ThemeProvider';
 import type { Theme } from '@/components/providers/ThemeProvider';
+import { useTranslations } from 'next-intl';
 
 /**
  * ThemeToggle - Button component to switch between light, dark, and system themes
@@ -15,6 +16,7 @@ import type { Theme } from '@/components/providers/ThemeProvider';
  */
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
+  const t = useTranslations('common');
 
   const cycleTheme = () => {
     const themeOrder: Theme[] = ['light', 'dark', 'system'];
@@ -39,13 +41,13 @@ export function ThemeToggle() {
   const getThemeLabel = () => {
     switch (theme) {
       case 'light':
-        return 'Light mode';
+        return t('lightMode');
       case 'dark':
-        return 'Dark mode';
+        return t('darkMode');
       case 'system':
-        return 'System theme';
+        return t('systemTheme');
       default:
-        return 'Toggle theme';
+        return t('toggleTheme');
     }
   };
 
@@ -53,7 +55,7 @@ export function ThemeToggle() {
     <button
       onClick={cycleTheme}
       className="relative inline-flex items-center justify-center rounded-md p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-      aria-label={`Current theme: ${getThemeLabel()}. Click to change.`}
+      aria-label={t('currentTheme', { theme: getThemeLabel() })}
       title={getThemeLabel()}
       type="button"
     >
@@ -69,6 +71,7 @@ export function ThemeToggle() {
  */
 export function ThemeToggleDropdown() {
   const { theme, setTheme } = useTheme();
+  const t = useTranslations('common');
 
   return (
     <div className="relative inline-block">
@@ -76,11 +79,11 @@ export function ThemeToggleDropdown() {
         value={theme}
         onChange={(e) => setTheme(e.target.value as Theme)}
         className="appearance-none rounded-md border border-border bg-background px-3 py-2 pr-8 text-sm text-foreground transition-colors hover:bg-muted focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-        aria-label="Select theme"
+        aria-label={t('selectTheme')}
       >
-        <option value="light">Light</option>
-        <option value="dark">Dark</option>
-        <option value="system">System</option>
+        <option value="light">{t('light')}</option>
+        <option value="dark">{t('dark')}</option>
+        <option value="system">{t('system')}</option>
       </select>
       <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-muted-foreground">
         <ChevronDownIcon />
@@ -96,12 +99,13 @@ export function ThemeToggleDropdown() {
  */
 export function ThemeToggleSwitch() {
   const { resolvedTheme, toggleTheme } = useTheme();
+  const t = useTranslations('common');
 
   return (
     <button
       onClick={toggleTheme}
       className="relative inline-flex h-10 w-20 items-center rounded-full bg-muted transition-colors hover:bg-muted/80 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-      aria-label={`Current theme: ${resolvedTheme}. Click to toggle.`}
+      aria-label={t('currentThemeToggle', { theme: resolvedTheme })}
       type="button"
     >
       <span

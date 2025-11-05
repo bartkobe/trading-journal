@@ -3,12 +3,15 @@ import { requireAuth } from '@/lib/auth';
 import { tradeSchema, tradeFilterSchema } from '@/lib/validation';
 import { enrichTradeWithCalculations, sortTrades, filterByOutcome } from '@/lib/trades';
 import prisma from '@/lib/db';
+import { getApiTranslations } from '@/lib/api-translations';
 
 /**
  * POST /api/trades
  * Create a new trade
  */
 export async function POST(request: NextRequest) {
+  const t = await getApiTranslations(request, 'errors');
+  
   try {
     // Require authentication
     const user = await requireAuth();
@@ -22,7 +25,7 @@ export async function POST(request: NextRequest) {
     if (!validationResult.success) {
       return NextResponse.json(
         {
-          error: 'Validation failed',
+          error: t('validationFailed'),
           details: validationResult.error.flatten().fieldErrors,
         },
         { status: 400 }
@@ -42,8 +45,8 @@ export async function POST(request: NextRequest) {
     if (isNaN(entryDate.getTime())) {
       return NextResponse.json(
         {
-          error: 'Validation failed',
-          details: { entryDate: ['Invalid entry date'] },
+          error: t('validationFailed'),
+          details: { entryDate: [t('invalidEntryDate')] },
         },
         { status: 400 }
       );
@@ -56,8 +59,8 @@ export async function POST(request: NextRequest) {
       if (isNaN(exitDate.getTime())) {
         return NextResponse.json(
           {
-            error: 'Validation failed',
-            details: { exitDate: ['Invalid exit date'] },
+            error: t('validationFailed'),
+            details: { exitDate: [t('invalidExitDate')] },
           },
           { status: 400 }
         );
@@ -148,7 +151,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(
           {
             trade: enrichedTrade,
-            message: 'Trade created successfully',
+            message: t('tradeCreatedSuccessfully'),
           },
           { status: 201 }
         );
@@ -161,7 +164,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         trade: enrichedTrade,
-        message: 'Trade created successfully',
+        message: t('tradeCreatedSuccessfully'),
       },
       { status: 201 }
     );
@@ -174,7 +177,7 @@ export async function POST(request: NextRequest) {
       if (error.message === 'Authentication required') {
         return NextResponse.json(
           {
-            error: 'Authentication required',
+            error: t('authenticationRequired'),
           },
           { status: 401 }
         );
@@ -183,7 +186,7 @@ export async function POST(request: NextRequest) {
       // Include error message in response for debugging
       return NextResponse.json(
         {
-          error: 'Failed to create trade',
+          error: t('failedToCreateTrade'),
           details: error.message,
         },
         { status: 500 }
@@ -192,7 +195,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(
       {
-        error: 'Failed to create trade',
+        error: t('failedToCreateTrade'),
         details: String(error),
       },
       { status: 500 }
@@ -205,6 +208,8 @@ export async function POST(request: NextRequest) {
  * List all trades with filtering, sorting, and pagination
  */
 export async function GET(request: NextRequest) {
+  const t = await getApiTranslations(request, 'errors');
+  
   try {
     // Require authentication
     const user = await requireAuth();
@@ -235,7 +240,7 @@ export async function GET(request: NextRequest) {
     if (!validationResult.success) {
       return NextResponse.json(
         {
-          error: 'Invalid filter parameters',
+          error: t('invalidFilterParameters'),
           details: validationResult.error.flatten().fieldErrors,
         },
         { status: 400 }
@@ -385,7 +390,7 @@ export async function GET(request: NextRequest) {
       if (error.message === 'Authentication required') {
         return NextResponse.json(
           {
-            error: 'Authentication required',
+            error: t('authenticationRequired'),
           },
           { status: 401 }
         );
@@ -394,7 +399,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(
       {
-        error: 'Failed to fetch trades',
+        error: t('failedToLoadTrades'),
       },
       { status: 500 }
     );

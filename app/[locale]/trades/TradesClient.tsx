@@ -1,10 +1,12 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { TradeList } from '@/components/trades/TradeList';
 import { TradeFilters } from '@/components/trades/TradeFilters';
 
 export function TradesClient() {
+  const t = useTranslations('trades');
   const [filters, setFilters] = useState({
     startDate: '',
     endDate: '',
@@ -51,10 +53,10 @@ export function TradesClient() {
 
       if (!response.ok) {
         if (response.status === 401) {
-          alert('Please log in to export your trades.');
+          alert(t('pleaseLoginToExport'));
           return;
         }
-        alert('Failed to export CSV. Please try again.');
+        alert(t('failedToExportCsv'));
         return;
       }
 
@@ -69,7 +71,7 @@ export function TradesClient() {
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Export CSV error:', error);
-      alert('An unexpected error occurred while exporting.');
+      alert(t('unexpectedExportError'));
     }
   };
 
@@ -106,8 +108,8 @@ export function TradesClient() {
         {/* Page Header */}
         <div className="mb-12">
           <div className="space-y-2">
-            <h1 className="text-4xl font-bold text-foreground tracking-tight">Trade Journal</h1>
-            <p className="text-base text-muted-foreground">View and manage all your trades</p>
+            <h1 className="text-4xl font-bold text-foreground tracking-tight">{t('tradeJournal')}</h1>
+            <p className="text-base text-muted-foreground">{t('viewAndManageAllTrades')}</p>
           </div>
         </div>
 

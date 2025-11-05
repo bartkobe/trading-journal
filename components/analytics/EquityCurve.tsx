@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import {
   LineChart,
   Line,
@@ -22,6 +23,7 @@ import {
 } from '@/lib/chart-config';
 import { ChartSkeleton } from '@/components/ui/ChartSkeleton';
 import { ErrorMessage, EmptyState } from '@/components/ui/ErrorMessage';
+import { Link } from '@/i18n/routing';
 
 // ============================================================================
 // Types
@@ -44,22 +46,6 @@ interface EquityCurveProps {
 // Custom Tooltip
 // ============================================================================
 
-const CustomTooltip = ({ active, payload }: any) => {
-  if (!active || !payload || !payload.length) return null;
-
-  const data = payload[0].payload;
-
-  return (
-    <div style={chartConfig.tooltip.contentStyle}>
-      <p style={chartConfig.tooltip.labelStyle}>{formatChartDate(data.date)}</p>
-      <p style={{ color: chartColors.line.primary }}>
-        <strong>Cumulative P&L:</strong> {formatChartCurrency(data.cumulativePnl)}
-      </p>
-      <p style={{ color: chartColors.bar.neutral, fontSize: '12px' }}>Trade #{data.tradeNumber}</p>
-    </div>
-  );
-};
-
 // ============================================================================
 // EquityCurve Component
 // ============================================================================
@@ -70,9 +56,32 @@ export default function EquityCurve({
   height = chartDimensions.height.large,
   showArea = true,
 }: EquityCurveProps) {
+  const t = useTranslations('analytics');
+  const tTitles = useTranslations('analytics.chartTitles');
+  const tLabels = useTranslations('analytics.chartLabels');
+  const tErrors = useTranslations('analytics.chartErrors');
+  const tEmpty = useTranslations('analytics.chartEmptyStates');
   const [data, setData] = useState<EquityCurvePoint[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (!active || !payload || !payload.length) return null;
+
+    const data = payload[0].payload;
+
+    return (
+      <div style={chartConfig.tooltip.contentStyle}>
+        <p style={chartConfig.tooltip.labelStyle}>{formatChartDate(data.date)}</p>
+        <p style={{ color: chartColors.line.primary }}>
+          <strong>{tLabels('cumulativePnl')}:</strong> {formatChartCurrency(data.cumulativePnl)}
+        </p>
+        <p style={{ color: chartColors.bar.neutral, fontSize: '12px' }}>
+          {tLabels('tradeNumber', { number: data.tradeNumber })}
+        </p>
+      </div>
+    );
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -91,11 +100,11 @@ export default function EquityCurve({
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
           if (response.status === 401) {
-            throw new Error('Your session has expired. Please log in again to view charts.');
+            throw new Error(tErrors('sessionExpired'));
           } else if (response.status === 500) {
-            throw new Error('Server error while loading chart data. Please try again in a moment.');
+            throw new Error(tErrors('serverErrorLoadChart'));
           } else {
-            throw new Error(errorData.error || `Unable to load equity curve (Error ${response.status})`);
+            throw new Error(errorData.error || tErrors('unableToLoadEquityCurve', { status: response.status }));
           }
         }
 
@@ -111,9 +120,9 @@ export default function EquityCurve({
       } catch (err: any) {
         console.error('Error fetching equity curve:', err);
         if (err instanceof TypeError && err.message === 'Failed to fetch') {
-          setError('Unable to connect to the server. Please check your internet connection.');
+          setError(tErrors('unableToConnect'));
         } else {
-          setError(err.message || 'An unexpected error occurred while loading the equity curve.');
+          setError(err.message || tErrors('unexpectedErrorEquityCurve'));
         }
       } finally {
         setLoading(false);
@@ -131,7 +140,7 @@ export default function EquityCurve({
     return (
       <div className="rounded-lg border border-border bg-card p-6">
         <ErrorMessage
-          title="Failed to Load Equity Curve"
+          title={tErrors('failedToLoadEquityCurve')}
           message={error}
           onRetry={() => {
             setLoading(true);
@@ -149,7 +158,7 @@ export default function EquityCurve({
                 const response = await fetch(url);
                 if (!response.ok) {
                   const errorData = await response.json().catch(() => ({}));
-                  throw new Error(errorData.error || `Unable to load equity curve`);
+                  throw new Error(errorData.error || tErrors('unableToLoadEquityCurve', { status: response.status }));
                 }
                 const result = await response.json();
                 const equityCurve = result.charts.equityCurve.map((point: any) => ({
@@ -158,14 +167,14 @@ export default function EquityCurve({
                 }));
                 setData(equityCurve);
               } catch (err: any) {
-                setError(err.message || 'An unexpected error occurred');
+                setError(err.message || tErrors('unexpectedErrorEquityCurve'));
               } finally {
                 setLoading(false);
               }
             };
             fetchData();
           }}
-          retryText="Reload Chart"
+          retryText={tErrors('reloadChart')}
         />
       </div>
     );
@@ -176,10 +185,10 @@ export default function EquityCurve({
       <div className="rounded-lg border border-border bg-card">
         <EmptyState
           icon="data"
-          title="No Trade Data"
-          message="Start logging trades to see your equity curve and track your cumulative P&L over time."
+          title={tEmpty('noTradeData')}
+          message={tEmpty('startLoggingTradesEquity')}
           action={{
-            label: 'Record First Trade',
+            label: tEmpty('recordFirstTrade'),
             onClick: () => (window.location.href = '/trades/new'),
           }}
           className="py-12"
@@ -196,9 +205,9 @@ export default function EquityCurve({
   return (
     <div className="rounded-lg border border-border bg-card p-6">
       <div className="mb-4">
-        <h3 className="text-lg font-semibold text-foreground dark:text-gray-100">Equity Curve</h3>
+        <h3 className="text-lg font-semibold text-foreground dark:text-gray-100">{tTitles('equityCurve')}</h3>
         <p className="text-sm text-muted-foreground">
-          Cumulative P&L over time ({data.length} trades)
+          {tTitles('equityCurveSubtitle', { count: data.length })}
         </p>
       </div>
 
@@ -227,7 +236,7 @@ export default function EquityCurve({
               y={0}
               stroke={chartColors.breakeven}
               strokeDasharray="3 3"
-              label={{ value: 'Break Even', position: 'right', fill: chartColors.breakeven }}
+              label={{ value: tLabels('breakEven'), position: 'right', fill: chartColors.breakeven }}
             />
             <Area
               type="monotone"
@@ -252,7 +261,7 @@ export default function EquityCurve({
               y={0}
               stroke={chartColors.breakeven}
               strokeDasharray="3 3"
-              label={{ value: 'Break Even', position: 'right', fill: chartColors.breakeven }}
+              label={{ value: tLabels('breakEven'), position: 'right', fill: chartColors.breakeven }}
             />
             <Line
               type="monotone"

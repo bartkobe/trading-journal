@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { Link, useRouter } from '@/i18n/routing';
 import { TradeWithCalculations } from '@/lib/types';
 import { formatCurrency, formatPercent, formatDate, isTradeOpen } from '@/lib/trades';
 import { TradeCard } from './TradeCard';
@@ -27,6 +28,9 @@ interface TradeListProps {
 }
 
 export function TradeList({ filters, sortBy, initialTrades }: TradeListProps) {
+  const t = useTranslations('trades');
+  const tErrors = useTranslations('errors');
+  const router = useRouter();
   const [trades, setTrades] = useState<TradeWithCalculations[]>(initialTrades || []);
   const [isLoading, setIsLoading] = useState(!initialTrades);
   const [error, setError] = useState<string>('');
@@ -66,11 +70,11 @@ export function TradeList({ filters, sortBy, initialTrades }: TradeListProps) {
       if (!response.ok) {
         const result = await response.json();
         if (response.status === 401) {
-          setError('Your session has expired. Please log in again.');
+          setError(tErrors('sessionExpired'));
         } else if (response.status === 500) {
-          setError('Server error while loading trades. Our team has been notified. Please try again in a moment.');
+          setError(tErrors('serverErrorLoadTrades'));
         } else {
-          setError(result.error || 'Failed to load trades. Please try again.');
+          setError(result.error || tErrors('failedToLoadTradesRetry'));
         }
         return;
       }
@@ -82,9 +86,9 @@ export function TradeList({ filters, sortBy, initialTrades }: TradeListProps) {
     } catch (err) {
       console.error('Fetch trades error:', err);
       if (err instanceof TypeError && err.message === 'Failed to fetch') {
-        setError('Unable to connect to the server. Please check your internet connection and try again.');
+        setError(tErrors('unableToConnect'));
       } else {
-        setError('An unexpected error occurred while loading trades. Please try again.');
+        setError(tErrors('unexpectedErrorLoadTrades'));
       }
     } finally {
       setIsLoading(false);
@@ -140,10 +144,10 @@ export function TradeList({ filters, sortBy, initialTrades }: TradeListProps) {
   if (error) {
     return (
       <ErrorMessage
-        title="Failed to Load Trades"
+        title={tErrors('failedToLoadTrades')}
         message={error}
         onRetry={fetchTrades}
-        retryText="Reload Trades"
+        retryText={t('reloadTrades')}
       />
     );
   }
@@ -157,7 +161,7 @@ export function TradeList({ filters, sortBy, initialTrades }: TradeListProps) {
             <table className="min-w-full divide-y divide-border">
               <thead className="bg-muted">
                 <tr>
-                  {['Symbol', 'Date', 'Asset', 'Direction', 'Entry', 'Exit', 'P&L', '%', 'Outcome'].map((header) => (
+                  {[t('symbol'), t('date'), t('assetType'), t('direction'), t('entry'), t('exit'), t('pnl'), '%', t('outcome')].map((header) => (
                     <th key={header} className="px-6 py-3">
                       <div className="h-4 bg-muted-foreground/20 rounded animate-pulse" />
                     </th>
@@ -200,18 +204,18 @@ export function TradeList({ filters, sortBy, initialTrades }: TradeListProps) {
       <div className="bg-card rounded-lg shadow-sm border border-border">
         <EmptyState
           icon={filters ? 'search' : 'data'}
-          title="No trades found"
+          title={t('noTradesFound')}
           message={
             filters
-              ? 'No trades match your current filters. Try adjusting your date range, asset type, or other criteria.'
-              : 'You haven\'t recorded any trades yet. Start building your trading journal by recording your first trade.'
+              ? t('noTradesMatchFiltersMessage')
+              : t('startRecordingTrades')
           }
           action={
             !filters
               ? {
-                  label: 'Record First Trade',
+                  label: t('recordFirstTrade'),
                   onClick: () => {
-                    window.location.assign('/trades/new');
+                    router.push('/trades/new');
                   },
                 }
               : undefined
@@ -230,31 +234,31 @@ export function TradeList({ filters, sortBy, initialTrades }: TradeListProps) {
             <thead className="bg-background border-b border-border">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  Symbol
+                  {t('symbol')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  Date
+                  {t('date')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  Type
+                  {t('type')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  Direction
+                  {t('direction')}
                 </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  Entry
+                  {t('entry')}
                 </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  Exit
+                  {t('exit')}
                 </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  P&L
+                  {t('pnl')}
                 </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  Return
+                  {t('return')}
                 </th>
                 <th className="px-6 py-3 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  Result
+                  {t('result')}
                 </th>
               </tr>
             </thead>
@@ -263,7 +267,7 @@ export function TradeList({ filters, sortBy, initialTrades }: TradeListProps) {
                 <tr
                   key={trade.id}
                   className="hover:bg-muted dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
-                  onClick={() => (window.location.href = `/trades/${trade.id}`)}
+                  onClick={() => router.push(`/trades/${trade.id}`)}
                 >
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
@@ -283,7 +287,10 @@ export function TradeList({ filters, sortBy, initialTrades }: TradeListProps) {
                     {formatDate(trade.entryDate)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
-                    {trade.assetType}
+                    {trade.assetType === 'STOCK' ? t('stock') :
+                     trade.assetType === 'FOREX' ? t('forex') :
+                     trade.assetType === 'CRYPTO' ? t('crypto') :
+                     trade.assetType === 'OPTIONS' ? t('options') : trade.assetType}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span
@@ -291,7 +298,7 @@ export function TradeList({ filters, sortBy, initialTrades }: TradeListProps) {
                         trade.direction === 'LONG' ? 'profit-bg' : 'loss-bg'
                       }`}
                     >
-                      {trade.direction}
+                      {trade.direction === 'LONG' ? t('long') : t('short')}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-foreground">
@@ -299,7 +306,7 @@ export function TradeList({ filters, sortBy, initialTrades }: TradeListProps) {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-foreground">
                     {isTradeOpen(trade) ? (
-                      <span className="text-blue-600 dark:text-blue-400">In Progress</span>
+                      <span className="text-blue-600 dark:text-blue-400">{t('inProgress')}</span>
                     ) : trade.exitPrice ? (
                       formatCurrency(trade.exitPrice, trade.currency)
                     ) : (
@@ -317,7 +324,7 @@ export function TradeList({ filters, sortBy, initialTrades }: TradeListProps) {
                     {formatPercent(trade.calculations.pnlPercent)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-center">
-                    {getOutcomeIcon(trade) || (isTradeOpen(trade) && <span className="text-blue-600 dark:text-blue-400 text-xs">Open</span>)}
+                    {getOutcomeIcon(trade) || (isTradeOpen(trade) && <span className="text-blue-600 dark:text-blue-400 text-xs">{t('open')}</span>)}
                   </td>
                 </tr>
               ))}
@@ -351,7 +358,7 @@ export function TradeList({ filters, sortBy, initialTrades }: TradeListProps) {
                   </h3>
                   {isTradeOpen(trade) && (
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                      OPEN
+                      {t('open')}
                     </span>
                   )}
                 </div>
@@ -360,7 +367,7 @@ export function TradeList({ filters, sortBy, initialTrades }: TradeListProps) {
                 </p>
                 {trade.strategyName && (
                   <p className="text-xs text-muted-foreground mt-1">
-                    Strategy: {trade.strategyName}
+                    {t('strategyLabel')} {trade.strategyName}
                   </p>
                 )}
               </div>
@@ -371,7 +378,7 @@ export function TradeList({ filters, sortBy, initialTrades }: TradeListProps) {
                     trade.direction === 'LONG' ? 'profit-bg' : 'loss-bg'
                   }`}
                 >
-                  {trade.direction}
+                  {trade.direction === 'LONG' ? t('long') : t('short')}
                 </span>
               </div>
             </div>
@@ -379,23 +386,23 @@ export function TradeList({ filters, sortBy, initialTrades }: TradeListProps) {
             {/* Prices Row */}
             <div className="flex items-center justify-between mb-4 pb-4 border-b border-border">
               <div>
-                <p className="text-xs text-muted-foreground mb-1">Entry</p>
+                <p className="text-xs text-muted-foreground mb-1">{t('entry')}</p>
                 <p className="text-base font-medium text-foreground">
                   {formatCurrency(trade.entryPrice, trade.currency)}
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-xs text-muted-foreground mb-1">Exit</p>
+                <p className="text-xs text-muted-foreground mb-1">{t('exit')}</p>
                 {isTradeOpen(trade) ? (
                   <>
                     <p className="text-base font-medium text-blue-600 dark:text-blue-400">
-                      In Progress
+                      {t('inProgress')}
                     </p>
-                    <p className="text-xs text-muted-foreground mt-0.5">Not yet closed</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{t('notYetClosed')}</p>
                   </>
                 ) : (
                   <p className="text-base font-medium text-foreground">
-                    {trade.exitPrice ? formatCurrency(trade.exitPrice, trade.currency) : 'Open'}
+                    {trade.exitPrice ? formatCurrency(trade.exitPrice, trade.currency) : t('open')}
                   </p>
                 )}
               </div>
@@ -404,13 +411,13 @@ export function TradeList({ filters, sortBy, initialTrades }: TradeListProps) {
             {/* P&L Row */}
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-muted-foreground mb-1">P&L</p>
+                <p className="text-xs text-muted-foreground mb-1">{t('pnl')}</p>
                 <p className={`text-xl font-bold ${getOutcomeColor(trade)}`}>
                   {formatCurrency(trade.calculations.netPnl, trade.currency)}
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-xs text-muted-foreground mb-1">Return</p>
+                <p className="text-xs text-muted-foreground mb-1">{t('return')}</p>
                 <p className={`text-xl font-bold ${getOutcomeColor(trade)}`}>
                   {formatPercent(trade.calculations.pnlPercent)}
                 </p>
@@ -423,7 +430,7 @@ export function TradeList({ filters, sortBy, initialTrades }: TradeListProps) {
       {/* Pagination */}
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          Showing {trades.length} of {total} trades
+          {t('showingTrades', { showing: trades.length, total })}
         </p>
         <div className="flex items-center gap-2">
           <button
@@ -431,15 +438,15 @@ export function TradeList({ filters, sortBy, initialTrades }: TradeListProps) {
             disabled={page === 1}
             className="px-3 py-2 border border-border rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed bg-card text-foreground hover:bg-muted dark:hover:bg-gray-700 transition-colors"
           >
-            Previous
+            {t('previous')}
           </button>
-          <span className="text-sm text-muted-foreground">Page {page}</span>
+          <span className="text-sm text-muted-foreground">{t('page')} {page}</span>
           <button
             onClick={() => setPage((p) => p + 1)}
             disabled={!hasMore}
             className="px-3 py-2 border border-border rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed bg-card text-foreground hover:bg-muted dark:hover:bg-gray-700 transition-colors"
           >
-            Next
+            {t('next')}
           </button>
         </div>
       </div>

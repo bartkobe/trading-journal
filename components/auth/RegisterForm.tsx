@@ -4,10 +4,14 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslations } from 'next-intl';
 import { registerSchema, type RegisterInput } from '@/lib/validation';
 
 export function RegisterForm() {
   const router = useRouter();
+  const t = useTranslations('forms');
+  const tErrors = useTranslations('errors');
+  const tCommon = useTranslations('common');
   const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -35,25 +39,29 @@ export function RegisterForm() {
       if (!response.ok) {
         const result = await response.json();
         if (response.status === 400) {
-          setError(result.error || 'Invalid registration information. Please check your details and try again.');
+          setError(result.error || tErrors('invalidRegistrationInfo'));
         } else if (response.status === 409) {
-          setError('An account with this email already exists. Please log in or use a different email address.');
+          setError(tErrors('accountExists'));
         } else if (response.status === 500) {
-          setError('Unable to create account due to a server error. Please try again in a moment.');
+          setError(tErrors('serverErrorCreateAccount'));
         } else {
-          setError(result.error || 'Failed to create account. Please try again.');
+          setError(result.error || tErrors('failedToCreateAccount'));
         }
         return;
       }
 
-      // Redirect to dashboard on success (force full page reload to update navigation)
-      window.location.href = '/dashboard';
+      // Redirect to dashboard on success with locale prefix
+      // Extract locale from current URL path (e.g., /en or /pl)
+      const pathname = window.location.pathname;
+      const localeMatch = pathname.match(/^\/(en|pl)(\/|$)/);
+      const extractedLocale = localeMatch ? localeMatch[1] : 'en';
+      window.location.href = `/${extractedLocale}/dashboard`;
     } catch (err) {
       console.error('Registration error:', err);
       if (err instanceof TypeError && err.message === 'Failed to fetch') {
-        setError('Unable to connect to the server. Please check your internet connection and try again.');
+        setError(tErrors('unableToConnect'));
       } else {
-        setError('An unexpected error occurred. Please try again.');
+        setError(tErrors('unexpectedError'));
       }
     } finally {
       setIsLoading(false);
@@ -70,14 +78,14 @@ export function RegisterForm() {
 
       <div>
         <label htmlFor="name" className="block text-sm font-medium text-foreground mb-2">
-          Name (Optional)
+          {t('name')}
         </label>
         <input
           id="name"
           type="text"
           {...register('name')}
           className="w-full px-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-background text-foreground transition-colors"
-          placeholder="John Doe"
+          placeholder={t('namePlaceholder')}
           disabled={isLoading}
         />
         {errors.name && <p className="mt-1 text-sm text-danger">{errors.name.message}</p>}
@@ -85,14 +93,14 @@ export function RegisterForm() {
 
       <div>
         <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
-          Email Address
+          {t('emailAddress')}
         </label>
         <input
           id="email"
           type="email"
           {...register('email')}
           className="w-full px-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-background text-foreground transition-colors"
-          placeholder="you@example.com"
+          placeholder={t('emailPlaceholder')}
           disabled={isLoading}
         />
         {errors.email && <p className="mt-1 text-sm text-danger">{errors.email.message}</p>}
@@ -100,19 +108,19 @@ export function RegisterForm() {
 
       <div>
         <label htmlFor="password" className="block text-sm font-medium text-foreground mb-2">
-          Password
+          {t('password')}
         </label>
         <input
           id="password"
           type="password"
           {...register('password')}
           className="w-full px-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-background text-foreground transition-colors"
-          placeholder="••••••••"
+          placeholder={t('passwordPlaceholder')}
           disabled={isLoading}
         />
         {errors.password && <p className="mt-1 text-sm text-danger">{errors.password.message}</p>}
         <p className="mt-1 text-xs text-muted-foreground">
-          Must be at least 8 characters with uppercase, lowercase, and number
+          {t('passwordRequirements')}
         </p>
       </div>
 
@@ -121,7 +129,7 @@ export function RegisterForm() {
         disabled={isLoading}
         className="w-full bg-primary hover:bg-primary-hover text-primary-foreground font-medium py-2 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {isLoading ? 'Creating account...' : 'Create Account'}
+        {isLoading ? tCommon('creatingAccount') : t('createAccount')}
       </button>
     </form>
   );

@@ -4,10 +4,14 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslations } from 'next-intl';
 import { loginSchema, type LoginInput } from '@/lib/validation';
 
 export function LoginForm() {
   const router = useRouter();
+  const t = useTranslations('forms');
+  const tErrors = useTranslations('errors');
+  const tCommon = useTranslations('common');
   const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -35,23 +39,27 @@ export function LoginForm() {
       if (!response.ok) {
         const result = await response.json();
         if (response.status === 401) {
-          setError('Invalid email or password. Please check your credentials and try again.');
+          setError(tErrors('invalidEmailOrPassword'));
         } else if (response.status === 500) {
-          setError('Unable to sign in due to a server error. Please try again in a moment.');
+          setError(tErrors('serverErrorSignIn'));
         } else {
-          setError(result.error || 'Failed to sign in. Please try again.');
+          setError(result.error || tErrors('failedToSignIn'));
         }
         return;
       }
 
-      // Redirect to dashboard on success (force full page reload to update navigation)
-      window.location.href = '/dashboard';
+      // Redirect to dashboard on success with locale prefix
+      // Extract locale from current URL path (e.g., /en or /pl)
+      const pathname = window.location.pathname;
+      const localeMatch = pathname.match(/^\/(en|pl)(\/|$)/);
+      const extractedLocale = localeMatch ? localeMatch[1] : 'en';
+      window.location.href = `/${extractedLocale}/dashboard`;
     } catch (err) {
       console.error('Login error:', err);
       if (err instanceof TypeError && err.message === 'Failed to fetch') {
-        setError('Unable to connect to the server. Please check your internet connection and try again.');
+        setError(tErrors('unableToConnect'));
       } else {
-        setError('An unexpected error occurred. Please try again.');
+        setError(tErrors('unexpectedError'));
       }
     } finally {
       setIsLoading(false);
@@ -68,14 +76,14 @@ export function LoginForm() {
 
       <div>
         <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
-          Email Address
+          {t('emailAddress')}
         </label>
         <input
           id="email"
           type="email"
           {...register('email')}
           className="w-full px-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-background text-foreground transition-colors"
-          placeholder="you@example.com"
+          placeholder={t('emailPlaceholder')}
           disabled={isLoading}
         />
         {errors.email && <p className="mt-1 text-sm text-danger">{errors.email.message}</p>}
@@ -83,14 +91,14 @@ export function LoginForm() {
 
       <div>
         <label htmlFor="password" className="block text-sm font-medium text-foreground mb-2">
-          Password
+          {t('password')}
         </label>
         <input
           id="password"
           type="password"
           {...register('password')}
           className="w-full px-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-background text-foreground transition-colors"
-          placeholder="••••••••"
+          placeholder={t('passwordPlaceholder')}
           disabled={isLoading}
         />
         {errors.password && <p className="mt-1 text-sm text-danger">{errors.password.message}</p>}
@@ -101,7 +109,7 @@ export function LoginForm() {
         disabled={isLoading}
         className="w-full bg-primary hover:bg-primary-hover text-primary-foreground font-medium py-2 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {isLoading ? 'Signing in...' : 'Sign In'}
+        {isLoading ? tCommon('signingIn') : t('signIn')}
       </button>
     </form>
   );

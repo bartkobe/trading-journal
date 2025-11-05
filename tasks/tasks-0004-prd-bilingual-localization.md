@@ -134,47 +134,47 @@
     - ✅ Middleware handles locale routing correctly
     - ⚠️ 404 on `/en/` is expected until pages are moved to `app/[locale]/` structure (will be done in section 5.0)
 
-- [ ] 4.0 Create language selector component and integrate into navigation
-  - [ ] 4.1 Create `components/ui/LanguageSelector.tsx` component with dropdown/button group UI
-  - [ ] 4.2 Display language options: "English" and "Polski" with appropriate styling
-  - [ ] 4.3 Implement language switching logic using next-intl's `useRouter` and `useLocale` hooks
-  - [ ] 4.4 Add visual indicator for currently selected language (highlighted/active state)
-  - [ ] 4.5 Ensure language selector is keyboard accessible (tab navigation, Enter/Space to select)
-  - [ ] 4.6 Add ARIA labels for screen reader accessibility
-  - [ ] 4.7 Save language preference to localStorage when language is changed
-  - [ ] 4.8 Update `components/ui/Navigation.tsx` to include LanguageSelector component
-  - [ ] 4.9 Position LanguageSelector next to ThemeToggle in navigation bar
-  - [ ] 4.10 Ensure LanguageSelector styling matches existing navigation aesthetic
-  - [ ] 4.11 Test language switching works without page reload and maintains current route
-  - [ ] 4.12 Create `components/ui/LanguageSelector.test.tsx` with tests for language switching
+- [x] 4.0 Create language selector component and integrate into navigation
+  - [x] 4.1 Create `components/ui/LanguageSelector.tsx` component with dropdown/button group UI
+  - [x] 4.2 Display language options: "English" and "Polski" with appropriate styling
+  - [x] 4.3 Implement language switching logic using next-intl's `useRouter` and `useLocale` hooks
+  - [x] 4.4 Add visual indicator for currently selected language (highlighted/active state)
+  - [x] 4.5 Ensure language selector is keyboard accessible (tab navigation, Enter/Space to select)
+  - [x] 4.6 Add ARIA labels for screen reader accessibility
+  - [x] 4.7 Save language preference to localStorage when language is changed
+  - [x] 4.8 Update `components/ui/Navigation.tsx` to include LanguageSelector component
+  - [x] 4.9 Position LanguageSelector next to ThemeToggle in navigation bar
+  - [x] 4.10 Ensure LanguageSelector styling matches existing navigation aesthetic
+  - [x] 4.11 Test language switching works without page reload and maintains current route
+  - [x] 4.12 Create `components/ui/LanguageSelector.test.tsx` with tests for language switching
 
 - [ ] 5.0 Translate all UI components and pages
-  - [ ] 5.1 Update `components/ui/Navigation.tsx`: Replace hardcoded strings with `useTranslations('navigation')` hook
-  - [ ] 5.2 Update `components/auth/LoginForm.tsx`: Replace all labels, placeholders, buttons, and error messages with translation keys
-  - [ ] 5.3 Update `components/auth/RegisterForm.tsx`: Replace all labels, placeholders, buttons, and error messages with translation keys
-  - [ ] 5.4 Update `app/page.tsx`: Replace landing page text with translation keys
-  - [ ] 5.5 Update `components/trades/TradeForm.tsx`: Replace all form labels, placeholders, help text, buttons, and validation messages
-  - [ ] 5.6 Update `components/trades/TradeCard.tsx`: Replace status labels, action buttons, and display text
-  - [ ] 5.7 Update `components/trades/TradeDetail.tsx`: Replace all labels, buttons, and status indicators
-  - [ ] 5.8 Update `components/trades/TradeList.tsx`: Replace empty states, labels, and action text
-  - [ ] 5.9 Update `components/trades/TradeFilters.tsx`: Replace filter labels, options, and button text
-  - [ ] 5.10 Update `components/trades/TradeStatusBadge.tsx`: Replace "Open" and "Closed" status text
-  - [ ] 5.11 Update `components/trades/TradeActions.tsx`: Replace action button labels
-  - [ ] 5.12 Update `components/trades/OpenTradesSection.tsx`: Replace section title and labels
-  - [ ] 5.13 Update `components/analytics/DashboardContent.tsx`: Replace all metric labels and section titles
-  - [ ] 5.14 Update `components/analytics/DashboardMetrics.tsx`: Replace metric names and labels
-  - [ ] 5.15 Update all chart components (`EquityCurve.tsx`, `PerformanceCharts.tsx`, `PnlBySymbol.tsx`, etc.): Replace chart titles, axis labels, and legend text
-  - [ ] 5.16 Update `components/ui/ErrorMessage.tsx`: Replace error message templates and default text
-  - [ ] 5.17 Update `components/ui/ConfirmDialog.tsx`: Replace dialog titles, messages, and button labels
-  - [ ] 5.18 Update `components/ui/DateRangeFilter.tsx`: Replace filter labels and date picker text
-  - [ ] 5.19 Update `components/ui/ScreenshotUpload.tsx`: Replace upload labels, error messages, and button text
-  - [ ] 5.20 Update `app/dashboard/page.tsx`: Replace any hardcoded strings in server component
-  - [ ] 5.21 Update `app/trades/page.tsx`: Replace any hardcoded strings
-  - [ ] 5.22 Update `app/trades/TradesClient.tsx`: Replace labels, buttons, and empty states
-  - [ ] 5.23 Update API route error messages in `app/api/auth/login/route.ts`, `register/route.ts`, `trades/route.ts`, etc. to use translation keys
-  - [ ] 5.24 Verify all enum labels are translated (AssetType, Direction, MarketCondition, TimeOfDay, EmotionalState, TradeStatus)
-  - [ ] 5.25 Test that user-entered content (notes, tags, symbols) is NOT translated and displays as entered
-  - [ ] 5.26 Test language switching in all major user flows (login, create trade, view dashboard, edit trade, etc.)
-  - [ ] 5.27 Verify no hardcoded English strings remain in any component
-  - [ ] 5.28 Update existing component tests to work with translations (mock translation hooks if needed)
+  - [x] 5.1 Update `components/ui/Navigation.tsx`: Replace hardcoded strings with `useTranslations('navigation')` hook
+  - [x] 5.2 Update `components/auth/LoginForm.tsx`: Replace all labels, placeholders, buttons, and error messages with translation keys
+  - [x] 5.3 Update `components/auth/RegisterForm.tsx`: Replace all labels, placeholders, buttons, and error messages with translation keys
+  - [x] 5.4 Update `app/page.tsx`: Replace landing page text with translation keys (already done - moved to `app/[locale]/page.tsx` and translated)
+  - [x] 5.5 Update `components/trades/TradeForm.tsx`: Replace all form labels, placeholders, help text, buttons, and validation messages
+  - [x] 5.6 Update `components/trades/TradeCard.tsx`: Replace status labels, action buttons, and display text
+  - [x] 5.7 Update `components/trades/TradeDetail.tsx`: Replace all labels, buttons, and status indicators
+  - [x] 5.8 Update `components/trades/TradeList.tsx`: Replace empty states, labels, and action text
+  - [x] 5.9 Update `components/trades/TradeFilters.tsx`: Replace filter labels, options, and button text
+  - [x] 5.10 Update `components/trades/TradeStatusBadge.tsx`: Replace "Open" and "Closed" status text
+  - [x] 5.11 Update `components/trades/TradeActions.tsx`: Replace action button labels
+  - [x] 5.12 Update `components/trades/OpenTradesSection.tsx`: Replace section title and labels
+  - [x] 5.13 Update `components/analytics/DashboardContent.tsx`: Replace all metric labels and section titles
+  - [x] 5.14 Update `components/analytics/DashboardMetrics.tsx`: Replace metric names and labels
+  - [x] 5.15 Update all chart components (`EquityCurve.tsx`, `PerformanceCharts.tsx`, `PnlBySymbol.tsx`, etc.): Replace chart titles, axis labels, and legend text
+  - [x] 5.16 Update `components/ui/ErrorMessage.tsx`: Replace error message templates and default text
+  - [x] 5.17 Update `components/ui/ConfirmDialog.tsx`: Replace dialog titles, messages, and button labels
+  - [x] 5.18 Update `components/ui/DateRangeFilter.tsx`: Replace filter labels and date picker text
+  - [x] 5.19 Update `components/ui/ScreenshotUpload.tsx`: Replace upload labels, error messages, and button text
+  - [x] 5.20 Update `app/dashboard/page.tsx`: Replace any hardcoded strings in server component
+  - [x] 5.21 Update `app/trades/page.tsx`: Replace any hardcoded strings
+  - [x] 5.22 Update `app/trades/TradesClient.tsx`: Replace labels, buttons, and empty states
+  - [x] 5.23 Update API route error messages in `app/api/auth/login/route.ts`, `register/route.ts`, `trades/route.ts`, etc. to use translation keys
+  - [x] 5.24 Verify all enum labels are translated (AssetType, Direction, MarketCondition, TimeOfDay, EmotionalState, TradeStatus)
+  - [x] 5.25 Test that user-entered content (notes, tags, symbols) is NOT translated and displays as entered
+  - [x] 5.26 Test language switching in all major user flows (login, create trade, view dashboard, edit trade, etc.)
+  - [x] 5.27 Verify no hardcoded English strings remain in any component
+  - [x] 5.28 Update existing component tests to work with translations (mock translation hooks if needed)
 

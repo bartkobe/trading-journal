@@ -3,12 +3,15 @@ import { requireAuth } from '@/lib/auth';
 import { tradeSchema } from '@/lib/validation';
 import { enrichTradeWithCalculations } from '@/lib/trades';
 import prisma from '@/lib/db';
+import { getApiTranslations } from '@/lib/api-translations';
 
 /**
  * GET /api/trades/[id]
  * Fetch a single trade by ID with all details
  */
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const t = await getApiTranslations(request, 'errors');
+  
   try {
     // Require authentication
     const user = await requireAuth();
@@ -33,7 +36,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     if (!trade) {
       return NextResponse.json(
         {
-          error: 'Trade not found',
+          error: t('tradeNotFound'),
         },
         { status: 404 }
       );
@@ -52,7 +55,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       if (error.message === 'Authentication required') {
         return NextResponse.json(
           {
-            error: 'Authentication required',
+            error: t('authenticationRequired'),
           },
           { status: 401 }
         );
@@ -61,7 +64,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     return NextResponse.json(
       {
-        error: 'Failed to fetch trade',
+        error: t('failedToLoadTrade'),
       },
       { status: 500 }
     );
@@ -73,6 +76,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
  * Update a trade
  */
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const t = await getApiTranslations(request, 'errors');
+  
   try {
     // Require authentication
     const user = await requireAuth();
@@ -89,7 +94,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     if (!existingTrade) {
       return NextResponse.json(
         {
-          error: 'Trade not found',
+          error: t('tradeNotFound'),
         },
         { status: 404 }
       );
@@ -103,7 +108,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     if (!validationResult.success) {
       return NextResponse.json(
         {
-          error: 'Validation failed',
+          error: t('validationFailed'),
           details: validationResult.error.flatten().fieldErrors,
         },
         { status: 400 }
@@ -201,7 +206,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
         return NextResponse.json({
           trade: enrichedTrade,
-          message: 'Trade updated successfully',
+          message: t('tradeUpdatedSuccessfully'),
         });
       }
     }
@@ -211,7 +216,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
     return NextResponse.json({
       trade: enrichedTrade,
-      message: 'Trade updated successfully',
+      message: t('tradeUpdatedSuccessfully'),
     });
   } catch (error) {
     console.error('Update trade error:', error);
@@ -220,7 +225,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       if (error.message === 'Authentication required') {
         return NextResponse.json(
           {
-            error: 'Authentication required',
+            error: t('authenticationRequired'),
           },
           { status: 401 }
         );
@@ -229,7 +234,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
     return NextResponse.json(
       {
-        error: 'Failed to update trade',
+        error: t('failedToUpdateTrade'),
       },
       { status: 500 }
     );
@@ -244,6 +249,8 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const t = await getApiTranslations(request, 'errors');
+  
   try {
     // Require authentication
     const user = await requireAuth();
@@ -260,7 +267,7 @@ export async function DELETE(
     if (!existingTrade) {
       return NextResponse.json(
         {
-          error: 'Trade not found',
+          error: t('tradeNotFound'),
         },
         { status: 404 }
       );
@@ -273,7 +280,7 @@ export async function DELETE(
 
     return NextResponse.json({
       success: true,
-      message: 'Trade deleted successfully',
+      message: t('tradeDeletedSuccessfully'),
     });
   } catch (error) {
     console.error('Delete trade error:', error);
@@ -282,7 +289,7 @@ export async function DELETE(
       if (error.message === 'Authentication required') {
         return NextResponse.json(
           {
-            error: 'Authentication required',
+            error: t('authenticationRequired'),
           },
           { status: 401 }
         );
@@ -291,7 +298,7 @@ export async function DELETE(
 
     return NextResponse.json(
       {
-        error: 'Failed to delete trade',
+        error: t('failedToDeleteTrade'),
       },
       { status: 500 }
     );

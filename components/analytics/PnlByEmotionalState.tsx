@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import {
   BarChart,
   Bar,
@@ -57,6 +58,11 @@ const getEmotionalIcon = (state: string): string => {
 // ============================================================================
 
 export default function PnlByEmotionalState({ startDate, endDate }: PnlByEmotionalStateProps) {
+  const tTitles = useTranslations('analytics.chartTitles');
+  const tLabels = useTranslations('analytics.chartLabels');
+  const tErrors = useTranslations('analytics.chartErrors');
+  const tEmpty = useTranslations('analytics.chartEmptyStates');
+  const t = useTranslations('analytics');
   const [data, setData] = useState<EmotionalStatePerformance[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -76,7 +82,7 @@ export default function PnlByEmotionalState({ startDate, endDate }: PnlByEmotion
         });
 
         if (!response.ok) {
-          throw new Error('Failed to fetch emotional state performance data');
+          throw new Error(tErrors('failedToFetchEmotionalStatePerformance'));
         }
 
         const result = await response.json();
@@ -89,7 +95,7 @@ export default function PnlByEmotionalState({ startDate, endDate }: PnlByEmotion
         setData(sorted);
       } catch (err: any) {
         console.error('Error fetching emotional state performance:', err);
-        setError(err.message || 'An error occurred');
+        setError(err.message || tErrors('anErrorOccurred'));
       } finally {
         setLoading(false);
       }
@@ -102,10 +108,10 @@ export default function PnlByEmotionalState({ startDate, endDate }: PnlByEmotion
     return (
       <div className="bg-card rounded-lg border border-border p-6">
         <h3 className="text-lg font-semibold text-foreground dark:text-gray-100 mb-4">
-          P&L by Emotional State
+          {tTitles('pnlByEmotionalState')}
         </h3>
         <div className="flex items-center justify-center h-64">
-          <div className="text-muted-foreground">Loading...</div>
+          <div className="text-muted-foreground">{t('loading')}</div>
         </div>
       </div>
     );
@@ -115,10 +121,10 @@ export default function PnlByEmotionalState({ startDate, endDate }: PnlByEmotion
     return (
       <div className="bg-card rounded-lg border border-border p-6">
         <h3 className="text-lg font-semibold text-foreground dark:text-gray-100 mb-4">
-          P&L by Emotional State
+          {tTitles('pnlByEmotionalState')}
         </h3>
         <div className="flex items-center justify-center h-64">
-          <div className="loss">Error: {error}</div>
+          <div className="loss">{tErrors('anErrorOccurred')}: {error}</div>
         </div>
       </div>
     );
@@ -128,10 +134,10 @@ export default function PnlByEmotionalState({ startDate, endDate }: PnlByEmotion
     return (
       <div className="bg-card rounded-lg border border-border p-6">
         <h3 className="text-lg font-semibold text-foreground dark:text-gray-100 mb-4">
-          P&L by Emotional State
+          {tTitles('pnlByEmotionalState')}
         </h3>
         <div className="flex items-center justify-center h-64">
-          <div className="text-muted-foreground">No trading data available</div>
+          <div className="text-muted-foreground">{tEmpty('noEmotionalStateData')}</div>
         </div>
       </div>
     );
@@ -145,7 +151,7 @@ export default function PnlByEmotionalState({ startDate, endDate }: PnlByEmotion
   return (
     <div className="bg-card rounded-lg border border-border p-6">
       <h3 className="text-lg font-semibold text-foreground dark:text-gray-100 mb-4">
-        P&L by Emotional State
+        {tTitles('pnlByEmotionalState')}
       </h3>
 
       {/* Chart */}
@@ -176,7 +182,7 @@ export default function PnlByEmotionalState({ startDate, endDate }: PnlByEmotion
         <div className="profit-bg rounded-lg p-4">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-foreground">
-              Best Emotional State
+              {tLabels('bestPerformer')}
             </span>
             <span className="text-2xl">{getEmotionalIcon(bestState.emotionalStateEntry)}</span>
           </div>
@@ -187,14 +193,14 @@ export default function PnlByEmotionalState({ startDate, endDate }: PnlByEmotion
             {formatChartCurrency(bestState.totalPnl)}
           </p>
           <p className="text-xs text-muted-foreground mt-1">
-            {(bestState.winRate ?? 0).toFixed(1)}% win rate • {bestState.trades} trades
+            {(bestState.winRate ?? 0).toFixed(1)}% {tLabels('winRate')} • {bestState.trades} {tLabels('trades')}
           </p>
         </div>
 
         <div className="loss-bg rounded-lg p-4">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-foreground">
-              Worst Emotional State
+              {tLabels('worstPerformer')}
             </span>
             <span className="text-2xl">{getEmotionalIcon(worstState.emotionalStateEntry)}</span>
           </div>
@@ -205,23 +211,23 @@ export default function PnlByEmotionalState({ startDate, endDate }: PnlByEmotion
             {formatChartCurrency(worstState.totalPnl)}
           </p>
           <p className="text-xs text-muted-foreground mt-1">
-            {(worstState.winRate ?? 0).toFixed(1)}% win rate • {worstState.trades} trades
+            {(worstState.winRate ?? 0).toFixed(1)}% {tLabels('winRate')} • {worstState.trades} {tLabels('trades')}
           </p>
         </div>
 
         <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-foreground">
-              Emotional Balance
+              {t('emotionalBalance')}
             </span>
             <span className="text-2xl">⚖️</span>
           </div>
           <p className="text-lg font-bold text-foreground dark:text-gray-100">
             {positiveStates.length} / {data.length}
           </p>
-          <p className="text-sm text-muted-foreground">Positive states</p>
+          <p className="text-sm text-muted-foreground">{t('positiveStates')}</p>
           <p className="text-xs text-muted-foreground mt-1">
-            {((positiveStates.length / data.length) * 100).toFixed(0)}% of states
+            {((positiveStates.length / data.length) * 100).toFixed(0)}% {t('ofStates')}
           </p>
         </div>
       </div>
@@ -229,12 +235,12 @@ export default function PnlByEmotionalState({ startDate, endDate }: PnlByEmotion
       {/* Insights */}
       <div className="mt-4 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
         <p className="text-sm text-foreground">
-          <span className="font-semibold">🧠 Insight:</span> You perform best when{' '}
-          <span className="font-semibold">{bestState.emotionalStateEntry}</span> with a{' '}
-          {(bestState.winRate ?? 0).toFixed(1)}% win rate. Avoid trading when feeling{' '}
-          <span className="font-semibold">{worstState.emotionalStateEntry}</span>
-          {negativeStates.length > 2 && ' or other negative emotional states'}. Consider your
-          emotional state before entering trades.
+          <span className="font-semibold">{tLabels('insight')}:</span> {t('emotionalStateInsight', {
+            bestState: bestState.emotionalStateEntry,
+            winRate: (bestState.winRate ?? 0).toFixed(1),
+            worstState: worstState.emotionalStateEntry,
+            hasOtherNegative: negativeStates.length > 2
+          })}
         </p>
       </div>
     </div>
@@ -246,6 +252,7 @@ export default function PnlByEmotionalState({ startDate, endDate }: PnlByEmotion
 // ============================================================================
 
 function CustomTooltip({ active, payload }: any) {
+  const tLabels = useTranslations('analytics.chartLabels');
   if (!active || !payload || !payload.length) return null;
 
   const data = payload[0].payload as EmotionalStatePerformance;
@@ -258,7 +265,7 @@ function CustomTooltip({ active, payload }: any) {
       </p>
       <div className="space-y-1 text-sm">
         <p className="text-foreground">
-          <span className="font-medium">Total P&L:</span>{' '}
+          <span className="font-medium">{tLabels('totalPnl')}:</span>{' '}
           <span
             className={
               data.totalPnl >= 0
@@ -270,13 +277,13 @@ function CustomTooltip({ active, payload }: any) {
           </span>
         </p>
         <p className="text-foreground">
-          <span className="font-medium">Trades:</span> {data.trades}
+          <span className="font-medium">{tLabels('trades')}:</span> {data.trades}
         </p>
         <p className="text-foreground">
-          <span className="font-medium">Win Rate:</span> {(data.winRate ?? 0).toFixed(1)}%
+          <span className="font-medium">{tLabels('winRate')}:</span> {(data.winRate ?? 0).toFixed(1)}%
         </p>
         <p className="text-foreground">
-          <span className="font-medium">Avg P&L:</span> {formatChartCurrency(data.avgPnl ?? 0)}
+          <span className="font-medium">{tLabels('avgPnl')}:</span> {formatChartCurrency(data.avgPnl ?? 0)}
         </p>
       </div>
     </div>

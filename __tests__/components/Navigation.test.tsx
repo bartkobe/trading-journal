@@ -1,23 +1,41 @@
 import { render, screen } from '@testing-library/react';
 import { Navigation } from '@/components/ui/Navigation';
-import { usePathname } from 'next/navigation';
 
-// Mock next/navigation
-const mockPathname = '/dashboard';
-jest.mock('next/navigation', () => ({
-  usePathname: jest.fn(() => mockPathname),
-}));
+// Mock @/i18n/routing
+const mockUsePathname = jest.fn(() => '/en/dashboard');
+jest.mock('@/i18n/routing', () => {
+  const React = require('react');
+  const MockLink = ({ href, children, ...props }) => {
+    return React.createElement('a', { href, ...props }, children);
+  };
+  return {
+    Link: MockLink,
+    usePathname: () => mockUsePathname(),
+    useRouter: () => ({
+      push: jest.fn(),
+      replace: jest.fn(),
+      prefetch: jest.fn(),
+      back: jest.fn(),
+    }),
+    redirect: jest.fn(),
+  };
+});
 
 // Mock ThemeToggle
 jest.mock('@/components/ui/ThemeToggle', () => ({
   ThemeToggle: () => <div data-testid="theme-toggle">Theme Toggle</div>,
 }));
 
-describe('Navigation', () => {
-  const mockUsePathname = usePathname as jest.MockedFunction<typeof usePathname>;
+// Mock LanguageSelector
+jest.mock('@/components/ui/LanguageSelector', () => ({
+  LanguageSelector: () => <div data-testid="language-selector">Language Selector</div>,
+}));
 
+describe('Navigation', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    // Reset to default pathname
+    mockUsePathname.mockReturnValue('/en/dashboard');
   });
 
   describe('Rendering', () => {
@@ -86,7 +104,7 @@ describe('Navigation', () => {
 
   describe('Active Link Highlighting', () => {
     it('should highlight Dashboard link when pathname is /dashboard', () => {
-      mockUsePathname.mockReturnValue('/dashboard');
+      mockUsePathname.mockReturnValue('/en/dashboard');
       render(<Navigation />);
       const dashboardLinks = screen.getAllByText('Dashboard');
       const dashboardLink = dashboardLinks[0].closest('a');
@@ -94,7 +112,7 @@ describe('Navigation', () => {
     });
 
     it('should highlight Trades link when pathname starts with /trades', () => {
-      mockUsePathname.mockReturnValue('/trades');
+      mockUsePathname.mockReturnValue('/en/trades');
       render(<Navigation />);
       const tradesLinks = screen.getAllByText('Trades');
       const tradesLink = tradesLinks[0].closest('a');
@@ -102,7 +120,7 @@ describe('Navigation', () => {
     });
 
     it('should highlight Trades link when pathname is /trades/123', () => {
-      mockUsePathname.mockReturnValue('/trades/123');
+      mockUsePathname.mockReturnValue('/en/trades/123');
       render(<Navigation />);
       const tradesLinks = screen.getAllByText('Trades');
       const tradesLink = tradesLinks[0].closest('a');
@@ -110,7 +128,7 @@ describe('Navigation', () => {
     });
 
     it('should not highlight links when pathname does not match', () => {
-      mockUsePathname.mockReturnValue('/');
+      mockUsePathname.mockReturnValue('/en/');
       render(<Navigation />);
       const dashboardLinks = screen.getAllByText('Dashboard');
       const tradesLinks = screen.getAllByText('Trades');
@@ -139,7 +157,7 @@ describe('Navigation', () => {
     });
 
     it('should have aria-current on active links', () => {
-      mockUsePathname.mockReturnValue('/dashboard');
+      mockUsePathname.mockReturnValue('/en/dashboard');
       render(<Navigation />);
       const dashboardLinks = screen.getAllByText('Dashboard');
       const dashboardLink = dashboardLinks[0].closest('a');

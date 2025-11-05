@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslations } from 'next-intl';
+import { useRouter } from '@/i18n/routing';
 import { tradeSchema, type TradeInput } from '@/lib/validation';
 import { CurrencySelector } from '@/components/ui/CurrencySelector';
 
@@ -15,6 +16,10 @@ interface TradeFormProps {
 
 export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
   const router = useRouter();
+  const t = useTranslations('forms');
+  const tTrades = useTranslations('trades');
+  const tErrors = useTranslations('errors');
+  const tCommon = useTranslations('common');
   const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [isTradeOpen, setIsTradeOpen] = useState<boolean>(() => {
@@ -177,22 +182,22 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
               }
             });
             setError(errorMessages.length > 0 
-              ? `Validation errors: ${errorMessages.join('; ')}` 
-              : result.error || 'Invalid trade data. Please check all required fields and try again.');
+              ? `${tErrors('validationErrors')} ${errorMessages.join('; ')}` 
+              : result.error || tErrors('invalidTradeData'));
           } else {
-            setError(result.error || 'Invalid trade data. Please check all required fields and try again.');
+            setError(result.error || tErrors('invalidTradeData'));
           }
           console.error('Validation error details:', result.details);
         } else if (response.status === 401) {
-          setError('Your session has expired. Please log in again.');
+          setError(tErrors('sessionExpired'));
         } else if (response.status === 404 && isEditMode) {
-          setError('Trade not found. It may have been deleted.');
+          setError(tErrors('tradeNotFound'));
         } else if (response.status === 500) {
-          const errorMsg = result.details ? `${result.error}: ${result.details}` : result.error || 'Unable to save trade due to a server error. Please try again in a moment.';
+          const errorMsg = result.details ? `${result.error}: ${result.details}` : result.error || tErrors('serverErrorSaveTrade');
           setError(errorMsg);
           console.error('Server error details:', result);
         } else {
-          setError(result.error || `Failed to ${isEditMode ? 'update' : 'create'} trade. Please try again.`);
+          setError(result.error || (isEditMode ? tErrors('failedToUpdateTrade') : tErrors('failedToCreateTrade')));
         }
         return;
       }
@@ -203,14 +208,15 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
       if (onSuccess) {
         onSuccess();
       } else {
+        // Use next-intl router which automatically handles locale prefix
         router.push(`/trades/${result.trade.id}`);
       }
     } catch (err) {
       console.error('Save trade error:', err);
       if (err instanceof TypeError && err.message === 'Failed to fetch') {
-        setError('Unable to connect to the server. Please check your internet connection and try again.');
+        setError(tErrors('unableToConnect'));
       } else {
-        setError('An unexpected error occurred while saving the trade. Please try again.');
+        setError(tErrors('unexpectedErrorSavingTrade'));
       }
     } finally {
       setIsLoading(false);
@@ -257,19 +263,19 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
 
       {/* Basic Information Section */}
       <div className="bg-card shadow rounded-lg p-6">
-        <h2 className="text-lg font-semibold mb-4">Basic Information</h2>
+        <h2 className="text-lg font-semibold mb-4">{t('basicInformation')}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Symbol */}
           <div>
             <label htmlFor="symbol" className="block text-sm font-medium text-foreground mb-2">
-              Symbol/Ticker <span className="text-danger">*</span>
+              {t('symbolTicker')} <span className="text-danger">*</span>
             </label>
             <input
               id="symbol"
               type="text"
               {...register('symbol')}
               className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card text-foreground transition-colors"
-              placeholder="AAPL, EUR/USD, BTC, etc."
+              placeholder={t('symbolPlaceholder')}
               disabled={isLoading}
             />
             {errors.symbol && <p className="mt-1 text-sm text-danger">{errors.symbol.message}</p>}
@@ -278,7 +284,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
           {/* Asset Type */}
           <div>
             <label htmlFor="assetType" className="block text-sm font-medium text-foreground mb-2">
-              Asset Type <span className="text-danger">*</span>
+              {t('assetType')} <span className="text-danger">*</span>
             </label>
             <select
               id="assetType"
@@ -286,10 +292,10 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
               className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card text-foreground transition-colors"
               disabled={isLoading}
             >
-              <option value="STOCK">Stock</option>
-              <option value="FOREX">Forex</option>
-              <option value="CRYPTO">Crypto</option>
-              <option value="OPTIONS">Options/Derivatives</option>
+              <option value="STOCK">{tTrades('stock')}</option>
+              <option value="FOREX">{tTrades('forex')}</option>
+              <option value="CRYPTO">{tTrades('crypto')}</option>
+              <option value="OPTIONS">{tTrades('options')}</option>
             </select>
             {errors.assetType && (
               <p className="mt-1 text-sm text-danger">{errors.assetType.message}</p>
@@ -306,7 +312,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
                 onChange={field.onChange}
                 disabled={isLoading}
                 error={errors.currency?.message || undefined}
-                label="Currency"
+                label={t('currency')}
                 showSymbol={true}
               />
             )}
@@ -315,7 +321,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
           {/* Direction */}
           <div>
             <label htmlFor="direction" className="block text-sm font-medium text-foreground mb-2">
-              Direction <span className="text-danger">*</span>
+              {t('direction')} <span className="text-danger">*</span>
             </label>
             <select
               id="direction"
@@ -323,8 +329,8 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
               className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card text-foreground transition-colors"
               disabled={isLoading}
             >
-              <option value="LONG">Long</option>
-              <option value="SHORT">Short</option>
+              <option value="LONG">{tTrades('long')}</option>
+              <option value="SHORT">{tTrades('short')}</option>
             </select>
             {errors.direction && (
               <p className="mt-1 text-sm text-danger">{errors.direction.message}</p>
@@ -335,11 +341,11 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
 
       {/* Entry Details Section */}
       <div className="bg-card shadow rounded-lg p-6">
-        <h2 className="text-lg font-semibold mb-4">Entry Details</h2>
+        <h2 className="text-lg font-semibold mb-4">{t('entryDetails')}</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label htmlFor="entryDate" className="block text-sm font-medium text-foreground mb-2">
-              Entry Date & Time <span className="text-danger">*</span>
+              {t('entryDateAndTime')} <span className="text-danger">*</span>
             </label>
             <input
               id="entryDate"
@@ -355,7 +361,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
 
           <div>
             <label htmlFor="entryPrice" className="block text-sm font-medium text-foreground mb-2">
-              Entry Price <span className="text-danger">*</span>
+              {t('entryPrice')} <span className="text-danger">*</span>
             </label>
             <input
               id="entryPrice"
@@ -363,7 +369,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
               step="0.01"
               {...register('entryPrice', { valueAsNumber: true })}
               className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card text-foreground transition-colors"
-              placeholder="0.00"
+              placeholder={t('pricePlaceholder')}
               disabled={isLoading}
             />
             {errors.entryPrice && (
@@ -373,7 +379,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
 
           <div>
             <label htmlFor="quantity" className="block text-sm font-medium text-foreground mb-2">
-              Quantity <span className="text-danger">*</span>
+              {t('quantity')} <span className="text-danger">*</span>
             </label>
             <input
               id="quantity"
@@ -381,7 +387,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
               step="0.01"
               {...register('quantity', { valueAsNumber: true })}
               className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card text-foreground transition-colors"
-              placeholder="0"
+              placeholder={t('quantityPlaceholder')}
               disabled={isLoading}
             />
             {errors.quantity && (
@@ -394,7 +400,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
       {/* Exit Details Section */}
       <div className="bg-card shadow rounded-lg p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">Exit Details</h2>
+          <h2 className="text-lg font-semibold">{t('exitDetails')}</h2>
           <label className="flex items-center space-x-2 cursor-pointer">
             <input
               type="checkbox"
@@ -403,14 +409,14 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
               disabled={isLoading}
               className="w-4 h-4 rounded border-border text-primary focus:ring-2 focus:ring-ring"
             />
-            <span className="text-sm font-medium text-foreground">Trade is still open</span>
+            <span className="text-sm font-medium text-foreground">{t('tradeIsStillOpen')}</span>
           </label>
         </div>
         
         {isTradeOpen && (
           <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
             <p className="text-sm text-blue-800 dark:text-blue-200">
-              <strong>Trade will be marked as open.</strong> You can add exit information later to close this trade.
+              <strong>{t('tradeWillBeMarkedAsOpen')}</strong>
             </p>
           </div>
         )}
@@ -421,7 +427,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
             className="mb-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg"
           >
             <p className="text-sm text-yellow-800 dark:text-yellow-200 mb-3">
-              <strong>Mark this trade as closed?</strong> This will finalize the trade and include it in performance calculations.
+              <strong>{t('markTradeAsClosed')}</strong> {t('willFinalizeTrade')}
             </p>
             <div className="flex space-x-3">
               <button
@@ -435,7 +441,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
                 }}
                 className="px-4 py-2 bg-primary hover:bg-primary-hover text-primary-foreground text-sm font-medium rounded-lg transition-colors"
               >
-                Yes, Close Trade
+                {t('yesCloseTrade')}
               </button>
               <button
                 type="button"
@@ -445,7 +451,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
                 }}
                 className="px-4 py-2 border border-border hover:bg-muted text-foreground text-sm font-medium rounded-lg transition-colors"
               >
-                Cancel
+                {tCommon('cancel')}
               </button>
             </div>
           </div>
@@ -454,7 +460,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label htmlFor="exitDate" className="block text-sm font-medium text-foreground mb-2">
-              Exit Date & Time <span className="text-muted-foreground font-normal">(Optional)</span>
+              {t('exitDateAndTime')} <span className="text-muted-foreground font-normal">({tCommon('optional')})</span>
             </label>
             <input
               id="exitDate"
@@ -470,7 +476,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
 
           <div>
             <label htmlFor="exitPrice" className="block text-sm font-medium text-foreground mb-2">
-              Exit Price <span className="text-muted-foreground font-normal">(Optional)</span>
+              {t('exitPrice')} <span className="text-muted-foreground font-normal">({tCommon('optional')})</span>
             </label>
             <input
               id="exitPrice"
@@ -478,7 +484,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
               step="0.01"
               {...register('exitPrice', { valueAsNumber: true })}
               className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card text-foreground transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              placeholder="0.00"
+              placeholder={t('pricePlaceholder')}
               disabled={isLoading || isTradeOpen}
             />
             {errors.exitPrice && (
@@ -490,18 +496,18 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
 
       {/* Trade Strategy Section */}
       <div className="bg-card shadow rounded-lg p-6">
-        <h2 className="text-lg font-semibold mb-4">Strategy & Risk Management</h2>
+        <h2 className="text-lg font-semibold mb-4">{t('strategyAndRiskManagement')}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label htmlFor="strategyName" className="block text-sm font-medium text-foreground mb-2">
-              Strategy Name
+              {t('strategyName')}
             </label>
             <input
               id="strategyName"
               type="text"
               {...register('strategyName')}
               className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card text-foreground transition-colors"
-              placeholder="e.g., Momentum Play, Breakout"
+              placeholder={t('strategyNamePlaceholder')}
               disabled={isLoading}
             />
             {errors.strategyName && (
@@ -511,14 +517,14 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
 
           <div>
             <label htmlFor="setupType" className="block text-sm font-medium text-foreground mb-2">
-              Setup Type
+              {t('setupType')}
             </label>
             <input
               id="setupType"
               type="text"
               {...register('setupType')}
               className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card text-foreground transition-colors"
-              placeholder="e.g., Pullback, Reversal, Continuation"
+              placeholder={t('setupTypePlaceholder')}
               disabled={isLoading}
             />
             {errors.setupType && (
@@ -528,7 +534,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
 
           <div>
             <label htmlFor="stopLoss" className="block text-sm font-medium text-foreground mb-2">
-              Stop Loss
+              {t('stopLoss')}
             </label>
             <input
               id="stopLoss"
@@ -536,7 +542,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
               step="0.01"
               {...register('stopLoss', { valueAsNumber: true })}
               className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card text-foreground transition-colors"
-              placeholder="0.00"
+              placeholder={t('pricePlaceholder')}
               disabled={isLoading}
             />
             {errors.stopLoss && (
@@ -546,7 +552,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
 
           <div>
             <label htmlFor="takeProfit" className="block text-sm font-medium text-foreground mb-2">
-              Take Profit Target
+              {t('takeProfitTarget')}
             </label>
             <input
               id="takeProfit"
@@ -554,7 +560,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
               step="0.01"
               {...register('takeProfit', { valueAsNumber: true })}
               className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card text-foreground transition-colors"
-              placeholder="0.00"
+              placeholder={t('pricePlaceholder')}
               disabled={isLoading}
             />
             {errors.takeProfit && (
@@ -564,7 +570,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
 
           <div>
             <label htmlFor="riskRewardRatio" className="block text-sm font-medium text-foreground mb-2">
-              Planned Risk/Reward Ratio
+              {t('plannedRiskRewardRatio')}
             </label>
             <input
               id="riskRewardRatio"
@@ -572,7 +578,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
               step="0.1"
               {...register('riskRewardRatio', { valueAsNumber: true })}
               className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card text-foreground transition-colors"
-              placeholder="e.g., 2.0"
+              placeholder={t('riskRewardRatioPlaceholder')}
               disabled={isLoading}
             />
             {errors.riskRewardRatio && (
@@ -582,7 +588,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
 
           <div>
             <label htmlFor="fees" className="block text-sm font-medium text-foreground mb-2">
-              Commissions/Fees
+              {t('commissionsFees')}
             </label>
             <input
               id="fees"
@@ -590,7 +596,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
               step="0.01"
               {...register('fees', { valueAsNumber: true })}
               className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card text-foreground transition-colors"
-              placeholder="0.00"
+              placeholder={t('pricePlaceholder')}
               disabled={isLoading}
             />
             {errors.fees && <p className="mt-1 text-sm text-danger">{errors.fees.message}</p>}
@@ -600,11 +606,11 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
 
       {/* Context Section */}
       <div className="bg-card shadow rounded-lg p-6">
-        <h2 className="text-lg font-semibold mb-4">Context & Conditions</h2>
+        <h2 className="text-lg font-semibold mb-4">{t('contextAndConditions')}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label htmlFor="timeOfDay" className="block text-sm font-medium text-foreground mb-2">
-              Time of Day
+              {t('timeOfDay')}
             </label>
             <select
               id="timeOfDay"
@@ -612,12 +618,12 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
               className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card text-foreground transition-colors"
               disabled={isLoading}
             >
-              <option value="">Select time of day</option>
-              <option value="PRE_MARKET">Pre-Market</option>
-              <option value="MARKET_OPEN">Market Open</option>
-              <option value="MID_DAY">Mid-Day</option>
-              <option value="MARKET_CLOSE">Market Close</option>
-              <option value="AFTER_HOURS">After Hours</option>
+              <option value="">{t('selectTimeOfDay')}</option>
+              <option value="PRE_MARKET">{tTrades('preMarket')}</option>
+              <option value="MARKET_OPEN">{tTrades('marketOpen')}</option>
+              <option value="MID_DAY">{tTrades('midDay')}</option>
+              <option value="MARKET_CLOSE">{tTrades('marketClose')}</option>
+              <option value="AFTER_HOURS">{tTrades('afterHours')}</option>
             </select>
             {errors.timeOfDay && (
               <p className="mt-1 text-sm text-danger">{errors.timeOfDay.message}</p>
@@ -626,7 +632,7 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
 
           <div>
             <label htmlFor="marketConditions" className="block text-sm font-medium text-foreground mb-2">
-              Market Conditions
+              {t('marketConditions')}
             </label>
             <select
               id="marketConditions"
@@ -634,11 +640,11 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
               className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card text-foreground transition-colors"
               disabled={isLoading}
             >
-              <option value="">Select market conditions</option>
-              <option value="TRENDING">Trending</option>
-              <option value="RANGING">Ranging</option>
-              <option value="VOLATILE">Volatile</option>
-              <option value="CALM">Calm</option>
+              <option value="">{t('selectMarketConditions')}</option>
+              <option value="TRENDING">{tTrades('trending')}</option>
+              <option value="RANGING">{tTrades('ranging')}</option>
+              <option value="VOLATILE">{tTrades('volatile')}</option>
+              <option value="CALM">{tTrades('calm')}</option>
             </select>
             {errors.marketConditions && (
               <p className="mt-1 text-sm text-danger">{errors.marketConditions.message}</p>
@@ -647,14 +653,14 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
 
           <div>
             <label htmlFor="emotionalStateEntry" className="block text-sm font-medium text-foreground mb-2">
-              Emotional State at Entry
+              {t('emotionalStateAtEntry')}
             </label>
             <input
               id="emotionalStateEntry"
               type="text"
               {...register('emotionalStateEntry')}
               className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card text-foreground transition-colors"
-              placeholder="e.g., Confident, Fearful, FOMO, Disciplined"
+              placeholder={t('emotionalStateEntryPlaceholder')}
               disabled={isLoading}
             />
             {errors.emotionalStateEntry && (
@@ -664,14 +670,14 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
 
           <div>
             <label htmlFor="emotionalStateExit" className="block text-sm font-medium text-foreground mb-2">
-              Emotional State at Exit
+              {t('emotionalStateAtExit')}
             </label>
             <input
               id="emotionalStateExit"
               type="text"
               {...register('emotionalStateExit')}
               className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card text-foreground transition-colors"
-              placeholder="e.g., Satisfied, Regretful, Relieved"
+              placeholder={t('emotionalStateExitPlaceholder')}
               disabled={isLoading}
             />
             {errors.emotionalStateExit && (
@@ -683,22 +689,22 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
 
       {/* Notes Section */}
       <div className="bg-card shadow rounded-lg p-6">
-        <h2 className="text-lg font-semibold mb-4">Trade Notes & Journal</h2>
+        <h2 className="text-lg font-semibold mb-4">{t('tradeNotesAndJournal')}</h2>
         <div>
           <label htmlFor="notes" className="block text-sm font-medium text-foreground mb-2">
-            Notes
+            {t('notes')}
           </label>
           <textarea
             id="notes"
             {...register('notes')}
             rows={8}
             className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-card text-foreground transition-colors"
-            placeholder="Write about your analysis, reasoning, what you learned, etc."
+            placeholder={t('notesPlaceholder')}
             disabled={isLoading}
           />
           {errors.notes && <p className="mt-1 text-sm text-danger">{errors.notes.message}</p>}
           <p className="mt-1 text-sm text-muted-foreground">
-            Document your pre-trade analysis, post-trade reflections, and lessons learned
+            {t('notesHelpText')}
           </p>
         </div>
       </div>
@@ -711,14 +717,14 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
           className="px-6 py-2 border border-border rounded-lg hover:bg-muted text-foreground transition-colors"
           disabled={isLoading}
         >
-          Cancel
+          {tCommon('cancel')}
         </button>
         <button
           type="submit"
           disabled={isLoading}
           className="px-6 py-2 bg-primary hover:bg-primary-hover text-primary-foreground font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isLoading ? 'Saving...' : isEditMode ? 'Update Trade' : 'Create Trade'}
+          {isLoading ? tCommon('saving') : isEditMode ? t('updateTrade') : t('createTrade')}
         </button>
       </div>
     </form>

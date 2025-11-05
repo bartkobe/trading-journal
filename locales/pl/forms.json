@@ -58,5 +58,7 @@
   "emotionalStateEntryPlaceholder": "np. Pewny siebie, Wystraszony, FOMO, Zdyscyplinowany",
   "emotionalStateExitPlaceholder": "np. Zadowolony, Żałujący, Uczulony",
   "notesPlaceholder": "Napisz o swojej analizie, rozumowaniu, tym czego się nauczyłeś, itp.",
-  "notesHelpText": "Udokumentuj swoją analizę przed transakcją, refleksje po transakcji i wyciągnięte lekcje"
+  "notesHelpText": "Udokumentuj swoją analizę przed transakcją, refleksje po transakcji i wyciągnięte lekcje",
+  "tagHelpText": "Naciśnij Enter, aby dodać tag. Dozwolone są tylko litery, cyfry, myślniki i podkreślenia.",
+  "removeTag": "Usuń {tag}"
 }

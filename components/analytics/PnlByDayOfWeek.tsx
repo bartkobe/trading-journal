@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import {
   BarChart,
   Bar,
@@ -41,30 +42,6 @@ interface PnlByDayOfWeekProps {
 // Custom Tooltip
 // ============================================================================
 
-const CustomTooltip = ({ active, payload }: any) => {
-  if (!active || !payload || !payload.length) return null;
-
-  const data = payload[0].payload;
-
-  return (
-    <div style={chartConfig.tooltip.contentStyle}>
-      <p style={chartConfig.tooltip.labelStyle}>{data.name}</p>
-      <p style={{ color: getPnlColor(data.totalPnl) }}>
-        <strong>Total P&L:</strong> {formatChartCurrency(data.totalPnl)}
-      </p>
-      <p style={{ color: chartColors.bar.neutral }}>
-        <strong>Trades:</strong> {data.tradeCount}
-      </p>
-      <p style={{ color: chartColors.bar.neutral }}>
-        <strong>Win Rate:</strong> {data.winRate.toFixed(1)}%
-      </p>
-      <p style={{ color: chartColors.bar.neutral }}>
-        <strong>Avg P&L:</strong> {formatChartCurrency(data.totalPnl / data.tradeCount)}
-      </p>
-    </div>
-  );
-};
-
 // ============================================================================
 // PnlByDayOfWeek Component
 // ============================================================================
@@ -74,9 +51,38 @@ export default function PnlByDayOfWeek({
   endDate,
   height = chartDimensions.height.large,
 }: PnlByDayOfWeekProps) {
+  const tTitles = useTranslations('analytics.chartTitles');
+  const tLabels = useTranslations('analytics.chartLabels');
+  const tErrors = useTranslations('analytics.chartErrors');
+  const tEmpty = useTranslations('analytics.chartEmptyStates');
+  const t = useTranslations('analytics');
   const [data, setData] = useState<DayOfWeekData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const CustomTooltip = ({ active, payload }: any) => {
+    if (!active || !payload || !payload.length) return null;
+
+    const data = payload[0].payload;
+
+    return (
+      <div style={chartConfig.tooltip.contentStyle}>
+        <p style={chartConfig.tooltip.labelStyle}>{data.name}</p>
+        <p style={{ color: getPnlColor(data.totalPnl) }}>
+          <strong>{tLabels('totalPnl')}:</strong> {formatChartCurrency(data.totalPnl)}
+        </p>
+        <p style={{ color: chartColors.bar.neutral }}>
+          <strong>{tLabels('trades')}:</strong> {data.tradeCount}
+        </p>
+        <p style={{ color: chartColors.bar.neutral }}>
+          <strong>{tLabels('winRate')}:</strong> {data.winRate.toFixed(1)}%
+        </p>
+        <p style={{ color: chartColors.bar.neutral }}>
+          <strong>{tLabels('avgPnl')}:</strong> {formatChartCurrency(data.totalPnl / data.tradeCount)}
+        </p>
+      </div>
+    );
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -93,7 +99,7 @@ export default function PnlByDayOfWeek({
         const response = await fetch(url);
 
         if (!response.ok) {
-          throw new Error('Failed to fetch day of week data');
+          throw new Error(tErrors('failedToFetchDayOfWeekPerformance'));
         }
 
         const result = await response.json();
@@ -103,7 +109,7 @@ export default function PnlByDayOfWeek({
         setData(result.charts.byDayOfWeek || []);
       } catch (err: any) {
         console.error('Error fetching day of week data:', err);
-        setError(err.message || 'An error occurred');
+        setError(err.message || tErrors('anErrorOccurred'));
       } finally {
         setLoading(false);
       }
@@ -120,7 +126,7 @@ export default function PnlByDayOfWeek({
       >
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-sm text-muted-foreground">Loading chart data...</p>
+          <p className="text-sm text-muted-foreground">{t('loading')}</p>
         </div>
       </div>
     );
@@ -130,7 +136,7 @@ export default function PnlByDayOfWeek({
     return (
       <div className="rounded-lg border border-danger loss-bg p-6">
         <h3 className="text-lg font-semibold loss mb-2">
-          Error Loading Chart
+          {tErrors('anErrorOccurred')}
         </h3>
         <p className="loss">{error}</p>
       </div>
@@ -145,10 +151,10 @@ export default function PnlByDayOfWeek({
       >
         <div>
           <h3 className="text-lg font-semibold text-foreground dark:text-gray-100 mb-2">
-            No Data Available
+            {tEmpty('noDayOfWeekData')}
           </h3>
           <p className="text-muted-foreground">
-            Start logging trades across different days of the week.
+            {tEmpty('startLoggingTradesEquity')}
           </p>
         </div>
       </div>
@@ -165,10 +171,10 @@ export default function PnlByDayOfWeek({
     <div className="rounded-lg border border-border bg-card p-6">
       <div className="mb-4">
         <h3 className="text-lg font-semibold text-foreground dark:text-gray-100">
-          P&L by Day of Week
+          {tTitles('pnlByDayOfWeek')}
         </h3>
         <p className="text-sm text-muted-foreground">
-          Performance across different days of the week
+          {t('byDayOfWeek')}
         </p>
       </div>
 
@@ -180,7 +186,7 @@ export default function PnlByDayOfWeek({
             tickFormatter={(value) => formatChartCurrency(value)}
             {...chartConfig.axis}
             label={{
-              value: 'Total P&L',
+              value: tLabels('totalPnl'),
               angle: -90,
               position: 'insideLeft',
             }}
@@ -227,10 +233,10 @@ export default function PnlByDayOfWeek({
                 {formatChartCurrency(day.totalPnl)}
               </p>
               <p className="text-xs text-muted-foreground mt-1">
-                {day.tradeCount} trades
+                {day.tradeCount} {tLabels('trades')}
               </p>
               <p className="text-xs text-muted-foreground">
-                {day.winRate.toFixed(0)}% win
+                {day.winRate.toFixed(0)}% {tLabels('wins')}
               </p>
               <p className="text-xs text-muted-foreground">
                 {formatChartCurrency(avgPnl)}
@@ -250,9 +256,9 @@ export default function PnlByDayOfWeek({
               return (
                 <div className="p-3 rounded-lg profit-bg">
                   <p className="text-sm profit">
-                    <strong>🎯 Best Day:</strong> {best.name} with{' '}
-                    {formatChartCurrency(best.totalPnl)} ({best.tradeCount} trades,{' '}
-                    {best.winRate.toFixed(0)}% win rate)
+                    <strong>{t('bestDay')}:</strong> {best.name} {t('with')}{' '}
+                    {formatChartCurrency(best.totalPnl)} ({best.tradeCount} {tLabels('trades')}, {' '}
+                    {best.winRate.toFixed(0)}% {tLabels('winRate')})
                   </p>
                 </div>
               );
@@ -267,9 +273,9 @@ export default function PnlByDayOfWeek({
               return (
                 <div className="p-3 rounded-lg loss-bg">
                   <p className="text-sm loss">
-                    <strong>⚠️ Worst Day:</strong> {worst.name} with{' '}
-                    {formatChartCurrency(worst.totalPnl)} ({worst.tradeCount} trades,{' '}
-                    {worst.winRate.toFixed(0)}% win rate)
+                    <strong>{t('worstDay')}:</strong> {worst.name} {t('with')}{' '}
+                    {formatChartCurrency(worst.totalPnl)} ({worst.tradeCount} {tLabels('trades')}, {' '}
+                    {worst.winRate.toFixed(0)}% {tLabels('winRate')})
                   </p>
                 </div>
               );
@@ -298,9 +304,9 @@ export default function PnlByDayOfWeek({
               return (
                 <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20">
                   <p className="text-sm text-blue-900 dark:text-blue-100">
-                    <strong>📊 Weekday vs Weekend:</strong> Weekdays:{' '}
-                    {formatChartCurrency(weekdayAvg)} avg/trade ({weekdayTrades} trades) • Weekends:{' '}
-                    {formatChartCurrency(weekendAvg)} avg/trade ({weekendTrades} trades)
+                    <strong>{t('weekdayVsWeekend')}:</strong> {t('weekdays')}: {' '}
+                    {formatChartCurrency(weekdayAvg)} {t('avgPerTrade')} ({weekdayTrades} {tLabels('trades')}) • {t('weekends')}: {' '}
+                    {formatChartCurrency(weekendAvg)} {t('avgPerTrade')} ({weekendTrades} {tLabels('trades')})
                   </p>
                 </div>
               );

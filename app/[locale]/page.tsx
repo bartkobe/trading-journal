@@ -2,25 +2,31 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { LoginForm } from '@/components/auth/LoginForm';
 import { RegisterForm } from '@/components/auth/RegisterForm';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import { LanguageSelector } from '@/components/ui/LanguageSelector';
 
-export default function HomePage() {
+type HomePageProps = {
+  params: Promise<{ locale: string }>;
+};
+
+export default function HomePage({ params }: HomePageProps) {
+  const t = useTranslations('common');
+  const tForms = useTranslations('forms');
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [isLoading, setIsLoading] = useState(true);
+  const [locale, setLocale] = useState<string>('en');
   const router = useRouter();
   const pathname = usePathname();
 
-  // Redirect to /en/ if on root path (client-side fallback)
+  // Get locale from params
   useEffect(() => {
-    if (pathname === '/') {
-      // Check localStorage for preferred locale, otherwise use 'en'
-      const storedLocale = localStorage.getItem('trading-journal-locale') || 'en';
-      router.replace(`/${storedLocale}`);
-      return;
-    }
-  }, [pathname, router]);
+    params.then((p) => {
+      setLocale(p.locale);
+    });
+  }, [params]);
 
   // Check if user is already authenticated
   useEffect(() => {
@@ -28,8 +34,8 @@ export default function HomePage() {
       try {
         const response = await fetch('/api/auth/me');
         if (response.ok) {
-          // User is authenticated, redirect to dashboard immediately
-          router.replace('/dashboard');
+          // User is authenticated, redirect to dashboard with locale
+          router.replace(`/${locale}/dashboard`);
           return;
         }
       } catch (error) {
@@ -41,15 +47,18 @@ export default function HomePage() {
       setIsLoading(false);
     };
 
-    checkAuth();
-  }, [router]);
+    if (locale) {
+      checkAuth();
+    }
+  }, [router, locale]);
 
   // Show minimal loading state while checking authentication to avoid flash
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        {/* Minimal loading indicator - just the theme toggle */}
-        <div className="absolute top-6 right-6">
+        {/* Minimal loading indicator - theme toggle and language selector */}
+        <div className="absolute top-6 right-6 flex items-center gap-3">
+          <LanguageSelector />
           <ThemeToggle />
         </div>
         {/* No content shown until auth check completes */}
@@ -59,17 +68,18 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4 py-12 relative">
-      {/* Theme Toggle - Top Right */}
-      <div className="absolute top-6 right-6">
+      {/* Language Selector and Theme Toggle - Top Right */}
+      <div className="absolute top-6 right-6 flex items-center gap-3">
+        <LanguageSelector />
         <ThemeToggle />
       </div>
 
       <div className="max-w-md w-full space-y-12">
         {/* Header */}
         <div className="text-center space-y-3">
-          <h1 className="text-5xl font-bold text-foreground tracking-tight">Trading Journal</h1>
+          <h1 className="text-5xl font-bold text-foreground tracking-tight">{t('appName')}</h1>
           <p className="text-lg text-muted-foreground">
-            Track, analyze, and improve your trading performance
+            {t('appDescription')}
           </p>
         </div>
 
@@ -80,26 +90,26 @@ export default function HomePage() {
             <button
               type="button"
               onClick={() => setMode('login')}
-              className={`flex-1 py-4 text-center font-medium border-b-2 transition-colors focus:outline-none focus:ring-2 focus:ring-inset focus:ring-ring ${
+              className={`flex-1 py-4 text-center font-medium border-b-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring ${
                 mode === 'login'
                   ? 'border-primary text-primary bg-primary/5'
                   : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50'
               }`}
               aria-current={mode === 'login' ? 'page' : undefined}
             >
-              Sign In
+              {tForms('signIn')}
             </button>
             <button
               type="button"
               onClick={() => setMode('register')}
-              className={`flex-1 py-4 text-center font-medium border-b-2 transition-colors focus:outline-none focus:ring-2 focus:ring-inset focus:ring-ring ${
+              className={`flex-1 py-4 text-center font-medium border-b-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring ${
                 mode === 'register'
                   ? 'border-primary text-primary bg-primary/5'
                   : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50'
               }`}
               aria-current={mode === 'register' ? 'page' : undefined}
             >
-              Create Account
+              {tForms('createAccount')}
             </button>
           </div>
 
@@ -112,10 +122,10 @@ export default function HomePage() {
         {/* Footer */}
         <div className="text-center space-y-2">
           <p className="text-sm text-muted-foreground">
-            Single-user trading journal application
+            {t('singleUserApp')}
           </p>
           <p className="text-xs text-muted-foreground">
-            Built with Next.js, TypeScript, and Prisma
+            {t('builtWith')}
           </p>
         </div>
       </div>

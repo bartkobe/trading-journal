@@ -1,9 +1,15 @@
+'use client';
+
+import { useTranslations } from 'next-intl';
+
 interface TradeStatusBadgeProps {
   isOpen: boolean;
   className?: string;
 }
 
 export function TradeStatusBadge({ isOpen, className = '' }: TradeStatusBadgeProps) {
+  const t = useTranslations('trades');
+
   if (isOpen) {
     return (
       <span
@@ -23,7 +29,7 @@ export function TradeStatusBadge({ isOpen, className = '' }: TradeStatusBadgePro
             d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
           />
         </svg>
-        OPEN
+        {t('open')}
       </span>
     );
   }

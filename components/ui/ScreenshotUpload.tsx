@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, DragEvent } from 'react';
+import { useTranslations } from 'next-intl';
 
 interface Screenshot {
   id?: string;
@@ -28,6 +29,8 @@ export function ScreenshotUpload({
   maxSizeMB = 10,
   disabled = false,
 }: ScreenshotUploadProps) {
+  const t = useTranslations('trades');
+  const tCommon = useTranslations('common');
   const [uploadingFiles, setUploadingFiles] = useState<string[]>([]);
   const [error, setError] = useState<string>('');
   const [isDragging, setIsDragging] = useState(false);
@@ -37,13 +40,13 @@ export function ScreenshotUpload({
     // Check file type
     const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
     if (!validTypes.includes(file.type)) {
-      return 'Invalid file type. Only JPEG, PNG, GIF, and WebP images are allowed.';
+      return t('invalidFileType');
     }
 
     // Check file size
     const maxSizeBytes = maxSizeMB * 1024 * 1024;
     if (file.size > maxSizeBytes) {
-      return `File too large. Maximum size is ${maxSizeMB}MB.`;
+      return t('fileTooLarge', { maxSizeMB });
     }
 
     return null;
@@ -51,7 +54,7 @@ export function ScreenshotUpload({
 
   const uploadFile = async (file: File) => {
     if (!tradeId) {
-      setError('Trade ID is required to upload screenshots');
+      setError(t('tradeIdRequired'));
       return;
     }
 
@@ -63,7 +66,7 @@ export function ScreenshotUpload({
 
     // Check max files limit
     if (screenshots.length + uploadingFiles.length >= maxFiles) {
-      setError(`Maximum ${maxFiles} screenshots allowed`);
+      setError(t('maxScreenshotsAllowed', { maxFiles }));
       return;
     }
 
@@ -82,7 +85,7 @@ export function ScreenshotUpload({
       const result = await response.json();
 
       if (!response.ok) {
-        setError(result.error || 'Failed to upload screenshot');
+        setError(result.error || t('failedToUploadScreenshot'));
         return;
       }
 
@@ -92,7 +95,7 @@ export function ScreenshotUpload({
       }
     } catch (err) {
       console.error('Upload error:', err);
-      setError('An unexpected error occurred during upload');
+      setError(t('unexpectedUploadError'));
     } finally {
       setUploadingFiles((prev) => prev.filter((name) => name !== file.name));
     }
@@ -143,7 +146,7 @@ export function ScreenshotUpload({
   const handleDelete = async (screenshotId: string) => {
     if (!tradeId) return;
 
-    if (!confirm('Are you sure you want to delete this screenshot?')) {
+    if (!confirm(t('deleteScreenshotConfirm'))) {
       return;
     }
 
@@ -158,7 +161,7 @@ export function ScreenshotUpload({
       const result = await response.json();
 
       if (!response.ok) {
-        setError(result.error || 'Failed to delete screenshot');
+        setError(result.error || t('failedToDeleteScreenshot'));
         return;
       }
 
@@ -168,7 +171,7 @@ export function ScreenshotUpload({
       }
     } catch (err) {
       console.error('Delete error:', err);
-      setError('Failed to delete screenshot');
+      setError(t('failedToDeleteScreenshot'));
     }
   };
 
@@ -228,15 +231,15 @@ export function ScreenshotUpload({
                 onClick={() => fileInputRef.current?.click()}
                 className="font-medium text-primary hover:text-primary"
               >
-                Upload screenshots
+                {t('uploadScreenshots')}
               </button>
-              <span className="pl-1">or drag and drop</span>
+              <span className="pl-1">{t('dragAndDrop')}</span>
             </div>
 
-            <p className="text-xs text-muted-foreground">PNG, JPG, GIF, WebP up to {maxSizeMB}MB</p>
+            <p className="text-xs text-muted-foreground">{t('fileTypesUpTo', { maxSizeMB })}</p>
 
             <p className="text-xs text-muted-foreground">
-              {screenshots.length + uploadingFiles.length} / {maxFiles} screenshots
+              {t('screenshotsCount', { current: screenshots.length + uploadingFiles.length, max: maxFiles })}
             </p>
           </div>
         </div>
@@ -259,7 +262,7 @@ export function ScreenshotUpload({
             >
               <div className="flex-1">
                 <p className="text-sm font-medium">{filename}</p>
-                <p className="text-xs text-muted-foreground">Uploading...</p>
+                <p className="text-xs text-muted-foreground">{t('uploading')}</p>
               </div>
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary"></div>
             </div>
@@ -291,7 +294,7 @@ export function ScreenshotUpload({
                     target="_blank"
                     rel="noopener noreferrer"
                     className="p-2 bg-card rounded-lg hover:bg-muted dark:hover:bg-gray-700"
-                    title="View full size"
+                    title={t('viewFullSize')}
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
@@ -309,7 +312,7 @@ export function ScreenshotUpload({
                       type="button"
                       onClick={() => handleDelete(screenshot.id!)}
                       className="p-2 bg-danger text-danger-foreground rounded-lg hover:bg-danger-dark"
-                      title="Delete screenshot"
+                      title={t('deleteScreenshot')}
                     >
                       <svg
                         className="w-5 h-5"
@@ -344,7 +347,7 @@ export function ScreenshotUpload({
       {/* No Screenshots Message */}
       {screenshots.length === 0 && uploadingFiles.length === 0 && !tradeId && (
         <p className="text-sm text-muted-foreground text-center py-4">
-          Save the trade first to upload screenshots
+          {t('saveTradeFirst')}
         </p>
       )}
     </div>

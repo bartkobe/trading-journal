@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { useRouter, Link } from '@/i18n/routing';
 import { TradeWithCalculations } from '@/lib/types';
 import { formatCurrency, formatDate, isTradeOpen } from '@/lib/trades';
 import { TradeStatusBadge } from './TradeStatusBadge';
@@ -10,6 +10,8 @@ import { ErrorMessage, EmptyState } from '@/components/ui/ErrorMessage';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 
 export function OpenTradesSection() {
+  const t = useTranslations('trades');
+  const tErrors = useTranslations('errors');
   const router = useRouter();
   const [openTrades, setOpenTrades] = useState<TradeWithCalculations[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -27,9 +29,9 @@ export function OpenTradesSection() {
         if (!response.ok) {
           const result = await response.json();
           if (response.status === 401) {
-            setError('Your session has expired. Please log in again.');
+            setError(tErrors('sessionExpired'));
           } else {
-            setError(result.error || 'Failed to load open trades.');
+            setError(result.error || tErrors('failedToLoadOpenTradesRetry'));
           }
           return;
         }
@@ -39,9 +41,9 @@ export function OpenTradesSection() {
       } catch (err) {
         console.error('Fetch open trades error:', err);
         if (err instanceof TypeError && err.message === 'Failed to fetch') {
-          setError('Unable to connect to the server. Please check your internet connection and try again.');
+          setError(tErrors('unableToConnect'));
         } else {
-          setError('An unexpected error occurred while loading open trades. Please try again.');
+          setError(tErrors('unexpectedErrorLoadOpenTrades'));
         }
       } finally {
         setIsLoading(false);
@@ -54,10 +56,10 @@ export function OpenTradesSection() {
   if (error) {
     return (
       <ErrorMessage
-        title="Failed to Load Open Trades"
+        title={t('failedToLoadOpenTrades')}
         message={error}
         onRetry={() => window.location.reload()}
-        retryText="Reload"
+        retryText={tErrors('retry')}
       />
     );
   }
@@ -77,11 +79,11 @@ export function OpenTradesSection() {
       <div className="mb-6">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-foreground">Open Trades</h2>
+            <h2 className="text-2xl font-bold text-foreground">{t('openTrades')}</h2>
             <p className="text-sm text-muted-foreground mt-1">
               {openTrades.length === 0
-                ? 'No open trades'
-                : `${openTrades.length} ${openTrades.length === 1 ? 'trade' : 'trades'} currently open`}
+                ? t('noOpenTrades')
+                : t('tradesCurrentlyOpen', { count: openTrades.length })}
             </p>
           </div>
           {openTrades.length > 0 && (
@@ -89,7 +91,7 @@ export function OpenTradesSection() {
               href="/trades?status=open"
               className="text-sm font-medium text-primary hover:text-primary-hover transition-colors"
             >
-              View All →
+              {t('viewAll')}
             </Link>
           )}
         </div>
@@ -98,11 +100,11 @@ export function OpenTradesSection() {
       {openTrades.length === 0 ? (
         <EmptyState
           icon="data"
-          title="No Open Trades"
-          message="You don't have any open trades at the moment. Start a new trade to track your active positions."
+          title={t('noOpenTrades')}
+          message={t('noOpenTradesAtMoment')}
           action={{
-            label: 'Log New Trade',
-            onClick: () => (window.location.href = '/trades/new'),
+            label: t('logNewTrade'),
+            onClick: () => router.push('/trades/new'),
           }}
         />
       ) : (
@@ -125,34 +127,39 @@ export function OpenTradesSection() {
                         trade.direction === 'LONG' ? 'profit-bg' : 'loss-bg'
                       }`}
                     >
-                      {trade.direction}
+                      {trade.direction === 'LONG' ? t('long') : t('short')}
                     </span>
                   </div>
 
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                     <div>
-                      <p className="text-muted-foreground mb-1">Entry Date</p>
+                      <p className="text-muted-foreground mb-1">{t('entryDate')}</p>
                       <p className="font-medium text-foreground">{formatDate(trade.entryDate)}</p>
                     </div>
                     <div>
-                      <p className="text-muted-foreground mb-1">Entry Price</p>
+                      <p className="text-muted-foreground mb-1">{t('entryPrice')}</p>
                       <p className="font-medium text-foreground">
                         {formatCurrency(trade.entryPrice, trade.currency)}
                       </p>
                     </div>
                     <div>
-                      <p className="text-muted-foreground mb-1">Quantity</p>
+                      <p className="text-muted-foreground mb-1">{t('quantity')}</p>
                       <p className="font-medium text-foreground">{trade.quantity}</p>
                     </div>
                     <div>
-                      <p className="text-muted-foreground mb-1">Asset Type</p>
-                      <p className="font-medium text-foreground">{trade.assetType}</p>
+                      <p className="text-muted-foreground mb-1">{t('assetType')}</p>
+                      <p className="font-medium text-foreground">
+                        {trade.assetType === 'STOCK' ? t('stock') :
+                         trade.assetType === 'FOREX' ? t('forex') :
+                         trade.assetType === 'CRYPTO' ? t('crypto') :
+                         trade.assetType === 'OPTIONS' ? t('options') : trade.assetType}
+                      </p>
                     </div>
                   </div>
 
                   {trade.strategyName && (
                     <div className="mt-2">
-                      <span className="text-xs text-muted-foreground">Strategy: </span>
+                      <span className="text-xs text-muted-foreground">{t('strategyLabel')} </span>
                       <span className="text-xs font-medium text-foreground">{trade.strategyName}</span>
                     </div>
                   )}
@@ -164,7 +171,7 @@ export function OpenTradesSection() {
                     onClick={(e) => e.stopPropagation()}
                     className="px-4 py-2 bg-primary hover:bg-primary-hover text-primary-foreground text-sm font-medium rounded-lg transition-colors whitespace-nowrap"
                   >
-                    Close Trade
+                    {t('closeTrade')}
                   </Link>
                 </div>
               </div>

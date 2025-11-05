@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, KeyboardEvent } from 'react';
+import { useTranslations } from 'next-intl';
 
 interface TagInputProps {
   value?: string[];
@@ -15,12 +16,16 @@ interface TagInputProps {
 export function TagInput({
   value = [],
   onChange,
-  label = 'Tags',
-  placeholder = 'Add tags...',
+  label,
+  placeholder,
   disabled = false,
   error,
   maxTags = 20,
 }: TagInputProps) {
+  const t = useTranslations('forms');
+  const tCommon = useTranslations('common');
+  const defaultLabel = label || t('tags');
+  const defaultPlaceholder = placeholder || t('typeToSearchOrAddTags');
   const [inputValue, setInputValue] = useState('');
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -131,9 +136,9 @@ export function TagInput({
 
   return (
     <div className="relative">
-      {label && (
+      {defaultLabel && (
         <label className="block text-sm font-medium mb-2">
-          {label}
+          {defaultLabel}
           {maxTags && (
             <span className="text-muted-foreground text-xs ml-2">
               ({value.length}/{maxTags})
@@ -156,7 +161,7 @@ export function TagInput({
                 onClick={() => removeTag(tag)}
                 disabled={disabled}
                 className="hover:text-primary dark:hover:text-blue-300 disabled:opacity-50"
-                aria-label={`Remove ${tag}`}
+                aria-label={t('removeTag', { tag })}
               >
                 ×
               </button>
@@ -176,7 +181,7 @@ export function TagInput({
                   setShowSuggestions(true);
                 }
               }}
-              placeholder={value.length === 0 ? placeholder : ''}
+              placeholder={value.length === 0 ? defaultPlaceholder : ''}
               disabled={disabled}
               className="flex-1 min-w-[120px] outline-none bg-transparent disabled:opacity-50 text-sm"
             />
@@ -207,7 +212,7 @@ export function TagInput({
 
       {/* Loading Indicator */}
       {isLoading && inputValue.length >= 2 && (
-        <div className="absolute right-3 top-10 text-muted-foreground text-sm">Loading...</div>
+        <div className="absolute right-3 top-10 text-muted-foreground text-sm">{tCommon('loading')}</div>
       )}
 
       {/* Error Message */}
@@ -215,7 +220,7 @@ export function TagInput({
 
       {/* Help Text */}
       <p className="mt-1 text-xs text-muted-foreground">
-        Press Enter to add a tag. Only letters, numbers, hyphens, and underscores allowed.
+        {t('tagHelpText')}
       </p>
     </div>
   );

@@ -15,6 +15,12 @@ const intlMiddleware = createMiddleware(routing);
 export default function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   
+  // Check for stored locale preference in cookie
+  const localeCookie = request.cookies.get('NEXT_LOCALE')?.value;
+  const preferredLocale = localeCookie && routing.locales.includes(localeCookie as any) 
+    ? localeCookie 
+    : null; // Only use cookie if it exists, don't default to routing.defaultLocale
+  
   // Check if pathname has a locale prefix
   const pathnameHasLocale = routing.locales.some(
     (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
@@ -22,16 +28,37 @@ export default function middleware(request: NextRequest) {
 
   // If pathname doesn't have locale, redirect to add locale prefix
   if (!pathnameHasLocale) {
-    // For root path, redirect to default locale
-    if (pathname === '/') {
+    // Let next-intl middleware handle the redirect first
+    // Then we'll check if we need to override with cookie preference
+    const response = intlMiddleware(request);
+    
+    // If we have a preferred locale from cookie and it's different from default, redirect to it
+    if (preferredLocale && preferredLocale !== routing.defaultLocale) {
       const url = request.nextUrl.clone();
-      url.pathname = `/${routing.defaultLocale}`;
-      return NextResponse.redirect(url);
+      if (pathname === '/') {
+        url.pathname = `/${preferredLocale}`;
+      } else {
+        url.pathname = `/${preferredLocale}${pathname}`;
+      }
+      const redirectResponse = NextResponse.redirect(url);
+      redirectResponse.cookies.set('NEXT_LOCALE', preferredLocale, {
+        path: '/',
+        maxAge: 60 * 60 * 24 * 365, // 1 year
+        sameSite: 'lax',
+      });
+      return redirectResponse;
     }
     
-    // For other paths without locale, let next-intl middleware handle it
-    // It will redirect to add the locale prefix (e.g., /dashboard -> /en/dashboard)
-    return intlMiddleware(request);
+    // Set cookie if we have a preferred locale
+    if (preferredLocale) {
+      response.cookies.set('NEXT_LOCALE', preferredLocale, {
+        path: '/',
+        maxAge: 60 * 60 * 24 * 365, // 1 year
+        sameSite: 'lax',
+      });
+    }
+    
+    return response;
   }
 
   // At this point, pathname has a locale prefix (e.g., /en/dashboard, /pl/dashboard)
@@ -39,6 +66,35 @@ export default function middleware(request: NextRequest) {
   
   // Remove locale from pathname for route checking
   const pathnameWithoutLocale = pathname.slice(`/${locale}`.length) || '/';
+  
+  // Run next-intl middleware first (it handles locale detection and routing)
+  const response = intlMiddleware(request);
+  
+  // After next-intl middleware, check if we need to enforce cookie-based locale preference
+  // Only redirect if we have a preferred locale from cookie AND it differs from URL locale
+  // This ensures user's preference is respected while allowing explicit locale URLs
+  if (preferredLocale && locale !== preferredLocale) {
+    // User has a stored preference that differs from URL - redirect to preferred locale
+    const url = request.nextUrl.clone();
+    url.pathname = `/${preferredLocale}${pathnameWithoutLocale}`;
+    const redirectResponse = NextResponse.redirect(url);
+    redirectResponse.cookies.set('NEXT_LOCALE', preferredLocale, {
+      path: '/',
+      maxAge: 60 * 60 * 24 * 365, // 1 year
+      sameSite: 'lax',
+    });
+    return redirectResponse;
+  }
+  
+  // Ensure locale cookie is set to match current URL locale (if no preference was stored)
+  // This syncs the cookie with the current URL locale
+  if (!localeCookie || localeCookie !== locale) {
+    response.cookies.set('NEXT_LOCALE', locale, {
+      path: '/',
+      maxAge: 60 * 60 * 24 * 365, // 1 year
+      sameSite: 'lax',
+    });
+  }
 
   // Check authentication
   const token = request.cookies.get('auth-token')?.value;
@@ -64,7 +120,8 @@ export default function middleware(request: NextRequest) {
   }
 
   // Continue with next-intl middleware for any additional locale handling
-  return intlMiddleware(request);
+  // (response already has cookie set if needed)
+  return response;
 }
 
 export const config = {

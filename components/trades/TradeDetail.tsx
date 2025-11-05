@@ -1,13 +1,17 @@
+'use client';
+
+import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/routing';
 import { TradeWithCalculations } from '@/lib/types';
 import { formatCurrency, formatPercent, formatDateTime, isTradeOpen } from '@/lib/trades';
 import { TradeStatusBadge } from './TradeStatusBadge';
-import Link from 'next/link';
 
 interface TradeDetailProps {
   trade: TradeWithCalculations;
 }
 
 export function TradeDetail({ trade }: TradeDetailProps) {
+  const t = useTranslations('trades');
   const tradeIsOpen = isTradeOpen(trade);
 
   const getOutcomeColor = () => {
@@ -24,7 +28,7 @@ export function TradeDetail({ trade }: TradeDetailProps) {
           <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
-          Winner
+          {t('winner')}
         </span>
       );
     }
@@ -39,13 +43,13 @@ export function TradeDetail({ trade }: TradeDetailProps) {
               d="M6 18L18 6M6 6l12 12"
             />
           </svg>
-          Loser
+          {t('loser')}
         </span>
       );
     }
     return (
       <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-muted text-muted-foreground">
-        Break Even
+        {t('breakEven')}
       </span>
     );
   };
@@ -58,7 +62,7 @@ export function TradeDetail({ trade }: TradeDetailProps) {
           <div className="flex items-center gap-3">
             <TradeStatusBadge isOpen={tradeIsOpen} />
             <h1 className="text-2xl font-bold text-foreground">
-              {tradeIsOpen ? 'Open Trade' : 'Closed Trade'}
+              {tradeIsOpen ? t('openTrade') : t('closedTrade')}
             </h1>
           </div>
           {tradeIsOpen && (
@@ -66,7 +70,7 @@ export function TradeDetail({ trade }: TradeDetailProps) {
               href={`/trades/${trade.id}/edit`}
               className="px-4 py-2 bg-primary hover:bg-primary-hover text-primary-foreground font-medium rounded-lg transition-colors"
             >
-              Close Trade
+              {t('closeTrade')}
             </Link>
           )}
         </div>
@@ -76,9 +80,9 @@ export function TradeDetail({ trade }: TradeDetailProps) {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {/* P&L Card */}
         <div className="bg-card rounded-lg shadow-sm border border-border p-4">
-          <p className="text-sm text-muted-foreground mb-1">Net P&L</p>
+          <p className="text-sm text-muted-foreground mb-1">{t('netPnl')}</p>
           {tradeIsOpen ? (
-            <p className="text-2xl font-bold text-muted-foreground">N/A</p>
+            <p className="text-2xl font-bold text-muted-foreground">{t('notAvailable')}</p>
           ) : (
             <>
               <p className={`text-2xl font-bold ${getOutcomeColor()}`}>
@@ -86,7 +90,7 @@ export function TradeDetail({ trade }: TradeDetailProps) {
               </p>
               {trade.fees && trade.fees > 0 && (
                 <p className="text-xs text-muted-foreground mt-1">
-                  Fees: {formatCurrency(trade.fees, trade.currency)}
+                  {t('fees')}: {formatCurrency(trade.fees, trade.currency)}
                 </p>
               )}
             </>
@@ -95,16 +99,16 @@ export function TradeDetail({ trade }: TradeDetailProps) {
 
         {/* Return % Card */}
         <div className="bg-card rounded-lg shadow-sm border border-border p-4">
-          <p className="text-sm text-muted-foreground mb-1">Return</p>
+          <p className="text-sm text-muted-foreground mb-1">{t('return')}</p>
           {tradeIsOpen ? (
-            <p className="text-2xl font-bold text-muted-foreground">N/A</p>
+            <p className="text-2xl font-bold text-muted-foreground">{t('notAvailable')}</p>
           ) : (
             <>
               <p className={`text-2xl font-bold ${getOutcomeColor()}`}>
                 {formatPercent(trade.calculations.pnlPercent!)}
               </p>
               <p className="text-xs text-muted-foreground mt-1">
-                {formatCurrency(trade.calculations.pnl!, trade.currency)} gross
+                {formatCurrency(trade.calculations.pnl!, trade.currency)} {t('gross')}
               </p>
             </>
           )}
@@ -112,11 +116,11 @@ export function TradeDetail({ trade }: TradeDetailProps) {
 
         {/* Holding Period Card */}
         <div className="bg-card rounded-lg shadow-sm border border-border p-4">
-          <p className="text-sm text-muted-foreground mb-1">Holding Period</p>
+          <p className="text-sm text-muted-foreground mb-1">{t('holdingPeriod')}</p>
           {tradeIsOpen ? (
             <>
-              <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">Ongoing</p>
-              <p className="text-xs text-muted-foreground mt-1">Trade still open</p>
+              <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{t('ongoing')}</p>
+              <p className="text-xs text-muted-foreground mt-1">{t('tradeStillOpen')}</p>
             </>
           ) : (
             <>
@@ -124,7 +128,7 @@ export function TradeDetail({ trade }: TradeDetailProps) {
                 {trade.calculations.holdingPeriodDays!.toFixed(1)}d
               </p>
               <p className="text-xs text-muted-foreground mt-1">
-                {trade.calculations.holdingPeriod!.toFixed(1)} hours
+                {trade.calculations.holdingPeriod!.toFixed(1)} {t('hours')}
               </p>
             </>
           )}
@@ -132,11 +136,11 @@ export function TradeDetail({ trade }: TradeDetailProps) {
 
         {/* Outcome Card */}
         <div className="bg-card rounded-lg shadow-sm border border-border p-4">
-          <p className="text-sm text-muted-foreground mb-1">Outcome</p>
+          <p className="text-sm text-muted-foreground mb-1">{t('outcome')}</p>
           <div className="mt-2">
             {tradeIsOpen ? (
               <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400">
-                Open
+                {t('open')}
               </span>
             ) : (
               getOutcomeBadge()
@@ -147,57 +151,60 @@ export function TradeDetail({ trade }: TradeDetailProps) {
 
       {/* Trade Details */}
       <div className="bg-card rounded-lg shadow-sm border border-border p-6">
-        <h2 className="text-lg font-semibold text-foreground mb-4">Trade Details</h2>
+        <h2 className="text-lg font-semibold text-foreground mb-4">{t('tradeDetails')}</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Left Column */}
           <div className="space-y-4">
             <div>
-              <p className="text-sm text-muted-foreground mb-1">Symbol</p>
+              <p className="text-sm text-muted-foreground mb-1">{t('symbol')}</p>
               <p className="text-lg font-semibold text-foreground">
                 {trade.symbol.toUpperCase()}
               </p>
             </div>
 
             <div>
-              <p className="text-sm text-muted-foreground mb-1">Asset Type</p>
+              <p className="text-sm text-muted-foreground mb-1">{t('assetType')}</p>
               <span className="inline-flex items-center px-2.5 py-1 rounded-md text-sm font-medium bg-muted text-foreground">
-                {trade.assetType}
+                {trade.assetType === 'STOCK' ? t('stock') :
+                 trade.assetType === 'FOREX' ? t('forex') :
+                 trade.assetType === 'CRYPTO' ? t('crypto') :
+                 trade.assetType === 'OPTIONS' ? t('options') : trade.assetType}
               </span>
             </div>
 
             <div>
-              <p className="text-sm text-muted-foreground mb-1">Direction</p>
+              <p className="text-sm text-muted-foreground mb-1">{t('direction')}</p>
               <span
                 className={`inline-flex items-center px-2.5 py-1 rounded-md text-sm font-medium ${
                   trade.direction === 'LONG' ? 'profit-bg' : 'loss-bg'
                 }`}
               >
-                {trade.direction}
+                {trade.direction === 'LONG' ? t('long') : t('short')}
               </span>
             </div>
 
             <div>
-              <p className="text-sm text-muted-foreground mb-1">Entry Date</p>
+              <p className="text-sm text-muted-foreground mb-1">{t('entryDate')}</p>
               <p className="text-base text-foreground">
                 {formatDateTime(trade.entryDate)}
               </p>
             </div>
 
             <div>
-              <p className="text-sm text-muted-foreground mb-1">Entry Price</p>
+              <p className="text-sm text-muted-foreground mb-1">{t('entryPrice')}</p>
               <p className="text-base font-medium text-foreground">
                 {formatCurrency(trade.entryPrice, trade.currency)}
               </p>
             </div>
 
             <div>
-              <p className="text-sm text-muted-foreground mb-1">Quantity</p>
+              <p className="text-sm text-muted-foreground mb-1">{t('quantity')}</p>
               <p className="text-base text-foreground">{trade.quantity}</p>
             </div>
 
             <div>
-              <p className="text-sm text-muted-foreground mb-1">Entry Value</p>
+              <p className="text-sm text-muted-foreground mb-1">{t('entryValue')}</p>
               <p className="text-base text-foreground">
                 {formatCurrency(trade.calculations.entryValue, trade.currency)}
               </p>
@@ -207,16 +214,16 @@ export function TradeDetail({ trade }: TradeDetailProps) {
           {/* Right Column */}
           <div className="space-y-4">
             <div>
-              <p className="text-sm text-muted-foreground mb-1">Currency</p>
+              <p className="text-sm text-muted-foreground mb-1">{t('currency')}</p>
               <p className="text-lg font-semibold text-foreground">
                 {trade.currency}
               </p>
             </div>
 
             <div>
-              <p className="text-sm text-muted-foreground mb-1">Exit Date</p>
+              <p className="text-sm text-muted-foreground mb-1">{t('exitDate')}</p>
               {tradeIsOpen ? (
-                <p className="text-base text-blue-600 dark:text-blue-400">Not yet closed</p>
+                <p className="text-base text-blue-600 dark:text-blue-400">{t('notYetClosed')}</p>
               ) : (
                 <p className="text-base text-foreground">
                   {formatDateTime(trade.exitDate!)}
@@ -225,9 +232,9 @@ export function TradeDetail({ trade }: TradeDetailProps) {
             </div>
 
             <div>
-              <p className="text-sm text-muted-foreground mb-1">Exit Price</p>
+              <p className="text-sm text-muted-foreground mb-1">{t('exitPrice')}</p>
               {tradeIsOpen ? (
-                <p className="text-base font-medium text-blue-600 dark:text-blue-400">Not yet closed</p>
+                <p className="text-base font-medium text-blue-600 dark:text-blue-400">{t('notYetClosed')}</p>
               ) : (
                 <p className="text-base font-medium text-foreground">
                   {formatCurrency(trade.exitPrice!, trade.currency)}
@@ -237,7 +244,7 @@ export function TradeDetail({ trade }: TradeDetailProps) {
 
             {!tradeIsOpen && (
               <div>
-                <p className="text-sm text-muted-foreground mb-1">Exit Value</p>
+                <p className="text-sm text-muted-foreground mb-1">{t('exitValue')}</p>
                 <p className="text-base text-foreground">
                   {formatCurrency(trade.calculations.exitValue!, trade.currency)}
                 </p>
@@ -246,7 +253,7 @@ export function TradeDetail({ trade }: TradeDetailProps) {
 
             {trade.stopLoss && (
               <div>
-                <p className="text-sm text-muted-foreground mb-1">Stop Loss</p>
+                <p className="text-sm text-muted-foreground mb-1">{t('stopLoss')}</p>
                 <p className="text-base text-foreground">
                   {formatCurrency(trade.stopLoss, trade.currency)}
                 </p>
@@ -255,7 +262,7 @@ export function TradeDetail({ trade }: TradeDetailProps) {
 
             {trade.takeProfit && (
               <div>
-                <p className="text-sm text-muted-foreground mb-1">Take Profit</p>
+                <p className="text-sm text-muted-foreground mb-1">{t('takeProfit')}</p>
                 <p className="text-base text-foreground">
                   {formatCurrency(trade.takeProfit, trade.currency)}
                 </p>
@@ -264,7 +271,7 @@ export function TradeDetail({ trade }: TradeDetailProps) {
 
             {trade.riskRewardRatio && (
               <div>
-                <p className="text-sm text-muted-foreground mb-1">Risk:Reward Ratio</p>
+                <p className="text-sm text-muted-foreground mb-1">{t('riskRewardRatio')}</p>
                 <p className="text-base text-foreground">
                   1:{trade.riskRewardRatio.toFixed(2)}
                 </p>
@@ -283,21 +290,21 @@ export function TradeDetail({ trade }: TradeDetailProps) {
         trade.emotionalStateExit) && (
         <div className="bg-card rounded-lg shadow-sm border border-border p-6">
           <h2 className="text-lg font-semibold text-foreground mb-4">
-            Strategy & Context
+            {t('strategyAndContext')}
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
               {trade.strategyName && (
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">Strategy</p>
+                  <p className="text-sm text-muted-foreground mb-1">{t('strategy')}</p>
                   <p className="text-base text-foreground">{trade.strategyName}</p>
                 </div>
               )}
 
               {trade.setupType && (
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">Setup Type</p>
+                  <p className="text-sm text-muted-foreground mb-1">{t('setupType')}</p>
                   <span className="inline-flex items-center px-2.5 py-1 rounded-md text-sm font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400">
                     {trade.setupType}
                   </span>
@@ -306,9 +313,14 @@ export function TradeDetail({ trade }: TradeDetailProps) {
 
               {trade.timeOfDay && (
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">Time of Day</p>
+                  <p className="text-sm text-muted-foreground mb-1">{t('timeOfDay')}</p>
                   <span className="inline-flex items-center px-2.5 py-1 rounded-md text-sm font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400">
-                    {trade.timeOfDay.replace('_', ' ')}
+                    {trade.timeOfDay === 'PRE_MARKET' ? t('preMarket') :
+                     trade.timeOfDay === 'MARKET_OPEN' ? t('marketOpen') :
+                     trade.timeOfDay === 'MID_DAY' ? t('midDay') :
+                     trade.timeOfDay === 'MARKET_CLOSE' ? t('marketClose') :
+                     trade.timeOfDay === 'AFTER_HOURS' ? t('afterHours') :
+                     trade.timeOfDay.replace('_', ' ')}
                   </span>
                 </div>
               )}
@@ -317,9 +329,13 @@ export function TradeDetail({ trade }: TradeDetailProps) {
             <div className="space-y-4">
               {trade.marketConditions && (
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">Market Conditions</p>
+                  <p className="text-sm text-muted-foreground mb-1">{t('marketConditions')}</p>
                   <span className="inline-flex items-center px-2.5 py-1 rounded-md text-sm font-medium bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400">
-                    {trade.marketConditions}
+                    {trade.marketConditions === 'TRENDING' ? t('trending') :
+                     trade.marketConditions === 'RANGING' ? t('ranging') :
+                     trade.marketConditions === 'VOLATILE' ? t('volatile') :
+                     trade.marketConditions === 'CALM' ? t('calm') :
+                     trade.marketConditions}
                   </span>
                 </div>
               )}
@@ -327,7 +343,7 @@ export function TradeDetail({ trade }: TradeDetailProps) {
               {trade.emotionalStateEntry && (
                 <div>
                   <p className="text-sm text-muted-foreground mb-1">
-                    Emotional State (Entry)
+                    {t('emotionalStateEntry')}
                   </p>
                   <p className="text-base text-foreground">
                     {trade.emotionalStateEntry}
@@ -338,7 +354,7 @@ export function TradeDetail({ trade }: TradeDetailProps) {
               {trade.emotionalStateExit && (
                 <div>
                   <p className="text-sm text-muted-foreground mb-1">
-                    Emotional State (Exit)
+                    {t('emotionalStateExit')}
                   </p>
                   <p className="text-base text-foreground">
                     {trade.emotionalStateExit}
@@ -353,7 +369,7 @@ export function TradeDetail({ trade }: TradeDetailProps) {
       {/* Tags */}
       {trade.tags && trade.tags.length > 0 && (
         <div className="bg-card rounded-lg shadow-sm border border-border p-6">
-          <h2 className="text-lg font-semibold text-foreground mb-4">Tags</h2>
+          <h2 className="text-lg font-semibold text-foreground mb-4">{t('tags')}</h2>
           <div className="flex flex-wrap gap-2">
             {trade.tags.map((tradeTag) => (
               <span
@@ -371,7 +387,7 @@ export function TradeDetail({ trade }: TradeDetailProps) {
       {trade.screenshots && trade.screenshots.length > 0 && (
         <div className="bg-card rounded-lg shadow-sm border border-border p-6">
           <h2 className="text-lg font-semibold text-foreground mb-4">
-            Screenshots ({trade.screenshots.length})
+            {t('screenshots')} ({trade.screenshots.length})
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {trade.screenshots.map((screenshot) => (
@@ -411,7 +427,7 @@ export function TradeDetail({ trade }: TradeDetailProps) {
       {/* Notes */}
       {trade.notes && (
         <div className="bg-card rounded-lg shadow-sm border border-border p-6">
-          <h2 className="text-lg font-semibold text-foreground mb-4">Notes</h2>
+          <h2 className="text-lg font-semibold text-foreground mb-4">{t('notes')}</h2>
           <div
             className="prose prose-sm dark:prose-invert max-w-none text-foreground dark:text-gray-100"
             dangerouslySetInnerHTML={{ __html: trade.notes }}
@@ -422,8 +438,8 @@ export function TradeDetail({ trade }: TradeDetailProps) {
       {/* Timestamps */}
       <div className="bg-muted bg-card/50 rounded-lg border border-border p-4">
         <div className="flex items-center justify-between text-sm text-muted-foreground">
-          <span>Created: {formatDateTime(trade.createdAt)}</span>
-          <span>Updated: {formatDateTime(trade.updatedAt)}</span>
+          <span>{t('created')}: {formatDateTime(trade.createdAt)}</span>
+          <span>{t('updated')}: {formatDateTime(trade.updatedAt)}</span>
         </div>
       </div>
     </div>

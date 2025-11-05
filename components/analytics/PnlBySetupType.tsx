@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import {
   BarChart,
   Bar,
@@ -35,6 +36,11 @@ interface PnlBySetupTypeProps {
 // ============================================================================
 
 export default function PnlBySetupType({ startDate, endDate }: PnlBySetupTypeProps) {
+  const tTitles = useTranslations('analytics.chartTitles');
+  const tLabels = useTranslations('analytics.chartLabels');
+  const tErrors = useTranslations('analytics.chartErrors');
+  const tEmpty = useTranslations('analytics.chartEmptyStates');
+  const t = useTranslations('analytics');
   const [data, setData] = useState<SetupTypePerformance[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -54,7 +60,7 @@ export default function PnlBySetupType({ startDate, endDate }: PnlBySetupTypePro
         });
 
         if (!response.ok) {
-          throw new Error('Failed to fetch setup type performance data');
+          throw new Error(tErrors('failedToFetchSetupTypePerformance'));
         }
 
         const result = await response.json();
@@ -67,7 +73,7 @@ export default function PnlBySetupType({ startDate, endDate }: PnlBySetupTypePro
         setData(sorted);
       } catch (err: any) {
         console.error('Error fetching setup type performance:', err);
-        setError(err.message || 'An error occurred');
+        setError(err.message || tErrors('anErrorOccurred'));
       } finally {
         setLoading(false);
       }
@@ -80,10 +86,10 @@ export default function PnlBySetupType({ startDate, endDate }: PnlBySetupTypePro
     return (
       <div className="bg-card rounded-lg border border-border p-6">
         <h3 className="text-lg font-semibold text-foreground dark:text-gray-100 mb-4">
-          P&L by Setup Type
+          {tTitles('pnlBySetupType')}
         </h3>
         <div className="flex items-center justify-center h-64">
-          <div className="text-muted-foreground">Loading...</div>
+          <div className="text-muted-foreground">{t('loading')}</div>
         </div>
       </div>
     );
@@ -93,10 +99,10 @@ export default function PnlBySetupType({ startDate, endDate }: PnlBySetupTypePro
     return (
       <div className="bg-card rounded-lg border border-border p-6">
         <h3 className="text-lg font-semibold text-foreground dark:text-gray-100 mb-4">
-          P&L by Setup Type
+          {tTitles('pnlBySetupType')}
         </h3>
         <div className="flex items-center justify-center h-64">
-          <div className="loss">Error: {error}</div>
+          <div className="loss">{tErrors('anErrorOccurred')}: {error}</div>
         </div>
       </div>
     );
@@ -106,10 +112,10 @@ export default function PnlBySetupType({ startDate, endDate }: PnlBySetupTypePro
     return (
       <div className="bg-card rounded-lg border border-border p-6">
         <h3 className="text-lg font-semibold text-foreground dark:text-gray-100 mb-4">
-          P&L by Setup Type
+          {tTitles('pnlBySetupType')}
         </h3>
         <div className="flex items-center justify-center h-64">
-          <div className="text-muted-foreground">No trading data available</div>
+          <div className="text-muted-foreground">{tEmpty('noSetupTypeData')}</div>
         </div>
       </div>
     );
@@ -122,7 +128,7 @@ export default function PnlBySetupType({ startDate, endDate }: PnlBySetupTypePro
   return (
     <div className="bg-card rounded-lg border border-border p-6">
       <h3 className="text-lg font-semibold text-foreground dark:text-gray-100 mb-4">
-        P&L by Setup Type
+        {tTitles('pnlBySetupType')}
       </h3>
 
       {/* Chart */}
@@ -152,7 +158,7 @@ export default function PnlBySetupType({ startDate, endDate }: PnlBySetupTypePro
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="profit-bg rounded-lg p-4">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-foreground">Best Setup</span>
+            <span className="text-sm font-medium text-foreground">{tLabels('bestPerformer')}</span>
             <span className="text-2xl">✅</span>
           </div>
           <p className="text-lg font-bold text-foreground dark:text-gray-100">{topSetup.setupType}</p>
@@ -160,38 +166,37 @@ export default function PnlBySetupType({ startDate, endDate }: PnlBySetupTypePro
             {formatChartCurrency(topSetup.totalPnl)}
           </p>
           <p className="text-xs text-muted-foreground mt-1">
-            {(topSetup.winRate ?? 0).toFixed(1)}% win rate
+            {(topSetup.winRate ?? 0).toFixed(1)}% {tLabels('winRate')}
           </p>
         </div>
 
         <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-foreground">Most Used</span>
+            <span className="text-sm font-medium text-foreground">{t('mostUsed')}</span>
             <span className="text-2xl">📊</span>
           </div>
           <p className="text-lg font-bold text-foreground dark:text-gray-100">
             {mostUsedSetup.setupType}
           </p>
           <p className="text-sm text-muted-foreground">
-            {mostUsedSetup.trades} trades
+            {mostUsedSetup.trades} {tLabels('trades')}
           </p>
           <p className="text-xs text-muted-foreground mt-1">
-            {((mostUsedSetup.trades / totalTrades) * 100).toFixed(1)}%
-            of all trades
+            {((mostUsedSetup.trades / totalTrades) * 100).toFixed(1)}% {t('ofAllTrades')}
           </p>
         </div>
 
         <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-foreground">
-              Total Setups
+              {t('totalSetups')}
             </span>
             <span className="text-2xl">🎯</span>
           </div>
           <p className="text-lg font-bold text-foreground dark:text-gray-100">{data.length}</p>
-          <p className="text-sm text-muted-foreground">Different setups</p>
+          <p className="text-sm text-muted-foreground">{t('differentSetups')}</p>
           <p className="text-xs text-muted-foreground mt-1">
-            {totalTrades} total trades
+            {totalTrades} {t('totalTrades')}
           </p>
         </div>
       </div>
@@ -199,11 +204,11 @@ export default function PnlBySetupType({ startDate, endDate }: PnlBySetupTypePro
       {/* Insights */}
       <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
         <p className="text-sm text-foreground">
-          <span className="font-semibold">💡 Insight:</span> Your most profitable setup is{' '}
-          <span className="font-semibold">{topSetup.setupType}</span> with{' '}
-          {formatChartCurrency(topSetup.totalPnl)} total P&L and a{' '}
-          {(topSetup.winRate ?? 0).toFixed(1)}% win rate. Focus on your proven setups and consider
-          documenting what makes them successful.
+          <span className="font-semibold">{tLabels('insight')}:</span> {t('mostProfitableSetupInsight', {
+            setup: topSetup.setupType,
+            pnl: formatChartCurrency(topSetup.totalPnl),
+            winRate: (topSetup.winRate ?? 0).toFixed(1)
+          })}
         </p>
       </div>
     </div>
@@ -215,6 +220,7 @@ export default function PnlBySetupType({ startDate, endDate }: PnlBySetupTypePro
 // ============================================================================
 
 function CustomTooltip({ active, payload }: any) {
+  const tLabels = useTranslations('analytics.chartLabels');
   if (!active || !payload || !payload.length) return null;
 
   const data = payload[0].payload as SetupTypePerformance;
@@ -224,7 +230,7 @@ function CustomTooltip({ active, payload }: any) {
       <p className="font-semibold text-foreground dark:text-gray-100 mb-2">{data.setupType}</p>
       <div className="space-y-1 text-sm">
         <p className="text-foreground">
-          <span className="font-medium">Total P&L:</span>{' '}
+          <span className="font-medium">{tLabels('totalPnl')}:</span>{' '}
           <span
             className={
               data.totalPnl >= 0
@@ -236,13 +242,13 @@ function CustomTooltip({ active, payload }: any) {
           </span>
         </p>
         <p className="text-foreground">
-          <span className="font-medium">Trades:</span> {data.trades}
+          <span className="font-medium">{tLabels('trades')}:</span> {data.trades}
         </p>
         <p className="text-foreground">
-          <span className="font-medium">Win Rate:</span> {(data.winRate ?? 0).toFixed(1)}%
+          <span className="font-medium">{tLabels('winRate')}:</span> {(data.winRate ?? 0).toFixed(1)}%
         </p>
         <p className="text-foreground">
-          <span className="font-medium">Avg P&L:</span> {formatChartCurrency(data.avgPnl ?? 0)}
+          <span className="font-medium">{tLabels('avgPnl')}:</span> {formatChartCurrency(data.avgPnl ?? 0)}
         </p>
       </div>
     </div>

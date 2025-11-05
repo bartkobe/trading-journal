@@ -58,5 +58,7 @@
   "emotionalStateEntryPlaceholder": "e.g., Confident, Fearful, FOMO, Disciplined",
   "emotionalStateExitPlaceholder": "e.g., Satisfied, Regretful, Relieved",
   "notesPlaceholder": "Write about your analysis, reasoning, what you learned, etc.",
-  "notesHelpText": "Document your pre-trade analysis, post-trade reflections, and lessons learned"
+  "notesHelpText": "Document your pre-trade analysis, post-trade reflections, and lessons learned",
+  "tagHelpText": "Press Enter to add a tag. Only letters, numbers, hyphens, and underscores allowed.",
+  "removeTag": "Remove {tag}"
 }

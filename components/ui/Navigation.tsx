@@ -1,8 +1,9 @@
 'use client';
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { Link, usePathname } from '@/i18n/routing';
 import { ThemeToggle } from './ThemeToggle';
+import { LanguageSelector } from './LanguageSelector';
 
 interface NavigationProps {
   user?: {
@@ -23,21 +24,26 @@ interface NavigationProps {
  */
 export function Navigation({ user }: NavigationProps) {
   const pathname = usePathname();
+  const t = useTranslations('navigation');
+  const tCommon = useTranslations('common');
 
   const isActive = (path: string) => {
+    // Remove locale prefix for comparison
+    const pathWithoutLocale = pathname.replace(/^\/(en|pl)/, '') || '/';
+    
     if (path === '/dashboard') {
-      return pathname === '/dashboard';
+      return pathWithoutLocale === '/dashboard';
     }
     if (path === '/trades') {
-      return pathname.startsWith('/trades');
+      return pathWithoutLocale.startsWith('/trades');
     }
-    return pathname === path;
+    return pathWithoutLocale === path;
   };
 
   const navLinks = [
     {
       href: '/dashboard',
-      label: 'Dashboard',
+      label: t('dashboard'),
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
@@ -51,7 +57,7 @@ export function Navigation({ user }: NavigationProps) {
     },
     {
       href: '/trades',
-      label: 'Trades',
+      label: t('trades'),
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
@@ -66,7 +72,7 @@ export function Navigation({ user }: NavigationProps) {
   ];
 
   return (
-    <nav className="bg-card border-b border-border sticky top-0 z-50 shadow-sm" aria-label="Main navigation">
+    <nav className="bg-card border-b border-border sticky top-0 z-50 shadow-sm" aria-label={t('mainNavigation')}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo and Brand */}
@@ -74,7 +80,7 @@ export function Navigation({ user }: NavigationProps) {
             <Link 
               href="/dashboard" 
               className="flex items-center space-x-3 group focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-lg"
-              aria-label="Trading Journal home"
+              aria-label={t('tradingJournalHome')}
             >
               <div className="flex items-center justify-center w-10 h-10 bg-primary rounded-lg group-hover:bg-primary-hover transition-colors" aria-hidden="true">
                 <svg
@@ -92,14 +98,14 @@ export function Navigation({ user }: NavigationProps) {
                 </svg>
               </div>
               <div className="hidden sm:block">
-                <h1 className="text-lg font-bold text-foreground">Trading Journal</h1>
-                <p className="text-xs text-muted-foreground">Track. Analyze. Improve.</p>
+                <h1 className="text-lg font-bold text-foreground">{tCommon('appName')}</h1>
+                <p className="text-xs text-muted-foreground">{tCommon('appTagline')}</p>
               </div>
             </Link>
           </div>
 
           {/* Main Navigation Links */}
-          <div className="hidden md:flex items-center space-x-1" role="navigation" aria-label="Primary">
+          <div className="hidden md:flex items-center space-x-1" role="navigation" aria-label={t('primary')}>
             {navLinks.map((link) => (
               <Link
                 key={link.href}
@@ -119,7 +125,7 @@ export function Navigation({ user }: NavigationProps) {
             <Link
               href="/trades/new"
               className="flex items-center space-x-2 px-4 py-2 ml-2 bg-success hover:bg-success-dark text-success-foreground rounded-lg text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-              aria-label="Create new trade"
+              aria-label={t('createNewTrade')}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path
@@ -129,19 +135,20 @@ export function Navigation({ user }: NavigationProps) {
                   d="M12 4v16m8-8H4"
                 />
               </svg>
-              <span>New Trade</span>
+              <span>{t('newTrade')}</span>
             </Link>
           </div>
 
-          {/* Right side - Theme Toggle and User Menu */}
+          {/* Right side - Language Selector, Theme Toggle and User Menu */}
           <div className="flex items-center space-x-3">
+            <LanguageSelector />
             <ThemeToggle />
 
             {user && (
               <div className="hidden sm:flex items-center space-x-3">
                 <div className="text-right">
                   <p className="text-sm font-medium text-foreground">
-                    {user.name || 'Trader'}
+                    {user.name || tCommon('trader')}
                   </p>
                   <p className="text-xs text-muted-foreground">{user.email}</p>
                 </div>
@@ -150,7 +157,7 @@ export function Navigation({ user }: NavigationProps) {
                   <button
                     type="submit"
                     className="flex items-center space-x-1 px-3 py-2 text-sm font-medium text-muted-foreground hover:text-danger hover:bg-danger-light rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                    aria-label="Log out of Trading Journal"
+                    aria-label={t('logOutOfTradingJournal')}
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                       <path
@@ -160,7 +167,7 @@ export function Navigation({ user }: NavigationProps) {
                         d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
                       />
                     </svg>
-                    <span className="hidden lg:inline">Logout</span>
+                    <span className="hidden lg:inline">{t('logout')}</span>
                   </button>
                 </form>
               </div>
@@ -170,7 +177,7 @@ export function Navigation({ user }: NavigationProps) {
             <button
               type="button"
               className="md:hidden inline-flex items-center justify-center p-2 rounded-lg text-foreground hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-              aria-label="Open mobile menu"
+              aria-label={t('openMobileMenu')}
               aria-expanded="false"
               aria-controls="mobile-menu"
             >
@@ -188,7 +195,7 @@ export function Navigation({ user }: NavigationProps) {
       </div>
 
       {/* Mobile Navigation - Hidden by default, would need state management to show/hide */}
-      <div id="mobile-menu" className="md:hidden hidden border-t border-border" role="navigation" aria-label="Mobile navigation">
+      <div id="mobile-menu" className="md:hidden hidden border-t border-border" role="navigation" aria-label={t('mobileNavigation')}>
         <div className="px-2 pt-2 pb-3 space-y-1">
           {navLinks.map((link) => (
             <Link
@@ -218,13 +225,13 @@ export function Navigation({ user }: NavigationProps) {
                 d="M12 4v16m8-8H4"
               />
             </svg>
-            <span>New Trade</span>
+            <span>{t('newTrade')}</span>
           </Link>
 
           {user && (
             <div className="pt-4 border-t border-border mt-4">
               <div className="px-3 py-2">
-                <p className="text-sm font-medium text-foreground">{user.name || 'Trader'}</p>
+                <p className="text-sm font-medium text-foreground">{user.name || tCommon('trader')}</p>
                 <p className="text-xs text-muted-foreground mt-1">{user.email}</p>
               </div>
               <form action="/api/auth/logout" method="POST" className="mt-2">
@@ -240,7 +247,7 @@ export function Navigation({ user }: NavigationProps) {
                       d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
                     />
                   </svg>
-                  <span>Logout</span>
+                  <span>{t('logout')}</span>
                 </button>
               </form>
             </div>

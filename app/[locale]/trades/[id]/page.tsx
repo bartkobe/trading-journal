@@ -8,21 +8,19 @@ import { TradeDetail } from '@/components/trades/TradeDetail';
 
 export const dynamic = 'force-dynamic';
 
-interface TradeDetailPageProps {
-  params: {
-    id: string;
-  };
-}
+type TradeDetailPageProps = {
+  params: Promise<{ locale: string; id: string }>;
+};
 
 export default async function TradeDetailPage({ params }: TradeDetailPageProps) {
   // Await params (Next.js 15+ requirement)
-  const { id } = await params;
+  const { locale, id } = await params;
 
   let user;
   try {
     user = await requireAuth();
   } catch (error) {
-    redirect('/');
+    redirect(`/${locale}`);
   }
 
   // Fetch trade data directly from database
@@ -54,7 +52,7 @@ export default async function TradeDetailPage({ params }: TradeDetailPageProps) 
         {/* Header with navigation */}
         <div className="mb-8">
           <Link
-            href="/trades"
+            href={`/${locale}/trades`}
             className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground dark:hover:text-gray-100 mb-4"
           >
             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

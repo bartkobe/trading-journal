@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import {
   BarChart,
   Bar,
@@ -41,30 +42,6 @@ interface PnlByTimeOfDayProps {
 // Custom Tooltip
 // ============================================================================
 
-const CustomTooltip = ({ active, payload }: any) => {
-  if (!active || !payload || !payload.length) return null;
-
-  const data = payload[0].payload;
-
-  return (
-    <div style={chartConfig.tooltip.contentStyle}>
-      <p style={chartConfig.tooltip.labelStyle}>{data.name}</p>
-      <p style={{ color: getPnlColor(data.totalPnl) }}>
-        <strong>Total P&L:</strong> {formatChartCurrency(data.totalPnl)}
-      </p>
-      <p style={{ color: chartColors.bar.neutral }}>
-        <strong>Trades:</strong> {data.tradeCount}
-      </p>
-      <p style={{ color: chartColors.bar.neutral }}>
-        <strong>Win Rate:</strong> {data.winRate.toFixed(1)}%
-      </p>
-      <p style={{ color: chartColors.bar.neutral }}>
-        <strong>Avg P&L:</strong> {formatChartCurrency(data.totalPnl / data.tradeCount)}
-      </p>
-    </div>
-  );
-};
-
 // ============================================================================
 // PnlByTimeOfDay Component
 // ============================================================================
@@ -74,9 +51,39 @@ export default function PnlByTimeOfDay({
   endDate,
   height = chartDimensions.height.medium,
 }: PnlByTimeOfDayProps) {
+  const tTitles = useTranslations('analytics.chartTitles');
+  const tLabels = useTranslations('analytics.chartLabels');
+  const tErrors = useTranslations('analytics.chartErrors');
+  const tEmpty = useTranslations('analytics.chartEmptyStates');
+  const t = useTranslations('analytics');
+  const tTrades = useTranslations('trades');
   const [data, setData] = useState<TimeOfDayData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const CustomTooltip = ({ active, payload }: any) => {
+    if (!active || !payload || !payload.length) return null;
+
+    const data = payload[0].payload;
+
+    return (
+      <div style={chartConfig.tooltip.contentStyle}>
+        <p style={chartConfig.tooltip.labelStyle}>{data.name}</p>
+        <p style={{ color: getPnlColor(data.totalPnl) }}>
+          <strong>{tLabels('totalPnl')}:</strong> {formatChartCurrency(data.totalPnl)}
+        </p>
+        <p style={{ color: chartColors.bar.neutral }}>
+          <strong>{tLabels('trades')}:</strong> {data.tradeCount}
+        </p>
+        <p style={{ color: chartColors.bar.neutral }}>
+          <strong>{tLabels('winRate')}:</strong> {data.winRate.toFixed(1)}%
+        </p>
+        <p style={{ color: chartColors.bar.neutral }}>
+          <strong>{tLabels('avgPnl')}:</strong> {formatChartCurrency(data.totalPnl / data.tradeCount)}
+        </p>
+      </div>
+    );
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -93,7 +100,7 @@ export default function PnlByTimeOfDay({
         const response = await fetch(url);
 
         if (!response.ok) {
-          throw new Error('Failed to fetch time of day data');
+          throw new Error(tErrors('failedToFetchTimeOfDayPerformance'));
         }
 
         const result = await response.json();
@@ -109,7 +116,7 @@ export default function PnlByTimeOfDay({
         setData(orderedData);
       } catch (err: any) {
         console.error('Error fetching time of day data:', err);
-        setError(err.message || 'An error occurred');
+        setError(err.message || tErrors('anErrorOccurred'));
       } finally {
         setLoading(false);
       }
@@ -126,7 +133,7 @@ export default function PnlByTimeOfDay({
       >
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-sm text-muted-foreground">Loading chart data...</p>
+          <p className="text-sm text-muted-foreground">{t('loading')}</p>
         </div>
       </div>
     );
@@ -136,7 +143,7 @@ export default function PnlByTimeOfDay({
     return (
       <div className="rounded-lg border border-danger loss-bg p-6">
         <h3 className="text-lg font-semibold loss mb-2">
-          Error Loading Chart
+          {tErrors('anErrorOccurred')}
         </h3>
         <p className="loss">{error}</p>
       </div>
@@ -151,30 +158,39 @@ export default function PnlByTimeOfDay({
       >
         <div>
           <h3 className="text-lg font-semibold text-foreground dark:text-gray-100 mb-2">
-            No Data Available
+            {tEmpty('noTimeOfDayData')}
           </h3>
           <p className="text-muted-foreground">
-            Start logging trades at different times of day.
+            {tEmpty('startLoggingTradesEquity')}
           </p>
         </div>
       </div>
     );
   }
 
-  // Format the names for display
+  // Format the names for display with translation
+  const getTranslatedTimeName = (name: string): string => {
+    const upperName = name.toUpperCase();
+    if (upperName === 'MORNING') return tTrades('morning');
+    if (upperName === 'AFTERNOON') return tTrades('afternoon');
+    if (upperName === 'EVENING') return tTrades('evening');
+    // Fallback to capitalized version
+    return name.charAt(0) + name.slice(1).toLowerCase();
+  };
+
   const displayData = data.map((item) => ({
     ...item,
-    displayName: item.name.charAt(0) + item.name.slice(1).toLowerCase(),
+    displayName: getTranslatedTimeName(item.name),
   }));
 
   return (
     <div className="rounded-lg border border-border bg-card p-6">
       <div className="mb-4">
         <h3 className="text-lg font-semibold text-foreground dark:text-gray-100">
-          P&L by Time of Day
+          {tTitles('pnlByTimeOfDay')}
         </h3>
         <p className="text-sm text-muted-foreground">
-          Performance during different trading sessions
+          {t('byTimeOfDay')}
         </p>
       </div>
 
@@ -186,7 +202,7 @@ export default function PnlByTimeOfDay({
             tickFormatter={(value) => formatChartCurrency(value)}
             {...chartConfig.axis}
             label={{
-              value: 'Total P&L',
+              value: tLabels('totalPnl'),
               angle: -90,
               position: 'insideLeft',
             }}
@@ -235,10 +251,10 @@ export default function PnlByTimeOfDay({
                 {formatChartCurrency(timeSlot.totalPnl)}
               </p>
               <p className="text-xs text-muted-foreground mt-1">
-                {timeSlot.tradeCount} trades
+                {tLabels('trades')}: {timeSlot.tradeCount}
               </p>
               <p className="text-xs text-muted-foreground">
-                {timeSlot.winRate.toFixed(0)}% win • Avg: {formatChartCurrency(avgPnl)}
+                {timeSlot.winRate.toFixed(0)}% {tLabels('wins')} • {tLabels('avgPnl')}: {formatChartCurrency(avgPnl)}
               </p>
             </div>
           );
@@ -249,17 +265,27 @@ export default function PnlByTimeOfDay({
       {displayData.length > 0 && (
         <div className="mt-4 p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20">
           <p className="text-sm text-blue-900 dark:text-blue-100">
-            <strong>💡 Insight:</strong>{' '}
+            <strong>{tLabels('insight')}:</strong>{' '}
             {(() => {
               const best = [...displayData].sort((a, b) => b.totalPnl - a.totalPnl)[0];
               const worst = [...displayData].sort((a, b) => a.totalPnl - b.totalPnl)[0];
 
               if (best.totalPnl > 0 && worst.totalPnl < 0) {
-                return `You perform best during ${best.displayName.toLowerCase()} (${formatChartCurrency(best.totalPnl)}) and struggle during ${worst.displayName.toLowerCase()} (${formatChartCurrency(worst.totalPnl)}).`;
+                return t('bestWorstTimeInsight', { 
+                  bestTime: best.displayName.toLowerCase(), 
+                  bestPnl: formatChartCurrency(best.totalPnl),
+                  worstTime: worst.displayName.toLowerCase(),
+                  worstPnl: formatChartCurrency(worst.totalPnl)
+                });
               } else if (best.totalPnl > 0) {
-                return `Your most profitable time is ${best.displayName.toLowerCase()} with ${formatChartCurrency(best.totalPnl)} total P&L.`;
+                return tLabels('yourBestSymbol', {
+                  type: tLabels('timeOfDay').toLowerCase(),
+                  name: best.displayName.toLowerCase(),
+                  winRate: best.winRate.toFixed(1),
+                  avgPnl: tLabels('averagePnlPerTrade', { avgPnl: formatChartCurrency(best.totalPnl) })
+                });
               } else {
-                return `Consider analyzing why ${worst.displayName.toLowerCase()} trades are underperforming.`;
+                return t('analyzeUnderperformingTime', { time: worst.displayName.toLowerCase() });
               }
             })()}
           </p>

@@ -5,6 +5,7 @@ import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
 import Link from '@tiptap/extension-link';
 import { forwardRef, useEffect, useImperativeHandle } from 'react';
+import { useTranslations } from 'next-intl';
 
 // Toolbar components (moved outside to avoid creating during render)
 const ToolbarButton = ({
@@ -50,7 +51,10 @@ export interface RichTextEditorRef {
 }
 
 export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>(
-  ({ value = '', onChange, placeholder = 'Write your trade notes...', disabled = false }, ref) => {
+  ({ value = '', onChange, placeholder, disabled = false }, ref) => {
+    const t = useTranslations('common');
+    const defaultPlaceholder = placeholder || t('richTextEditorPlaceholder');
+    
     const editor = useEditor({
       extensions: [
         StarterKit.configure({
@@ -59,7 +63,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
           },
         }),
         Placeholder.configure({
-          placeholder,
+          placeholder: defaultPlaceholder,
         }),
         Link.configure({
           openOnClick: false,
@@ -112,7 +116,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
             onClick={() => editor.chain().focus().toggleBold().run()}
             isActive={editor.isActive('bold')}
             disabled={disabled}
-            title="Bold (Ctrl+B)"
+            title={`${t('bold')} (Ctrl+B)`}
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -128,7 +132,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
             onClick={() => editor.chain().focus().toggleItalic().run()}
             isActive={editor.isActive('italic')}
             disabled={disabled}
-            title="Italic (Ctrl+I)"
+            title={`${t('italic')} (Ctrl+I)`}
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -144,7 +148,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
             onClick={() => editor.chain().focus().toggleStrike().run()}
             isActive={editor.isActive('strike')}
             disabled={disabled}
-            title="Strikethrough"
+            title={t('strikethrough')}
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -163,7 +167,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
             onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
             isActive={editor.isActive('heading', { level: 1 })}
             disabled={disabled}
-            title="Heading 1"
+            title={t('heading1')}
           >
             <span className="font-bold">H1</span>
           </ToolbarButton>
@@ -172,7 +176,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
             onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
             isActive={editor.isActive('heading', { level: 2 })}
             disabled={disabled}
-            title="Heading 2"
+            title={t('heading2')}
           >
             <span className="font-bold">H2</span>
           </ToolbarButton>
@@ -181,7 +185,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
             onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
             isActive={editor.isActive('heading', { level: 3 })}
             disabled={disabled}
-            title="Heading 3"
+            title={t('heading3')}
           >
             <span className="font-bold">H3</span>
           </ToolbarButton>
@@ -193,7 +197,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
             onClick={() => editor.chain().focus().toggleBulletList().run()}
             isActive={editor.isActive('bulletList')}
             disabled={disabled}
-            title="Bullet List"
+            title={t('bulletList')}
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -209,7 +213,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
             onClick={() => editor.chain().focus().toggleOrderedList().run()}
             isActive={editor.isActive('orderedList')}
             disabled={disabled}
-            title="Numbered List"
+            title={t('numberedList')}
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -228,7 +232,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
             onClick={() => editor.chain().focus().toggleBlockquote().run()}
             isActive={editor.isActive('blockquote')}
             disabled={disabled}
-            title="Quote"
+            title={t('quote')}
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -244,7 +248,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
             onClick={() => editor.chain().focus().toggleCodeBlock().run()}
             isActive={editor.isActive('codeBlock')}
             disabled={disabled}
-            title="Code Block"
+            title={t('codeBlock')}
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -261,14 +265,14 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
           {/* Link */}
           <ToolbarButton
             onClick={() => {
-              const url = window.prompt('Enter URL:');
+              const url = window.prompt(t('enterUrl'));
               if (url) {
                 editor.chain().focus().setLink({ href: url }).run();
               }
             }}
             isActive={editor.isActive('link')}
             disabled={disabled}
-            title="Add Link"
+            title={t('addLink')}
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -284,7 +288,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
             <ToolbarButton
               onClick={() => editor.chain().focus().unsetLink().run()}
               disabled={disabled}
-              title="Remove Link"
+              title={t('removeLink')}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
@@ -303,7 +307,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
           <ToolbarButton
             onClick={() => editor.chain().focus().undo().run()}
             disabled={disabled || !editor.can().undo()}
-            title="Undo (Ctrl+Z)"
+            title={`${t('undo')} (Ctrl+Z)`}
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -318,7 +322,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
           <ToolbarButton
             onClick={() => editor.chain().focus().redo().run()}
             disabled={disabled || !editor.can().redo()}
-            title="Redo (Ctrl+Y)"
+            title={`${t('redo')} (Ctrl+Y)`}
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path

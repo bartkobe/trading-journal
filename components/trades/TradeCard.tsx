@@ -1,4 +1,7 @@
-import Link from 'next/link';
+'use client';
+
+import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/routing';
 import { TradeWithCalculations } from '@/lib/types';
 import { formatCurrency, formatPercent, formatDate, isTradeOpen } from '@/lib/trades';
 import { TradeStatusBadge } from './TradeStatusBadge';
@@ -9,6 +12,7 @@ interface TradeCardProps {
 }
 
 export function TradeCard({ trade, onClick }: TradeCardProps) {
+  const t = useTranslations('trades');
   const tradeIsOpen = isTradeOpen(trade);
 
   const getOutcomeColor = () => {
@@ -73,7 +77,7 @@ export function TradeCard({ trade, onClick }: TradeCardProps) {
         trade.direction === 'LONG' ? 'profit-bg' : 'loss-bg'
       }`}
     >
-      {trade.direction}
+      {trade.direction === 'LONG' ? t('long') : t('short')}
     </span>
   );
 
@@ -92,7 +96,7 @@ export function TradeCard({ trade, onClick }: TradeCardProps) {
           <p className="text-sm text-muted-foreground">{formatDate(trade.entryDate)}</p>
           {trade.strategyName && (
             <p className="text-xs text-muted-foreground mt-1">
-              Strategy: {trade.strategyName}
+              {t('strategyLabel')} {trade.strategyName}
             </p>
           )}
         </div>
@@ -102,7 +106,10 @@ export function TradeCard({ trade, onClick }: TradeCardProps) {
       {/* Asset Type Badge */}
       <div className="mb-3">
         <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-muted dark:bg-gray-700 text-foreground">
-          {trade.assetType}
+          {trade.assetType === 'STOCK' ? t('stock') : 
+           trade.assetType === 'FOREX' ? t('forex') :
+           trade.assetType === 'CRYPTO' ? t('crypto') :
+           trade.assetType === 'OPTIONS' ? t('options') : trade.assetType}
         </span>
       </div>
 
@@ -110,21 +117,21 @@ export function TradeCard({ trade, onClick }: TradeCardProps) {
       <div className="grid grid-cols-2 gap-4 mb-3 pb-3 border-b border-border">
         <div>
           <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
-            Entry
+            {t('entry')}
           </p>
           <p className="text-sm font-medium text-foreground">
             {formatCurrency(trade.entryPrice, trade.currency)}
           </p>
-          <p className="text-xs text-muted-foreground mt-0.5">Qty: {trade.quantity}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">{t('quantity')}: {trade.quantity}</p>
         </div>
         <div>
           <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
-            Exit
+            {t('exit')}
           </p>
           {tradeIsOpen ? (
             <>
-              <p className="text-sm font-medium text-blue-600 dark:text-blue-400">In Progress</p>
-              <p className="text-xs text-muted-foreground mt-0.5">Not yet closed</p>
+              <p className="text-sm font-medium text-blue-600 dark:text-blue-400">{t('inProgress')}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{t('notYetClosed')}</p>
             </>
           ) : (
             <>
@@ -143,7 +150,7 @@ export function TradeCard({ trade, onClick }: TradeCardProps) {
       <div className="flex items-center justify-between">
         <div>
           <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
-            P&L
+            {t('pnl')}
           </p>
           {tradeIsOpen ? (
             <p className="text-xl font-bold text-muted-foreground">—</p>
@@ -155,7 +162,7 @@ export function TradeCard({ trade, onClick }: TradeCardProps) {
         </div>
         <div className="text-right">
           <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
-            Return
+            {t('return')}
           </p>
           {tradeIsOpen ? (
             <p className="text-xl font-bold text-muted-foreground">—</p>
@@ -178,12 +185,21 @@ export function TradeCard({ trade, onClick }: TradeCardProps) {
             )}
             {trade.timeOfDay && (
               <span className="inline-flex items-center px-2 py-1 rounded text-xs bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400">
-                {trade.timeOfDay.replace('_', ' ')}
+                {trade.timeOfDay === 'PRE_MARKET' ? t('preMarket') :
+                 trade.timeOfDay === 'MARKET_OPEN' ? t('marketOpen') :
+                 trade.timeOfDay === 'MID_DAY' ? t('midDay') :
+                 trade.timeOfDay === 'MARKET_CLOSE' ? t('marketClose') :
+                 trade.timeOfDay === 'AFTER_HOURS' ? t('afterHours') :
+                 trade.timeOfDay.replace('_', ' ')}
               </span>
             )}
             {trade.marketConditions && (
               <span className="inline-flex items-center px-2 py-1 rounded text-xs bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400">
-                {trade.marketConditions}
+                {trade.marketConditions === 'TRENDING' ? t('trending') :
+                 trade.marketConditions === 'RANGING' ? t('ranging') :
+                 trade.marketConditions === 'VOLATILE' ? t('volatile') :
+                 trade.marketConditions === 'CALM' ? t('calm') :
+                 trade.marketConditions}
               </span>
             )}
           </div>
@@ -218,7 +234,7 @@ export function TradeCard({ trade, onClick }: TradeCardProps) {
             />
           </svg>
           <span>
-            {trade.screenshots.length} screenshot{trade.screenshots.length !== 1 ? 's' : ''}
+            {trade.screenshots.length} {trade.screenshots.length !== 1 ? t('screenshots') : t('screenshot')}
           </span>
         </div>
       )}

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 
 interface ConfirmDialogProps {
   isOpen: boolean;
@@ -18,13 +19,16 @@ export function ConfirmDialog({
   isOpen,
   title,
   message,
-  confirmLabel = 'Confirm',
-  cancelLabel = 'Cancel',
+  confirmLabel,
+  cancelLabel,
   variant = 'primary',
   onConfirm,
   onCancel,
   isLoading = false,
 }: ConfirmDialogProps) {
+  const tCommon = useTranslations('common');
+  const finalConfirmLabel = confirmLabel || tCommon('confirm');
+  const finalCancelLabel = cancelLabel || tCommon('cancel');
   // Handle escape key
   useEffect(() => {
     if (!isOpen) return;
@@ -119,7 +123,7 @@ export function ConfirmDialog({
             disabled={isLoading}
             className="px-4 py-2 border border-border hover:bg-muted text-foreground rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {cancelLabel}
+            {finalCancelLabel}
           </button>
           <button
             onClick={onConfirm}
@@ -143,10 +147,10 @@ export function ConfirmDialog({
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                   />
                 </svg>
-                Processing...
+                {tCommon('processing')}
               </span>
             ) : (
-              confirmLabel
+              finalConfirmLabel
             )}
           </button>
         </div>

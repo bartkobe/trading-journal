@@ -2,7 +2,6 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
-import { ThemeProvider, themeScript } from '@/components/providers/ThemeProvider';
 import { Navigation } from '@/components/ui/Navigation';
 import { getCurrentUser } from '@/lib/auth';
 
@@ -24,7 +23,8 @@ export default async function LocaleLayout({ children, params }: Props) {
 
   // Providing all messages to the client
   // side is the easiest way to get started
-  const messages = await getMessages();
+  // Explicitly pass locale to ensure correct messages are loaded
+  const messages = await getMessages({ locale });
 
   // Get current user for navigation (handle errors gracefully)
   let user = null;
@@ -37,34 +37,28 @@ export default async function LocaleLayout({ children, params }: Props) {
   }
 
   return (
-    <ThemeProvider defaultTheme="system">
-      <NextIntlClientProvider messages={messages}>
-        <script
-          dangerouslySetInnerHTML={{ __html: themeScript }}
-          suppressHydrationWarning
-        />
-        {/* Skip link for keyboard navigation - hidden until focused */}
-        <a
-          href="#main-content"
-          className="absolute left-[-9999px] focus:left-4 focus:top-4 focus:z-50 px-4 py-2 bg-primary text-primary-foreground rounded-lg shadow-lg focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-all"
-        >
-          Skip to main content
-        </a>
+    <NextIntlClientProvider locale={locale} messages={messages}>
+      {/* Skip link for keyboard navigation - hidden until focused */}
+      <a
+        href="#main-content"
+        className="absolute left-[-9999px] focus:left-4 focus:top-4 focus:z-50 px-4 py-2 bg-primary text-primary-foreground rounded-lg shadow-lg focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-all"
+      >
+        Skip to main content
+      </a>
 
-        {/* Show navigation only for authenticated users */}
-        {user && <Navigation user={user} />}
-        
-        {/* Main content */}
-        <main 
-          id="main-content" 
-          tabIndex={-1}
-          className={user ? '' : 'min-h-screen'}
-          aria-label="Main content"
-        >
-          {children}
-        </main>
-      </NextIntlClientProvider>
-    </ThemeProvider>
+      {/* Show navigation only for authenticated users */}
+      {user && <Navigation user={user} />}
+      
+      {/* Main content */}
+      <main 
+        id="main-content" 
+        tabIndex={-1}
+        className={user ? '' : 'min-h-screen'}
+        aria-label="Main content"
+      >
+        {children}
+      </main>
+    </NextIntlClientProvider>
   );
 }
 

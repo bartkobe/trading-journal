@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import EquityCurve from './EquityCurve';
 import WinLossDistribution from './WinLossDistribution';
 import PnlByAssetType from './PnlByAssetType';
@@ -37,20 +38,21 @@ type ChartSection =
 // ============================================================================
 
 export default function PerformanceCharts({ startDate, endDate }: PerformanceChartsProps) {
+  const tSections = useTranslations('analytics.chartSections');
   const [visibleSection, setVisibleSection] = useState<ChartSection>('all');
 
   // Chart section filters
   const sections = [
-    { id: 'all', label: 'All Charts', icon: '📊' },
-    { id: 'equity', label: 'Equity Curve', icon: '📈' },
-    { id: 'distribution', label: 'Win/Loss', icon: '🎯' },
-    { id: 'assetType', label: 'By Asset', icon: '💼' },
-    { id: 'strategy', label: 'By Strategy', icon: '🎲' },
-    { id: 'timeOfDay', label: 'By Time', icon: '🕐' },
-    { id: 'dayOfWeek', label: 'By Day', icon: '📅' },
-    { id: 'symbol', label: 'By Symbol', icon: '🔤' },
-    { id: 'setupType', label: 'By Setup', icon: '🎯' },
-    { id: 'emotionalState', label: 'By Emotion', icon: '🧠' },
+    { id: 'all', label: tSections('allCharts'), icon: '📊' },
+    { id: 'equity', label: tSections('equityCurve'), icon: '📈' },
+    { id: 'distribution', label: tSections('winLoss'), icon: '🎯' },
+    { id: 'assetType', label: tSections('byAsset'), icon: '💼' },
+    { id: 'strategy', label: tSections('byStrategy'), icon: '🎲' },
+    { id: 'timeOfDay', label: tSections('byTime'), icon: '🕐' },
+    { id: 'dayOfWeek', label: tSections('byDay'), icon: '📅' },
+    { id: 'symbol', label: tSections('bySymbol'), icon: '🔤' },
+    { id: 'setupType', label: tSections('bySetup'), icon: '🎯' },
+    { id: 'emotionalState', label: tSections('byEmotion'), icon: '🧠' },
   ] as const;
 
   const shouldShowChart = (chartId: ChartSection) => {
@@ -62,7 +64,7 @@ export default function PerformanceCharts({ startDate, endDate }: PerformanceCha
       {/* Section Filter Tabs */}
       <div className="flex items-center gap-2 overflow-x-auto pb-2">
         <span className="text-sm font-medium text-foreground whitespace-nowrap">
-          Show:
+          {tSections('show')}
         </span>
         <div className="flex gap-2">
           {sections.map((section) => (
@@ -157,7 +159,7 @@ export default function PerformanceCharts({ startDate, endDate }: PerformanceCha
       {visibleSection === 'all' && (
         <div className="text-center py-4">
           <p className="text-sm text-muted-foreground">
-            Showing all {sections.length - 1} chart sections
+            {tSections('showingAllSections', { count: sections.length - 1 })}
           </p>
         </div>
       )}

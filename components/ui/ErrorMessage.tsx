@@ -1,3 +1,7 @@
+'use client';
+
+import { useTranslations } from 'next-intl';
+
 interface ErrorMessageProps {
   title?: string;
   message: string;
@@ -10,15 +14,18 @@ interface ErrorMessageProps {
 }
 
 export function ErrorMessage({
-  title = 'Error',
+  title,
   message,
   type = 'error',
   onRetry,
-  retryText = 'Try Again',
+  retryText,
   dismissible = false,
   onDismiss,
   className = '',
 }: ErrorMessageProps) {
+  const t = useTranslations('common');
+  const defaultTitle = title ?? t('error');
+  const defaultRetryText = retryText ?? t('tryAgain');
   const typeStyles = {
     error: {
       container: 'loss-bg border-danger',
@@ -108,7 +115,7 @@ export function ErrorMessage({
         {getIcon()}
         
         <div className="flex-1 min-w-0">
-          <h3 className={`text-sm font-semibold ${styles.title} mb-1`}>{title}</h3>
+          <h3 className={`text-sm font-semibold ${styles.title} mb-1`}>{defaultTitle}</h3>
           <p className="text-sm text-foreground">{message}</p>
 
           {(onRetry || dismissible) && (
@@ -131,7 +138,7 @@ export function ErrorMessage({
                       d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
                     />
                   </svg>
-                  {retryText}
+                  {defaultRetryText}
                 </button>
               )}
               {dismissible && onDismiss && (
@@ -139,7 +146,7 @@ export function ErrorMessage({
                   onClick={onDismiss}
                   className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  Dismiss
+                  {t('dismiss')}
                 </button>
               )}
             </div>
@@ -150,7 +157,7 @@ export function ErrorMessage({
           <button
             onClick={onDismiss}
             className="text-muted-foreground hover:text-foreground transition-colors"
-            aria-label="Dismiss"
+            aria-label={t('dismiss')}
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path

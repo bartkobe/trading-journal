@@ -1,16 +1,25 @@
 import { requireAuth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
+import { getTranslations } from 'next-intl/server';
 import DashboardContent from '@/components/analytics/DashboardContent';
 
 export const dynamic = 'force-dynamic';
 
-export default async function DashboardPage() {
+type DashboardPageProps = {
+  params: Promise<{ locale: string }>;
+};
+
+export default async function DashboardPage({ params }: DashboardPageProps) {
+  const { locale } = await params;
+  const t = await getTranslations('common');
+  const tNav = await getTranslations('navigation');
+  
   const user = await requireAuth().catch(() => {
-    redirect('/');
+    redirect(`/${locale}`);
   });
 
   if (!user) {
-    redirect('/');
+    redirect(`/${locale}`);
   }
 
   return (
@@ -19,9 +28,9 @@ export default async function DashboardPage() {
       <div className="bg-muted/30 border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="space-y-1">
-            <h1 className="text-4xl font-bold text-foreground tracking-tight">Dashboard</h1>
+            <h1 className="text-4xl font-bold text-foreground tracking-tight">{tNav('dashboard')}</h1>
             <p className="text-base text-muted-foreground">
-                Welcome back, {user.name || user.email}
+                {t('welcomeBack', { name: user.name || user.email })}
               </p>
           </div>
         </div>
@@ -36,7 +45,7 @@ export default async function DashboardPage() {
       <footer className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 border-t border-border mt-20">
         <div className="text-center">
           <p className="text-sm text-muted-foreground">
-            Trading Journal © 2025 • Track, Analyze, Improve
+            {t('footerCopyright')}
           </p>
         </div>
       </footer>

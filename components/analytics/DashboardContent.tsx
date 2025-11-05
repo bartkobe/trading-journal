@@ -1,13 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/routing';
 import DashboardMetrics from './DashboardMetrics';
 import PerformanceCharts from './PerformanceCharts';
 import DateRangeFilter from '../ui/DateRangeFilter';
 import { OpenTradesSection } from '../trades/OpenTradesSection';
 
 export default function DashboardContent() {
+  const t = useTranslations('analytics');
   const [startDate, setStartDate] = useState<string | undefined>();
   const [endDate, setEndDate] = useState<string | undefined>();
 
@@ -26,10 +28,10 @@ export default function DashboardContent() {
         <div className="mb-6">
           <div className="space-y-1">
             <h2 className="text-2xl font-semibold text-foreground">
-              Filter by Date Range
+              {t('filterByDateRange')}
             </h2>
             <p className="text-sm text-muted-foreground">
-              Customize the date range to analyze specific periods
+              {t('customizeDateRange')}
             </p>
           </div>
         </div>
@@ -51,10 +53,10 @@ export default function DashboardContent() {
         <div className="mb-8">
           <div className="space-y-1">
             <h2 className="text-2xl font-bold text-foreground">
-              Performance Analysis
+              {t('performanceAnalysis')}
             </h2>
             <p className="text-base text-muted-foreground">
-              Visual breakdown of your trading performance
+              {t('visualBreakdown')}
             </p>
           </div>
         </div>
@@ -66,10 +68,10 @@ export default function DashboardContent() {
         <div className="mb-6">
           <div className="space-y-1">
             <h2 className="text-xl font-semibold text-foreground">
-              Quick Actions
+              {t('quickActions')}
             </h2>
             <p className="text-sm text-muted-foreground">
-              Frequently used features and shortcuts
+              {t('frequentlyUsedFeatures')}
             </p>
           </div>
         </div>
@@ -80,8 +82,8 @@ export default function DashboardContent() {
           >
             <span className="text-2xl">📝</span>
             <div>
-              <p className="font-medium text-foreground dark:text-gray-100">Log New Trade</p>
-              <p className="text-sm text-muted-foreground">Record your latest trade</p>
+              <p className="font-medium text-foreground dark:text-gray-100">{t('logNewTrade')}</p>
+              <p className="text-sm text-muted-foreground">{t('recordLatestTrade')}</p>
             </div>
           </Link>
           <Link
@@ -90,8 +92,8 @@ export default function DashboardContent() {
           >
             <span className="text-2xl">📋</span>
             <div>
-              <p className="font-medium text-foreground dark:text-gray-100">View All Trades</p>
-              <p className="text-sm text-muted-foreground">Browse trade history</p>
+              <p className="font-medium text-foreground dark:text-gray-100">{t('viewAllTrades')}</p>
+              <p className="text-sm text-muted-foreground">{t('browseTradeHistory')}</p>
             </div>
           </Link>
           <Link
@@ -100,8 +102,8 @@ export default function DashboardContent() {
           >
             <span className="text-2xl">📈</span>
             <div>
-              <p className="font-medium text-foreground dark:text-gray-100">Analytics</p>
-              <p className="text-sm text-muted-foreground">View detailed stats</p>
+              <p className="font-medium text-foreground dark:text-gray-100">{t('analytics')}</p>
+              <p className="text-sm text-muted-foreground">{t('viewDetailedStats')}</p>
             </div>
           </Link>
         </div>

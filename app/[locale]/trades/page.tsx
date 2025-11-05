@@ -4,11 +4,17 @@ import { TradesClient } from './TradesClient';
 
 export const dynamic = 'force-dynamic';
 
-export default async function TradesPage() {
+type TradesPageProps = {
+  params: Promise<{ locale: string }>;
+};
+
+export default async function TradesPage({ params }: TradesPageProps) {
+  const { locale } = await params;
+  
   try {
     await requireAuth();
   } catch (error) {
-    redirect('/');
+    redirect(`/${locale}`);
   }
 
   return <TradesClient />;

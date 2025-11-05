@@ -1,0 +1,1 @@
+I'd like the app to be bilignual: English and Polish. This setting could be changed by user during a session.
