@@ -1,7 +1,39 @@
 import createMiddleware from 'next-intl/middleware';
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyToken } from '@/lib/auth';
 import { routing } from './i18n/routing';
+
+/**
+ * Lightweight token checker for middleware (Edge Runtime compatible)
+ * Only checks token format and expiration, not signature.
+ * Full verification happens in API routes.
+ * Uses atob for Edge Runtime compatibility (no Buffer dependency).
+ */
+function isTokenValid(token: string): boolean {
+  try {
+    // JWT format: header.payload.signature
+    const parts = token.split('.');
+    if (parts.length !== 3) return false;
+
+    // Parse payload (base64url decode) - Edge Runtime compatible
+    // Convert base64url to base64, then decode
+    const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+    // Add padding if needed
+    const padded = base64 + '='.repeat((4 - (base64.length % 4)) % 4);
+    const decoded = atob(padded);
+    const payload = JSON.parse(decoded);
+
+    // Check expiration
+    if (payload.exp && typeof payload.exp === 'number') {
+      const now = Math.floor(Date.now() / 1000);
+      if (payload.exp < now) return false;
+    }
+
+    // Token format is valid and not expired
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 // Routes that require authentication (without locale prefix)
 const protectedRoutes = ['/dashboard', '/trades', '/analytics'];
@@ -96,9 +128,9 @@ export default function middleware(request: NextRequest) {
     });
   }
 
-  // Check authentication
+  // Check authentication (lightweight check for routing decisions)
   const token = request.cookies.get('auth-token')?.value;
-  const isAuthenticated = token ? verifyToken(token) !== null : false;
+  const isAuthenticated = token ? isTokenValid(token) : false;
 
   // Check if the route is protected (without locale prefix)
   const isProtectedRoute = protectedRoutes.some((route) =>
