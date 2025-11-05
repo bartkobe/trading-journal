@@ -45,6 +45,8 @@ A comprehensive single-user web application designed for day and swing traders t
 - ✅ Fully responsive design (desktop-first, mobile-friendly)
 - ✅ Accessible (WCAG 2.1 AA compliance)
 - ✅ Fast and performant
+- ✅ **Bilingual support** - English and Polish languages
+- ✅ Language switching with persistent preference
 
 ### Data Management
 - ✅ CSV export for all trade data
@@ -62,6 +64,7 @@ A comprehensive single-user web application designed for day and swing traders t
 - **Charts**: Recharts
 - **Forms**: React Hook Form + Zod validation
 - **Rich Text**: Tiptap
+- **Internationalization**: next-intl (English and Polish)
 
 ### Backend
 - **API**: Next.js API Routes
@@ -298,16 +301,15 @@ npx prisma db push
 ```
 trading-journal/
 ├── app/                          # Next.js App Router pages and API routes
-│   ├── api/                      # API endpoints
-│   │   ├── auth/                 # Authentication endpoints
-│   │   ├── trades/               # Trade management endpoints
-│   │   ├── analytics/            # Analytics endpoints
-│   │   ├── tags/                 # Tag endpoints
-│   │   └── export/               # CSV export endpoint
-│   ├── dashboard/                # Dashboard page
-│   ├── trades/                   # Trade pages
+│   ├── [locale]/                 # Locale-aware pages (en, pl)
+│   │   ├── api/                  # API endpoints (if needed)
+│   │   ├── dashboard/            # Dashboard page
+│   │   ├── trades/               # Trade pages
+│   │   ├── layout.tsx            # Locale layout
+│   │   ├── page.tsx              # Landing/login page
+│   │   ├── error.tsx             # Error boundary
+│   │   └── not-found.tsx         # 404 page
 │   ├── layout.tsx                # Root layout
-│   ├── page.tsx                  # Landing/login page
 │   └── globals.css               # Global styles
 │
 ├── components/                   # React components
@@ -316,6 +318,27 @@ trading-journal/
 │   ├── trades/                   # Trade-related components
 │   ├── ui/                       # Reusable UI components
 │   └── providers/                # Context providers
+│
+├── locales/                      # Translation files
+│   ├── en/                       # English translations
+│   │   ├── common.json
+│   │   ├── navigation.json
+│   │   ├── forms.json
+│   │   ├── trades.json
+│   │   ├── analytics.json
+│   │   └── errors.json
+│   └── pl/                       # Polish translations
+│       ├── common.json
+│       ├── navigation.json
+│       ├── forms.json
+│       ├── trades.json
+│       ├── analytics.json
+│       └── errors.json
+│
+├── i18n/                         # Internationalization configuration
+│   ├── config.ts                 # Locale configuration
+│   ├── request.ts                # Server-side i18n setup
+│   └── routing.ts                # Locale-aware routing
 │
 ├── lib/                          # Utility libraries
 │   ├── analytics.ts              # Analytics calculations

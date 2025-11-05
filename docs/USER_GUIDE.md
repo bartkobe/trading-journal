@@ -703,6 +703,27 @@ The exported CSV includes:
 
 ## Customization
 
+### Language Selection
+
+The application supports two languages: **English** and **Polish** (Polski).
+
+**To Change Language**:
+1. Look for the language selector in the navigation bar (usually near the theme toggle)
+2. Click on the language selector dropdown
+3. Select your preferred language:
+   - **English** (EN)
+   - **Polski** (PL)
+4. The interface immediately updates to the selected language
+5. Your language preference is saved automatically and persists across sessions
+
+**Language Features**:
+- All UI elements are translated (buttons, labels, messages, navigation)
+- Error messages and success notifications are localized
+- Analytics labels and chart titles are translated
+- Your language preference is remembered for future visits
+
+**Note**: User-entered content (trade notes, tags, symbols, strategy names) is **not** translated and displays exactly as you entered it.
+
 ### Theme Selection
 
 Switch between light and dark themes:
@@ -728,6 +749,8 @@ The main navigation provides quick access to:
 - **Dashboard**: Analytics overview
 - **Trades**: All your trades
 - **New Trade**: Add new trade
+- **Language Selector**: Switch between English and Polish
+- **Theme Toggle**: Switch between light and dark themes
 - **Logout**: Sign out
 
 ### Responsive Design

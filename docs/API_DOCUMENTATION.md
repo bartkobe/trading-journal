@@ -82,6 +82,9 @@ Register a new user account.
 - `500 Internal Server Error`: Server error
 
 **Notes**:
+- Error messages are localized based on the user's language preference (determined from request headers or cookies)
+- The `NEXT_LOCALE` cookie or `Accept-Language` header is used to determine the response language
+- Error messages default to English if no language preference is detected
 - On successful registration, an authentication cookie is automatically set
 - User is immediately authenticated after registration
 
@@ -131,6 +134,7 @@ Authenticate a user and create a session.
 - `500 Internal Server Error`: Server error
 
 **Notes**:
+- Success and error messages are localized based on the user's language preference
 - On successful login, an authentication cookie is automatically set
 - Cookie is httpOnly, secure in production, and expires based on `JWT_EXPIRES_IN` (default: 7 days)
 
