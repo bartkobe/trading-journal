@@ -9,13 +9,31 @@ type StorageProvider = 'cloudinary' | 's3' | 'supabase-s3' | 'none';
 // This is called at runtime to ensure environment variables are available
 const getStorageProvider = (): StorageProvider => {
   // Check Supabase Storage via S3 API first (since user is already using Supabase for database)
-  if (
+  const hasSupabaseStorage = !!(
     process.env['SUPABASE_STORAGE_ENDPOINT'] &&
     process.env['SUPABASE_STORAGE_ACCESS_KEY_ID'] &&
     process.env['SUPABASE_STORAGE_SECRET_ACCESS_KEY'] &&
     process.env['SUPABASE_STORAGE_BUCKET'] &&
     process.env['SUPABASE_STORAGE_REGION']
-  ) {
+  );
+  
+  // Debug logging (only log first few chars of sensitive values)
+  if (process.env.NODE_ENV !== 'production' || process.env.DEBUG_STORAGE === 'true') {
+    console.log('Storage provider check:', {
+      hasSupabaseStorage,
+      hasEndpoint: !!process.env['SUPABASE_STORAGE_ENDPOINT'],
+      hasAccessKey: !!process.env['SUPABASE_STORAGE_ACCESS_KEY_ID'],
+      hasSecretKey: !!process.env['SUPABASE_STORAGE_SECRET_ACCESS_KEY'],
+      hasBucket: !!process.env['SUPABASE_STORAGE_BUCKET'],
+      hasRegion: !!process.env['SUPABASE_STORAGE_REGION'],
+      endpoint: process.env['SUPABASE_STORAGE_ENDPOINT']?.substring(0, 30) + '...',
+      accessKeyPrefix: process.env['SUPABASE_STORAGE_ACCESS_KEY_ID']?.substring(0, 8) + '...',
+      bucket: process.env['SUPABASE_STORAGE_BUCKET'],
+      region: process.env['SUPABASE_STORAGE_REGION'],
+    });
+  }
+  
+  if (hasSupabaseStorage) {
     return 'supabase-s3';
   }
 
@@ -69,20 +87,47 @@ const getS3Client = (): S3Client | null => {
     if (!s3Client) {
       const isSupabase = provider === 'supabase-s3';
       
+      const accessKeyId = isSupabase
+        ? process.env['SUPABASE_STORAGE_ACCESS_KEY_ID']!
+        : process.env['AWS_ACCESS_KEY_ID']!;
+      const secretAccessKey = isSupabase
+        ? process.env['SUPABASE_STORAGE_SECRET_ACCESS_KEY']!
+        : process.env['AWS_SECRET_ACCESS_KEY']!;
+      const region = isSupabase 
+        ? process.env['SUPABASE_STORAGE_REGION']!
+        : process.env['AWS_REGION']!;
+      const endpoint = isSupabase 
+        ? process.env['SUPABASE_STORAGE_ENDPOINT']!
+        : undefined;
+      
+      // Debug logging
+      if (process.env.NODE_ENV !== 'production' || process.env.DEBUG_STORAGE === 'true') {
+        console.log('Initializing S3 client:', {
+          provider,
+          isSupabase,
+          region,
+          endpoint: endpoint?.substring(0, 50) + '...',
+          accessKeyIdPrefix: accessKeyId?.substring(0, 8) + '...',
+          hasAccessKey: !!accessKeyId,
+          hasSecretKey: !!secretAccessKey,
+        });
+      }
+      
+      if (!accessKeyId || !secretAccessKey) {
+        console.error('Missing S3 credentials:', {
+          hasAccessKey: !!accessKeyId,
+          hasSecretKey: !!secretAccessKey,
+          envKeys: Object.keys(process.env).filter(k => k.includes('STORAGE') || k.includes('AWS')),
+        });
+        throw new Error('S3 credentials not configured');
+      }
+      
       s3Client = new S3Client({
-        region: isSupabase 
-          ? process.env['SUPABASE_STORAGE_REGION']!
-          : process.env['AWS_REGION']!,
-        endpoint: isSupabase 
-          ? process.env['SUPABASE_STORAGE_ENDPOINT']!
-          : undefined, // Use default AWS endpoint for regular S3
+        region,
+        endpoint,
         credentials: {
-          accessKeyId: isSupabase
-            ? process.env['SUPABASE_STORAGE_ACCESS_KEY_ID']!
-            : process.env['AWS_ACCESS_KEY_ID']!,
-          secretAccessKey: isSupabase
-            ? process.env['SUPABASE_STORAGE_SECRET_ACCESS_KEY']!
-            : process.env['AWS_SECRET_ACCESS_KEY']!,
+          accessKeyId,
+          secretAccessKey,
         },
         forcePathStyle: isSupabase ? true : false, // Supabase requires path-style URLs
       });
