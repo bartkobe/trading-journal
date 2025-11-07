@@ -395,11 +395,28 @@ async function uploadToS3(
         Key: key,
       });
       url = await getSignedUrl(client, getObjectCommand, { expiresIn: 31536000 }); // 1 year
+      
+      // Log for debugging
+      console.log('Generated signed URL for Supabase:', {
+        bucket,
+        key,
+        urlPrefix: url.substring(0, 80) + '...',
+      });
     } catch (error) {
+      console.error('Failed to generate signed URL, using public URL format:', error);
       // Fallback to public URL format if signed URL generation fails
-      const endpoint = process.env['SUPABASE_STORAGE_ENDPOINT']!;
+      const endpoint = process.env['SUPABASE_STORAGE_ENDPOINT']?.trim();
+      if (!endpoint) {
+        throw new Error('SUPABASE_STORAGE_ENDPOINT not configured');
+      }
       const baseUrl = endpoint.replace('/storage/v1/s3', '');
       url = `${baseUrl}/storage/v1/object/public/${bucket}/${key}`;
+      
+      console.log('Using public URL format:', {
+        bucket,
+        key,
+        url,
+      });
     }
   } else {
       // Regular S3 - generate signed URL
