@@ -54,8 +54,9 @@ export async function POST(request: NextRequest) {
 
     // Handle exitDate - only include if it has a valid value
     // This prevents null constraint violations if the database schema hasn't been migrated yet
+    // After Zod validation, exitDate is either a Date object or undefined
     let exitDate: Date | undefined = undefined;
-    if (tradeData.exitDate !== undefined && tradeData.exitDate !== null && tradeData.exitDate !== '') {
+    if (tradeData.exitDate !== undefined && tradeData.exitDate !== null) {
       try {
         // tradeData.exitDate is already a Date object after Zod validation
         exitDate = tradeData.exitDate instanceof Date ? tradeData.exitDate : new Date(tradeData.exitDate);
