@@ -307,13 +307,13 @@ async function uploadToS3(
       url = `${baseUrl}/storage/v1/object/public/${bucket}/${key}`;
     }
   } else {
-    // Regular S3 - generate signed URL
-    const getObjectCommand = new GetObjectCommand({
-      Bucket: bucket,
-      Key: key,
-    });
-    url = await getSignedUrl(s3Client, getObjectCommand, { expiresIn: 31536000 }); // 1 year
-  }
+      // Regular S3 - generate signed URL
+      const getObjectCommand = new GetObjectCommand({
+        Bucket: bucket,
+        Key: key,
+      });
+      url = await getSignedUrl(client, getObjectCommand, { expiresIn: 31536000 }); // 1 year
+    }
 
   return {
     url,
