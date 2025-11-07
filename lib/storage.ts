@@ -87,18 +87,19 @@ const getS3Client = (): S3Client | null => {
     if (!s3Client) {
       const isSupabase = provider === 'supabase-s3';
       
-      const accessKeyId = isSupabase
-        ? process.env['SUPABASE_STORAGE_ACCESS_KEY_ID']!
-        : process.env['AWS_ACCESS_KEY_ID']!;
-      const secretAccessKey = isSupabase
-        ? process.env['SUPABASE_STORAGE_SECRET_ACCESS_KEY']!
-        : process.env['AWS_SECRET_ACCESS_KEY']!;
-      const region = isSupabase 
-        ? process.env['SUPABASE_STORAGE_REGION']!
-        : process.env['AWS_REGION']!;
-      const endpoint = isSupabase 
-        ? process.env['SUPABASE_STORAGE_ENDPOINT']!
-        : undefined;
+      // Get and trim environment variables to avoid whitespace issues
+      const accessKeyId = (isSupabase
+        ? process.env['SUPABASE_STORAGE_ACCESS_KEY_ID']
+        : process.env['AWS_ACCESS_KEY_ID'])?.trim();
+      const secretAccessKey = (isSupabase
+        ? process.env['SUPABASE_STORAGE_SECRET_ACCESS_KEY']
+        : process.env['AWS_SECRET_ACCESS_KEY'])?.trim();
+      const region = (isSupabase 
+        ? process.env['SUPABASE_STORAGE_REGION']
+        : process.env['AWS_REGION'])?.trim();
+      const endpoint = (isSupabase 
+        ? process.env['SUPABASE_STORAGE_ENDPOINT']
+        : undefined)?.trim();
       
       // Debug logging
       if (process.env.NODE_ENV !== 'production' || process.env.DEBUG_STORAGE === 'true') {
@@ -113,14 +114,27 @@ const getS3Client = (): S3Client | null => {
         });
       }
       
-      if (!accessKeyId || !secretAccessKey) {
+      if (!accessKeyId || !secretAccessKey || !region) {
         console.error('Missing S3 credentials:', {
           hasAccessKey: !!accessKeyId,
           hasSecretKey: !!secretAccessKey,
+          hasRegion: !!region,
+          accessKeyLength: accessKeyId?.length || 0,
+          secretKeyLength: secretAccessKey?.length || 0,
+          regionValue: region,
           envKeys: Object.keys(process.env).filter(k => k.includes('STORAGE') || k.includes('AWS')),
         });
-        throw new Error('S3 credentials not configured');
+        throw new Error('S3 credentials not configured - missing required environment variables');
       }
+      
+      // Log the actual values being used (first few chars only for security)
+      console.log('Using S3 credentials:', {
+        accessKeyIdPrefix: accessKeyId.substring(0, 8) + '...',
+        accessKeyIdLength: accessKeyId.length,
+        secretKeyLength: secretAccessKey.length,
+        region,
+        endpoint: endpoint?.substring(0, 50) + '...',
+      });
       
       s3Client = new S3Client({
         region,
