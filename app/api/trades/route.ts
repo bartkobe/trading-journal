@@ -52,11 +52,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    let exitDate = null;
-    if (tradeData.exitDate !== undefined && tradeData.exitDate !== null) {
-      // tradeData.exitDate is already a Date object after Zod validation
-      exitDate = tradeData.exitDate instanceof Date ? tradeData.exitDate : new Date(tradeData.exitDate);
-      if (isNaN(exitDate.getTime())) {
+    // Handle exitDate - only include if it has a valid value
+    // This prevents null constraint violations if the database schema hasn't been migrated yet
+    let exitDate: Date | undefined = undefined;
+    if (tradeData.exitDate !== undefined && tradeData.exitDate !== null && tradeData.exitDate !== '') {
+      try {
+        // tradeData.exitDate is already a Date object after Zod validation
+        exitDate = tradeData.exitDate instanceof Date ? tradeData.exitDate : new Date(tradeData.exitDate);
+        if (isNaN(exitDate.getTime())) {
+          return NextResponse.json(
+            {
+              error: t('validationFailed'),
+              details: { exitDate: [t('invalidExitDate')] },
+            },
+            { status: 400 }
+          );
+        }
+      } catch (e) {
         return NextResponse.json(
           {
             error: t('validationFailed'),
@@ -67,6 +79,8 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Build prismaData object - only include exitDate if it has a valid value
+    // This ensures we never pass null for exitDate, which could cause constraint violations
     const prismaData: any = {
       userId: user.id,
       symbol: tradeData.symbol,
@@ -76,10 +90,10 @@ export async function POST(request: NextRequest) {
       entryPrice: tradeData.entryPrice,
       quantity: tradeData.quantity,
       direction: tradeData.direction,
-      exitDate: exitDate,
-      exitPrice: tradeData.exitPrice !== undefined && tradeData.exitPrice !== null 
-        ? tradeData.exitPrice 
-        : null,
+      // Only include exitDate if it's a valid Date object
+      ...(exitDate instanceof Date && !isNaN(exitDate.getTime()) ? { exitDate: exitDate } : {}),
+      // Only include exitPrice if it has a valid value
+      ...(tradeData.exitPrice !== undefined && tradeData.exitPrice !== null && !isNaN(tradeData.exitPrice) ? { exitPrice: tradeData.exitPrice } : {}),
       setupType: tradeData.setupType && typeof tradeData.setupType === 'string' && tradeData.setupType.trim() !== '' ? tradeData.setupType : null,
       strategyName: tradeData.strategyName && typeof tradeData.strategyName === 'string' && tradeData.strategyName.trim() !== '' ? tradeData.strategyName : null,
       stopLoss: tradeData.stopLoss !== undefined && tradeData.stopLoss !== null ? tradeData.stopLoss : null,

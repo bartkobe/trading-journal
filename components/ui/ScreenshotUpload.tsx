@@ -8,6 +8,18 @@ interface Screenshot {
   url: string;
   filename: string;
   fileSize?: number;
+  publicId?: string; // For temp files
+  tempFileId?: string; // For temp files
+  mimeType?: string; // For temp files
+}
+
+interface TempFileInfo {
+  tempFileId: string;
+  publicId: string;
+  url: string;
+  filename: string;
+  fileSize?: number;
+  mimeType?: string;
 }
 
 interface ScreenshotUploadProps {
@@ -15,9 +27,11 @@ interface ScreenshotUploadProps {
   screenshots?: Screenshot[];
   onUploadSuccess?: (screenshot: Screenshot) => void;
   onDeleteSuccess?: (screenshotId: string) => void;
+  onTempFilesChange?: (tempFiles: TempFileInfo[]) => void; // Callback for temp file changes
   maxFiles?: number;
   maxSizeMB?: number;
   disabled?: boolean;
+  tempUploadMode?: boolean; // Enable temp upload mode (for new trades)
 }
 
 export function ScreenshotUpload({
@@ -25,15 +39,18 @@ export function ScreenshotUpload({
   screenshots = [],
   onUploadSuccess,
   onDeleteSuccess,
-  maxFiles = 10,
+  onTempFilesChange,
+  maxFiles = 5, // Updated default from 10 to 5
   maxSizeMB = 10,
   disabled = false,
+  tempUploadMode = false,
 }: ScreenshotUploadProps) {
   const t = useTranslations('trades');
   const tCommon = useTranslations('common');
   const [uploadingFiles, setUploadingFiles] = useState<string[]>([]);
   const [error, setError] = useState<string>('');
   const [isDragging, setIsDragging] = useState(false);
+  const [tempFiles, setTempFiles] = useState<TempFileInfo[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const validateFile = (file: File): string | null => {
@@ -53,7 +70,8 @@ export function ScreenshotUpload({
   };
 
   const uploadFile = async (file: File) => {
-    if (!tradeId) {
+    // In temp upload mode, tradeId is not required
+    if (!tempUploadMode && !tradeId) {
       setError(t('tradeIdRequired'));
       return;
     }
@@ -64,8 +82,9 @@ export function ScreenshotUpload({
       return;
     }
 
-    // Check max files limit
-    if (screenshots.length + uploadingFiles.length >= maxFiles) {
+    // Check max files limit (include temp files in count)
+    const totalFiles = screenshots.length + uploadingFiles.length + (tempUploadMode ? tempFiles.length : 0);
+    if (totalFiles >= maxFiles) {
       setError(t('maxScreenshotsAllowed', { maxFiles }));
       return;
     }
@@ -77,7 +96,12 @@ export function ScreenshotUpload({
       const formData = new FormData();
       formData.append('file', file);
 
-      const response = await fetch(`/api/trades/${tradeId}/screenshots`, {
+      // Choose endpoint based on mode
+      const endpoint = tempUploadMode
+        ? '/api/trades/temp/screenshots'
+        : `/api/trades/${tradeId}/screenshots`;
+
+      const response = await fetch(endpoint, {
         method: 'POST',
         body: formData,
       });
@@ -89,9 +113,43 @@ export function ScreenshotUpload({
         return;
       }
 
-      // Success
+      // Handle success based on mode
+      if (tempUploadMode) {
+        // Temp upload mode - store temp file info
+        const tempFileInfo: TempFileInfo = {
+          tempFileId: result.tempFileId,
+          publicId: result.publicId,
+          url: result.url,
+          filename: result.filename,
+          fileSize: result.fileSize,
+          mimeType: result.mimeType,
+        };
+        
+        const newTempFiles = [...tempFiles, tempFileInfo];
+        setTempFiles(newTempFiles);
+        
+        // Notify parent component
+        if (onTempFilesChange) {
+          onTempFilesChange(newTempFiles);
+        }
+
+        // Also call onUploadSuccess with temp file as screenshot-like object
+        if (onUploadSuccess) {
+          onUploadSuccess({
+            id: result.tempFileId,
+            url: result.url,
+            filename: result.filename,
+            fileSize: result.fileSize,
+            publicId: result.publicId,
+            tempFileId: result.tempFileId,
+            mimeType: result.mimeType,
+          });
+        }
+      } else {
+        // Normal upload mode
       if (onUploadSuccess) {
         onUploadSuccess(result.screenshot);
+        }
       }
     } catch (err) {
       console.error('Upload error:', err);
@@ -143,7 +201,29 @@ export function ScreenshotUpload({
     }
   };
 
-  const handleDelete = async (screenshotId: string) => {
+  const handleDelete = async (screenshotId: string, isTempFile: boolean = false) => {
+    if (isTempFile) {
+      // For temp files, just remove from state
+      if (!confirm(t('deleteScreenshotConfirm'))) {
+        return;
+      }
+
+      const newTempFiles = tempFiles.filter((f) => f.tempFileId !== screenshotId);
+      setTempFiles(newTempFiles);
+
+      // Notify parent component
+      if (onTempFilesChange) {
+        onTempFilesChange(newTempFiles);
+      }
+
+      // Call onDeleteSuccess if provided
+      if (onDeleteSuccess) {
+        onDeleteSuccess(screenshotId);
+      }
+      return;
+    }
+
+    // Normal delete for existing screenshots
     if (!tradeId) return;
 
     if (!confirm(t('deleteScreenshotConfirm'))) {
@@ -182,12 +262,27 @@ export function ScreenshotUpload({
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
-  const canUploadMore = screenshots.length + uploadingFiles.length < maxFiles;
+  // Combine screenshots and temp files for display
+  const allScreenshots: Screenshot[] = [
+    ...screenshots,
+    ...tempFiles.map((tf) => ({
+      id: tf.tempFileId,
+      url: tf.url,
+      filename: tf.filename,
+      fileSize: tf.fileSize,
+      publicId: tf.publicId,
+      tempFileId: tf.tempFileId,
+      mimeType: tf.mimeType,
+    })),
+  ];
+
+  const canUploadMore = allScreenshots.length + uploadingFiles.length < maxFiles;
+  const showUploadArea = canUploadMore && !disabled && (tempUploadMode || tradeId);
 
   return (
     <div className="space-y-4">
       {/* Upload Area */}
-      {canUploadMore && !disabled && tradeId && (
+      {showUploadArea && (
         <div
           onDragEnter={handleDragEnter}
           onDragOver={handleDragOver}
@@ -271,12 +366,18 @@ export function ScreenshotUpload({
       )}
 
       {/* Screenshot Grid */}
-      {screenshots.length > 0 && (
+      {allScreenshots.length > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {screenshots.map((screenshot) => (
+          {allScreenshots.map((screenshot) => {
+            const isTempFile = !!screenshot.tempFileId;
+            return (
             <div
-              key={screenshot.id || screenshot.url}
-              className="relative group aspect-square rounded-lg overflow-hidden border border-border"
+              key={screenshot.id || screenshot.tempFileId || screenshot.url}
+              className={`relative group aspect-square rounded-lg overflow-hidden border ${
+                isTempFile 
+                  ? 'border-yellow-400 dark:border-yellow-600 border-2' 
+                  : 'border-border'
+              }`}
             >
               {/* Image */}
               <img
@@ -284,6 +385,13 @@ export function ScreenshotUpload({
                 alt={screenshot.filename}
                 className="w-full h-full object-cover"
               />
+
+              {/* Temp file indicator */}
+              {isTempFile && (
+                <div className="absolute top-2 right-2 bg-yellow-500 text-yellow-900 text-xs px-2 py-1 rounded font-medium">
+                  {t('pending') || 'Pending'}
+                </div>
+              )}
 
               {/* Overlay with actions */}
               <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-opacity flex items-center justify-center">
@@ -307,10 +415,10 @@ export function ScreenshotUpload({
                   </a>
 
                   {/* Delete */}
-                  {!disabled && screenshot.id && (
+                  {!disabled && (screenshot.id || screenshot.tempFileId) && (
                     <button
                       type="button"
-                      onClick={() => handleDelete(screenshot.id!)}
+                      onClick={() => handleDelete(screenshot.id || screenshot.tempFileId!, isTempFile)}
                       className="p-2 bg-danger text-danger-foreground rounded-lg hover:bg-danger-dark"
                       title={t('deleteScreenshot')}
                     >
@@ -340,12 +448,13 @@ export function ScreenshotUpload({
                 )}
               </div>
             </div>
-          ))}
+          );
+          })}
         </div>
       )}
 
       {/* No Screenshots Message */}
-      {screenshots.length === 0 && uploadingFiles.length === 0 && !tradeId && (
+      {allScreenshots.length === 0 && uploadingFiles.length === 0 && !tempUploadMode && !tradeId && (
         <p className="text-sm text-muted-foreground text-center py-4">
           {t('saveTradeFirst')}
         </p>

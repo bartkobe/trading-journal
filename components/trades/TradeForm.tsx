@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/routing';
 import { tradeSchema, type TradeInput } from '@/lib/validation';
 import { CurrencySelector } from '@/components/ui/CurrencySelector';
+import { ScreenshotUpload } from '@/components/ui/ScreenshotUpload';
 
 interface TradeFormProps {
   tradeId?: string;
@@ -31,6 +32,15 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
   });
   const [showCloseConfirm, setShowCloseConfirm] = useState(false);
   const [pendingSubmit, setPendingSubmit] = useState<any>(null);
+  const [tempFiles, setTempFiles] = useState<Array<{
+    tempFileId: string;
+    publicId: string;
+    url: string;
+    filename: string;
+    fileSize?: number;
+    mimeType?: string;
+  }>>([]);
+  const [uploadedScreenshots, setUploadedScreenshots] = useState<any[]>([]);
 
   const isEditMode = !!tradeId;
 
@@ -91,6 +101,26 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
       }, 100);
     }
   }, [showCloseConfirm, confirmDialogElement]);
+
+  // Load existing screenshots when in edit mode
+  useEffect(() => {
+    if (isEditMode && tradeId) {
+      const loadScreenshots = async () => {
+        try {
+          const response = await fetch(`/api/trades/${tradeId}`);
+          if (response.ok) {
+            const data = await response.json();
+            if (data.trade?.screenshots) {
+              setUploadedScreenshots(data.trade.screenshots);
+            }
+          }
+        } catch (error) {
+          console.error('Failed to load screenshots:', error);
+        }
+      };
+      loadScreenshots();
+    }
+  }, [isEditMode, tradeId]);
 
   // Handle "Trade is still open" toggle
   const handleTradeOpenToggle = (checked: boolean) => {
@@ -203,13 +233,53 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
       }
 
       const result = await response.json();
+      const tradeIdFromResponse = result.trade.id;
+
+      // If this is a new trade and we have temporary files, associate them
+      if (!isEditMode && tempFiles.length > 0 && tradeIdFromResponse) {
+        try {
+          // Convert tempFiles to the format expected by the associate endpoint
+          const tempFilesForAssociate = tempFiles.map((tf) => ({
+            publicId: tf.publicId,
+            filename: tf.filename,
+            fileSize: tf.fileSize,
+            mimeType: tf.mimeType,
+          }));
+
+          const associateResponse = await fetch(`/api/trades/${tradeIdFromResponse}/screenshots/associate`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ tempFiles: tempFilesForAssociate }),
+          });
+
+          if (!associateResponse.ok) {
+            const associateResult = await associateResponse.json();
+            console.error('Failed to associate screenshots:', associateResult);
+            // Don't fail the whole operation, just log the error
+            // The trade was created successfully, screenshots can be added later
+            setError(
+              tErrors('tradeCreatedButScreenshotsFailed') || 
+              'Trade created successfully, but some screenshots could not be attached. You can add them later.'
+            );
+          }
+        } catch (associateError) {
+          console.error('Error associating screenshots:', associateError);
+          // Don't fail the whole operation
+          setError(
+            tErrors('tradeCreatedButScreenshotsFailed') || 
+            'Trade created successfully, but screenshots could not be attached. You can add them later.'
+          );
+        }
+      }
 
       // Call success callback or redirect
       if (onSuccess) {
         onSuccess();
       } else {
         // Use next-intl router which automatically handles locale prefix
-        router.push(`/trades/${result.trade.id}`);
+        router.push(`/trades/${tradeIdFromResponse}`);
       }
     } catch (err) {
       console.error('Save trade error:', err);
@@ -707,6 +777,30 @@ export function TradeForm({ tradeId, initialData, onSuccess }: TradeFormProps) {
             {t('notesHelpText')}
           </p>
         </div>
+      </div>
+
+      {/* Screenshots Section */}
+      <div className="bg-card shadow rounded-lg p-6">
+        <h2 className="text-lg font-semibold mb-4">{tTrades('screenshots')}</h2>
+        <ScreenshotUpload
+          tradeId={isEditMode ? tradeId : undefined}
+          screenshots={isEditMode ? uploadedScreenshots : []}
+          tempUploadMode={!isEditMode}
+          onTempFilesChange={(tempFilesList) => {
+            setTempFiles(tempFilesList);
+          }}
+          onUploadSuccess={(screenshot) => {
+            if (isEditMode) {
+              setUploadedScreenshots((prev) => [...prev, screenshot]);
+            }
+          }}
+          onDeleteSuccess={(screenshotId) => {
+            if (isEditMode) {
+              setUploadedScreenshots((prev) => prev.filter((s) => s.id !== screenshotId));
+            }
+          }}
+          disabled={isLoading}
+        />
       </div>
 
       {/* Form Actions */}
