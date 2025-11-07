@@ -1,11 +1,24 @@
 import { v2 as cloudinary } from 'cloudinary';
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, DeleteObjectCommand, CopyObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 // Storage provider type
-type StorageProvider = 'cloudinary' | 's3' | 'none';
+type StorageProvider = 'cloudinary' | 's3' | 'supabase-s3' | 'none';
 
 // Determine which storage provider to use based on environment variables
+// This is called at runtime to ensure environment variables are available
 const getStorageProvider = (): StorageProvider => {
+  // Check Supabase Storage via S3 API first (since user is already using Supabase for database)
+  if (
+    process.env['SUPABASE_STORAGE_ENDPOINT'] &&
+    process.env['SUPABASE_STORAGE_ACCESS_KEY_ID'] &&
+    process.env['SUPABASE_STORAGE_SECRET_ACCESS_KEY'] &&
+    process.env['SUPABASE_STORAGE_BUCKET'] &&
+    process.env['SUPABASE_STORAGE_REGION']
+  ) {
+    return 'supabase-s3';
+  }
+
   if (
     process.env['CLOUDINARY_CLOUD_NAME'] &&
     process.env['CLOUDINARY_API_KEY'] &&
@@ -26,28 +39,57 @@ const getStorageProvider = (): StorageProvider => {
   return 'none';
 };
 
-const STORAGE_PROVIDER = getStorageProvider();
+// Lazy initialization - get provider at runtime instead of module load time
+let _storageProvider: StorageProvider | null = null;
+const getStorageProviderCached = (): StorageProvider => {
+  if (_storageProvider === null) {
+    _storageProvider = getStorageProvider();
+  }
+  return _storageProvider;
+};
 
-// Initialize Cloudinary
-if (STORAGE_PROVIDER === 'cloudinary') {
-  cloudinary.config({
-    cloud_name: process.env['CLOUDINARY_CLOUD_NAME'] as string,
-    api_key: process.env['CLOUDINARY_API_KEY'] as string,
-    api_secret: process.env['CLOUDINARY_API_SECRET'] as string,
-  });
-}
+// Initialize Cloudinary (lazy initialization)
+let cloudinaryInitialized = false;
+const initializeCloudinary = () => {
+  if (!cloudinaryInitialized && getStorageProviderCached() === 'cloudinary') {
+    cloudinary.config({
+      cloud_name: process.env['CLOUDINARY_CLOUD_NAME'] as string,
+      api_key: process.env['CLOUDINARY_API_KEY'] as string,
+      api_secret: process.env['CLOUDINARY_API_SECRET'] as string,
+    });
+    cloudinaryInitialized = true;
+  }
+};
 
-// Initialize AWS S3
+// Initialize AWS S3 (for regular S3 or Supabase Storage via S3 API) - lazy initialization
 let s3Client: S3Client | null = null;
-if (STORAGE_PROVIDER === 's3') {
-  s3Client = new S3Client({
-    region: process.env['AWS_REGION']!,
-    credentials: {
-      accessKeyId: process.env['AWS_ACCESS_KEY_ID']!,
-      secretAccessKey: process.env['AWS_SECRET_ACCESS_KEY']!,
-    },
-  });
-}
+const getS3Client = (): S3Client | null => {
+  const provider = getStorageProviderCached();
+  if (provider === 's3' || provider === 'supabase-s3') {
+    if (!s3Client) {
+      const isSupabase = provider === 'supabase-s3';
+      
+      s3Client = new S3Client({
+        region: isSupabase 
+          ? process.env['SUPABASE_STORAGE_REGION']!
+          : process.env['AWS_REGION']!,
+        endpoint: isSupabase 
+          ? process.env['SUPABASE_STORAGE_ENDPOINT']!
+          : undefined, // Use default AWS endpoint for regular S3
+        credentials: {
+          accessKeyId: isSupabase
+            ? process.env['SUPABASE_STORAGE_ACCESS_KEY_ID']!
+            : process.env['AWS_ACCESS_KEY_ID']!,
+          secretAccessKey: isSupabase
+            ? process.env['SUPABASE_STORAGE_SECRET_ACCESS_KEY']!
+            : process.env['AWS_SECRET_ACCESS_KEY']!,
+        },
+        forcePathStyle: isSupabase ? true : false, // Supabase requires path-style URLs
+      });
+    }
+  }
+  return s3Client;
+};
 
 export interface UploadResult {
   url: string;
@@ -61,26 +103,29 @@ export interface UploadResult {
  * Upload an image file to cloud storage
  * @param file - File buffer or base64 string
  * @param filename - Original filename
- * @param folder - Optional folder path (e.g., 'trades/screenshots')
+ * @param folder - Optional folder path (e.g., 'temp' for temp folder, '' for root)
  * @returns Upload result with URL and metadata
  */
 export async function uploadImage(
   file: Buffer | string,
   filename: string,
-  folder: string = 'trades/screenshots'
+  folder: string = ''
 ): Promise<UploadResult> {
-  if (STORAGE_PROVIDER === 'none') {
+  const provider = getStorageProviderCached();
+  
+  if (provider === 'none') {
     throw new Error(
-      'No cloud storage provider configured. Please set up Cloudinary or AWS S3 credentials in .env'
+      'No cloud storage provider configured. Please set up Supabase Storage (S3 API), Cloudinary, or AWS S3 credentials in environment variables.'
     );
   }
 
-  if (STORAGE_PROVIDER === 'cloudinary') {
-    return uploadToCloudinary(file, filename, folder);
+  if (provider === 'supabase-s3' || provider === 's3') {
+    return uploadToS3(file, filename, folder);
   }
 
-  if (STORAGE_PROVIDER === 's3') {
-    return uploadToS3(file, filename, folder);
+  if (provider === 'cloudinary') {
+    initializeCloudinary();
+    return uploadToCloudinary(file, filename, folder);
   }
 
   throw new Error('Invalid storage provider');
@@ -92,17 +137,20 @@ export async function uploadImage(
  * @returns Success boolean
  */
 export async function deleteImage(publicId: string): Promise<boolean> {
-  if (STORAGE_PROVIDER === 'none') {
+  const provider = getStorageProviderCached();
+  
+  if (provider === 'none') {
     return false;
   }
 
   try {
-    if (STORAGE_PROVIDER === 'cloudinary') {
-      return await deleteFromCloudinary(publicId);
+    if (provider === 'supabase-s3' || provider === 's3') {
+      return await deleteFromS3(publicId);
     }
 
-    if (STORAGE_PROVIDER === 's3') {
-      return await deleteFromS3(publicId);
+    if (provider === 'cloudinary') {
+      initializeCloudinary();
+      return await deleteFromCloudinary(publicId);
     }
 
     return false;
@@ -116,7 +164,40 @@ export async function deleteImage(publicId: string): Promise<boolean> {
  * Get the current storage provider
  */
 export function getStorageProviderName(): string {
-  return STORAGE_PROVIDER;
+  return getStorageProviderCached();
+}
+
+/**
+ * Move an image from one path to another in cloud storage
+ * Used to move files from temporary storage to permanent storage
+ * @param publicId - Current public_id (Cloudinary) or key (S3) of the file
+ * @param fromFolder - Source folder path (e.g., 'temp' or '' for root)
+ * @param toFolder - Destination folder path (e.g., '' for root)
+ * @returns New publicId/key and URL after move
+ */
+export async function moveImage(
+  publicId: string,
+  fromFolder: string,
+  toFolder: string
+): Promise<{ publicId: string; url: string }> {
+  const provider = getStorageProviderCached();
+  
+  if (provider === 'none') {
+    throw new Error(
+      'No cloud storage provider configured. Please set up Supabase Storage (S3 API), Cloudinary, or AWS S3 credentials in environment variables.'
+    );
+  }
+
+  if (provider === 'supabase-s3' || provider === 's3') {
+    return moveInS3(publicId, fromFolder, toFolder);
+  }
+
+  if (provider === 'cloudinary') {
+    initializeCloudinary();
+    return moveInCloudinary(publicId, fromFolder, toFolder);
+  }
+
+  throw new Error('Invalid storage provider');
 }
 
 // ============================================================================
@@ -180,12 +261,18 @@ async function uploadToS3(
   filename: string,
   folder: string
 ): Promise<UploadResult> {
-  if (!s3Client) {
+  const client = getS3Client();
+  if (!client) {
     throw new Error('S3 client not initialized');
   }
 
-  const bucket = process.env['AWS_S3_BUCKET']!;
-  const key = `${folder}/${Date.now()}-${filename}`;
+  const provider = getStorageProviderCached();
+  const isSupabase = provider === 'supabase-s3';
+  const bucket = isSupabase
+    ? process.env['SUPABASE_STORAGE_BUCKET']!
+    : process.env['AWS_S3_BUCKET']!;
+  // Build key: if folder is empty, just use filename; otherwise folder/filename
+  const key = folder ? `${folder}/${Date.now()}-${filename}` : `${Date.now()}-${filename}`;
 
   // Convert base64 string to Buffer if necessary
   const fileBuffer =
@@ -200,10 +287,33 @@ async function uploadToS3(
     ContentType: 'image/jpeg', // Default, should be determined from file
   });
 
-  await s3Client.send(command);
+  await client.send(command);
 
-  // Generate public URL
-  const url = `https://${bucket}.s3.${process.env['AWS_REGION']}.amazonaws.com/${key}`;
+  // Generate URL - use signed URL for private buckets, public URL for public buckets
+  let url: string;
+  if (isSupabase) {
+    // For Supabase, try to generate a signed URL (works for both public and private buckets)
+    // Signed URLs are valid for 1 year (max for S3)
+    try {
+      const getObjectCommand = new GetObjectCommand({
+        Bucket: bucket,
+        Key: key,
+      });
+      url = await getSignedUrl(client, getObjectCommand, { expiresIn: 31536000 }); // 1 year
+    } catch (error) {
+      // Fallback to public URL format if signed URL generation fails
+      const endpoint = process.env['SUPABASE_STORAGE_ENDPOINT']!;
+      const baseUrl = endpoint.replace('/storage/v1/s3', '');
+      url = `${baseUrl}/storage/v1/object/public/${bucket}/${key}`;
+    }
+  } else {
+    // Regular S3 - generate signed URL
+    const getObjectCommand = new GetObjectCommand({
+      Bucket: bucket,
+      Key: key,
+    });
+    url = await getSignedUrl(s3Client, getObjectCommand, { expiresIn: 31536000 }); // 1 year
+  }
 
   return {
     url,
@@ -215,21 +325,137 @@ async function uploadToS3(
 }
 
 async function deleteFromS3(key: string): Promise<boolean> {
-  if (!s3Client) {
+  const client = getS3Client();
+  if (!client) {
     return false;
   }
 
   try {
+    const provider = getStorageProviderCached();
+    const isSupabase = provider === 'supabase-s3';
+    const bucket = isSupabase
+      ? process.env['SUPABASE_STORAGE_BUCKET']!
+      : process.env['AWS_S3_BUCKET']!;
+
     const command = new DeleteObjectCommand({
-      Bucket: process.env['AWS_S3_BUCKET']!,
+      Bucket: bucket,
       Key: key,
     });
 
-    await s3Client.send(command);
+    await client.send(command);
     return true;
   } catch (error) {
     console.error('S3 deletion error:', error);
     return false;
+  }
+}
+
+/**
+ * Move file in Cloudinary by renaming (which moves between folders)
+ */
+async function moveInCloudinary(
+  publicId: string,
+  fromFolder: string,
+  toFolder: string
+): Promise<{ publicId: string; url: string }> {
+  return new Promise((resolve, reject) => {
+    // Extract filename from publicId (remove folder prefix if present)
+    const filename = publicId.includes('/') ? publicId.split('/').pop()! : publicId;
+    const newPublicId = `${toFolder}/${filename}`;
+
+    cloudinary.uploader.rename(publicId, newPublicId, (error, result) => {
+      if (error) {
+        reject(error);
+        return;
+      }
+
+      if (!result) {
+        reject(new Error('Move failed: No result returned'));
+        return;
+      }
+
+      resolve({
+        publicId: result.public_id,
+        url: result.secure_url,
+      });
+    });
+  });
+}
+
+/**
+ * Move file in S3 by copying to new location and deleting original
+ */
+async function moveInS3(
+  key: string,
+  fromFolder: string,
+  toFolder: string
+): Promise<{ publicId: string; url: string }> {
+  const client = getS3Client();
+  if (!client) {
+    throw new Error('S3 client not initialized');
+  }
+
+  const provider = getStorageProviderCached();
+  const isSupabase = provider === 'supabase-s3';
+  const bucket = isSupabase
+    ? process.env['SUPABASE_STORAGE_BUCKET']!
+    : process.env['AWS_S3_BUCKET']!;
+
+  // Extract filename from key (remove folder prefix if present)
+  const filename = key.includes('/') ? key.split('/').pop()! : key;
+  // Build new key: if toFolder is empty, just use filename; otherwise toFolder/filename
+  const newKey = toFolder ? `${toFolder}/${filename}` : filename;
+
+  try {
+    // Copy object to new location
+    const copyCommand = new CopyObjectCommand({
+      Bucket: bucket,
+      CopySource: `${bucket}/${key}`,
+      Key: newKey,
+    });
+
+    await client.send(copyCommand);
+
+    // Delete original object
+    const deleteCommand = new DeleteObjectCommand({
+      Bucket: bucket,
+      Key: key,
+    });
+
+    await client.send(deleteCommand);
+
+    // Generate new URL - use signed URL for private buckets
+    let url: string;
+    if (isSupabase) {
+      // For Supabase, generate a signed URL (works for both public and private buckets)
+      try {
+        const getObjectCommand = new GetObjectCommand({
+          Bucket: bucket,
+          Key: newKey,
+        });
+        url = await getSignedUrl(client, getObjectCommand, { expiresIn: 31536000 }); // 1 year
+      } catch (error) {
+        // Fallback to public URL format if signed URL generation fails
+        const endpoint = process.env['SUPABASE_STORAGE_ENDPOINT']!;
+        const baseUrl = endpoint.replace('/storage/v1/s3', '');
+        url = `${baseUrl}/storage/v1/object/public/${bucket}/${newKey}`;
+      }
+    } else {
+      // Regular S3 - generate signed URL
+      const getObjectCommand = new GetObjectCommand({
+        Bucket: bucket,
+        Key: newKey,
+      });
+      url = await getSignedUrl(client, getObjectCommand, { expiresIn: 31536000 }); // 1 year
+    }
+
+    return {
+      publicId: newKey,
+      url,
+    };
+  } catch (error) {
+    console.error('S3 move error:', error);
+    throw new Error(`Failed to move file in S3: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
 
