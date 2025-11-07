@@ -3,6 +3,9 @@ import { requireAuth } from '@/lib/auth';
 import { uploadImage, isValidImageType, isValidImageSize } from '@/lib/storage';
 import prisma from '@/lib/db';
 
+// Maximum number of screenshots allowed per trade
+const MAX_SCREENSHOTS_PER_TRADE = 5;
+
 /**
  * POST /api/trades/[id]/screenshots
  * Upload screenshots for a trade
@@ -63,12 +66,26 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       );
     }
 
+    // Validate max files limit
+    const existingScreenshots = await prisma.screenshot.count({
+      where: { tradeId },
+    });
+
+    if (existingScreenshots >= MAX_SCREENSHOTS_PER_TRADE) {
+      return NextResponse.json(
+        {
+          error: `Maximum ${MAX_SCREENSHOTS_PER_TRADE} screenshots per trade. Trade already has ${existingScreenshots} screenshot(s).`,
+        },
+        { status: 400 }
+      );
+    }
+
     // Convert file to buffer
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Upload to cloud storage
-    const uploadResult = await uploadImage(buffer, file.name, 'trades/screenshots');
+    // Upload to cloud storage (empty folder = root of bucket)
+    const uploadResult = await uploadImage(buffer, file.name, '');
 
     // Save screenshot metadata to database
     const screenshot = await prisma.screenshot.create({
@@ -90,6 +107,8 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     );
   } catch (error) {
     console.error('Upload screenshot error:', error);
+    console.error('Error details:', error instanceof Error ? error.message : String(error));
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
 
     if (error instanceof Error) {
       if (error.message === 'Authentication required') {
@@ -105,16 +124,27 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       if (error.message.includes('No cloud storage provider configured')) {
         return NextResponse.json(
           {
-            error: 'Cloud storage not configured. Please set up Cloudinary or AWS S3.',
+            error: 'Cloud storage not configured. Please set up Supabase Storage (S3 API), Cloudinary, or AWS S3.',
+            details: error.message,
           },
           { status: 500 }
         );
       }
+
+      // Return the actual error message for debugging
+      return NextResponse.json(
+        {
+          error: 'Failed to upload screenshot',
+          details: error.message,
+        },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json(
       {
         error: 'Failed to upload screenshot',
+        details: String(error),
       },
       { status: 500 }
     );

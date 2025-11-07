@@ -109,7 +109,12 @@ export function ScreenshotUpload({
       const result = await response.json();
 
       if (!response.ok) {
-        setError(result.error || t('failedToUploadScreenshot'));
+        // Show detailed error if available, otherwise show generic message
+        const errorMessage = result.details 
+          ? `${result.error}: ${result.details}`
+          : result.error || t('failedToUploadScreenshot');
+        setError(errorMessage);
+        console.error('Upload error response:', result);
         return;
       }
 
