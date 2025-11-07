@@ -387,13 +387,15 @@ async function uploadToS3(
   // Generate URL - use signed URL for private buckets, public URL for public buckets
   let url: string;
   if (isSupabase) {
-    // For Supabase, try to generate a signed URL (works for both public and private buckets)
+    // For Supabase, always use signed URLs (they work for both public and private buckets)
     // Signed URLs are valid for 1 year (max for S3)
+    // This is required for private buckets and also works for public buckets
+    const getObjectCommand = new GetObjectCommand({
+      Bucket: bucket,
+      Key: key,
+    });
+    
     try {
-      const getObjectCommand = new GetObjectCommand({
-        Bucket: bucket,
-        Key: key,
-      });
       url = await getSignedUrl(client, getObjectCommand, { expiresIn: 31536000 }); // 1 year
       
       // Log for debugging
@@ -403,20 +405,14 @@ async function uploadToS3(
         urlPrefix: url.substring(0, 80) + '...',
       });
     } catch (error) {
-      console.error('Failed to generate signed URL, using public URL format:', error);
-      // Fallback to public URL format if signed URL generation fails
-      const endpoint = process.env['SUPABASE_STORAGE_ENDPOINT']?.trim();
-      if (!endpoint) {
-        throw new Error('SUPABASE_STORAGE_ENDPOINT not configured');
-      }
-      const baseUrl = endpoint.replace('/storage/v1/s3', '');
-      url = `${baseUrl}/storage/v1/object/public/${bucket}/${key}`;
-      
-      console.log('Using public URL format:', {
-        bucket,
-        key,
-        url,
-      });
+      // For Supabase, signed URLs are required for private buckets
+      // If generation fails, throw an error instead of falling back to public URL
+      console.error('Failed to generate signed URL for Supabase:', error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      throw new Error(
+        `Failed to generate signed URL for Supabase Storage: ${errorMessage}. ` +
+        `This is required for private buckets. Check that the bucket "${bucket}" exists and the credentials are correct.`
+      );
     }
   } else {
       // Regular S3 - generate signed URL
@@ -539,18 +535,21 @@ async function moveInS3(
     // Generate new URL - use signed URL for private buckets
     let url: string;
     if (isSupabase) {
-      // For Supabase, generate a signed URL (works for both public and private buckets)
+      // For Supabase, always use signed URLs (required for private buckets, works for public too)
+      const getObjectCommand = new GetObjectCommand({
+        Bucket: bucket,
+        Key: newKey,
+      });
+      
       try {
-        const getObjectCommand = new GetObjectCommand({
-          Bucket: bucket,
-          Key: newKey,
-        });
         url = await getSignedUrl(client, getObjectCommand, { expiresIn: 31536000 }); // 1 year
       } catch (error) {
-        // Fallback to public URL format if signed URL generation fails
-        const endpoint = process.env['SUPABASE_STORAGE_ENDPOINT']!;
-        const baseUrl = endpoint.replace('/storage/v1/s3', '');
-        url = `${baseUrl}/storage/v1/object/public/${bucket}/${newKey}`;
+        // For Supabase, signed URLs are required - don't fall back to public URL
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        throw new Error(
+          `Failed to generate signed URL after moving file: ${errorMessage}. ` +
+          `Check that the bucket "${bucket}" exists and the credentials are correct.`
+        );
       }
     } else {
       // Regular S3 - generate signed URL
