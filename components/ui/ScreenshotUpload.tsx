@@ -109,10 +109,17 @@ export function ScreenshotUpload({
       const result = await response.json();
 
       if (!response.ok) {
-        // Show detailed error if available, otherwise show generic message
-        const errorMessage = result.details 
-          ? `${result.error}: ${result.details}`
-          : result.error || t('failedToUploadScreenshot');
+        // Show detailed error with connection info if available
+        let errorMessage = result.error || t('failedToUploadScreenshot');
+        
+        if (result.details) {
+          errorMessage += `\n\n${result.details}`;
+        }
+        
+        if (result.connectionInfo) {
+          errorMessage += `\n\nConnection Parameters:\n${JSON.stringify(result.connectionInfo, null, 2)}`;
+        }
+        
         setError(errorMessage);
         console.error('Upload error response:', result);
         return;

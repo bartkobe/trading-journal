@@ -131,11 +131,15 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         );
       }
 
-      // Return the actual error message for debugging
+      // Extract connection info if available
+      const connectionInfo = (error as any).connectionInfo;
+      
+      // Return the actual error message with connection parameters
       return NextResponse.json(
         {
           error: 'Failed to upload screenshot',
           details: error.message,
+          connectionInfo: connectionInfo || null,
         },
         { status: 500 }
       );

@@ -95,11 +95,15 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      // Return the actual error message for debugging
+      // Extract connection info if available
+      const connectionInfo = (error as any).connectionInfo;
+
+      // Return the actual error message with connection parameters
       return NextResponse.json(
         {
           error: 'Failed to upload file to temporary storage',
           details: error.message,
+          connectionInfo: connectionInfo || null,
         },
         { status: 500 }
       );

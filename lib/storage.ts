@@ -327,9 +327,14 @@ async function uploadToS3(
 
   const provider = getStorageProviderCached();
   const isSupabase = provider === 'supabase-s3';
-  const bucket = isSupabase
-    ? process.env['SUPABASE_STORAGE_BUCKET']!
-    : process.env['AWS_S3_BUCKET']!;
+  const bucket = (isSupabase
+    ? process.env['SUPABASE_STORAGE_BUCKET']
+    : process.env['AWS_S3_BUCKET'])?.trim();
+  
+  if (!bucket) {
+    throw new Error('Bucket name not configured');
+  }
+  
   // Build key: if folder is empty, just use filename; otherwise folder/filename
   const key = folder ? `${folder}/${Date.now()}-${filename}` : `${Date.now()}-${filename}`;
 
@@ -339,6 +344,17 @@ async function uploadToS3(
       ? Buffer.from(file.replace(/^data:image\/\w+;base64,/, ''), 'base64')
       : file;
 
+  // Get connection parameters for error reporting
+  const accessKeyId = (isSupabase
+    ? process.env['SUPABASE_STORAGE_ACCESS_KEY_ID']
+    : process.env['AWS_ACCESS_KEY_ID'])?.trim();
+  const endpoint = (isSupabase 
+    ? process.env['SUPABASE_STORAGE_ENDPOINT']
+    : undefined)?.trim();
+  const region = (isSupabase 
+    ? process.env['SUPABASE_STORAGE_REGION']
+    : process.env['AWS_REGION'])?.trim();
+
   const command = new PutObjectCommand({
     Bucket: bucket,
     Key: key,
@@ -346,7 +362,27 @@ async function uploadToS3(
     ContentType: 'image/jpeg', // Default, should be determined from file
   });
 
-  await client.send(command);
+  try {
+    await client.send(command);
+  } catch (error) {
+    // Include full connection parameters in error for debugging
+    const connectionInfo = {
+      provider,
+      endpoint: endpoint || 'default AWS endpoint',
+      region: region || 'not set',
+      bucket,
+      accessKeyId: accessKeyId || 'not set',
+      accessKeyIdLength: accessKeyId?.length || 0,
+      key,
+    };
+    
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const fullError = new Error(
+      `S3 upload failed: ${errorMessage}\n\nConnection parameters:\n${JSON.stringify(connectionInfo, null, 2)}`
+    );
+    (fullError as any).connectionInfo = connectionInfo;
+    throw fullError;
+  }
 
   // Generate URL - use signed URL for private buckets, public URL for public buckets
   let url: string;
