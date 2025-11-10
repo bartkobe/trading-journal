@@ -396,7 +396,8 @@ async function uploadToS3(
     });
     
     try {
-      url = await getSignedUrl(client, getObjectCommand, { expiresIn: 31536000 }); // 1 year
+      // Supabase requires signed URLs to expire within 1 week (604800 seconds = 7 days)
+      url = await getSignedUrl(client, getObjectCommand, { expiresIn: 604800 }); // 7 days (max for Supabase)
       
       // Log for debugging
       console.log('Generated signed URL for Supabase:', {
@@ -420,7 +421,8 @@ async function uploadToS3(
         Bucket: bucket,
         Key: key,
       });
-      url = await getSignedUrl(client, getObjectCommand, { expiresIn: 31536000 }); // 1 year
+      // Supabase requires signed URLs to expire within 1 week (604800 seconds = 7 days)
+      url = await getSignedUrl(client, getObjectCommand, { expiresIn: 604800 }); // 7 days (max for Supabase)
     }
 
   return {
@@ -542,7 +544,8 @@ async function moveInS3(
       });
       
       try {
-        url = await getSignedUrl(client, getObjectCommand, { expiresIn: 31536000 }); // 1 year
+        // Supabase requires signed URLs to expire within 1 week (604800 seconds = 7 days)
+      url = await getSignedUrl(client, getObjectCommand, { expiresIn: 604800 }); // 7 days (max for Supabase)
       } catch (error) {
         // For Supabase, signed URLs are required - don't fall back to public URL
         const errorMessage = error instanceof Error ? error.message : String(error);
@@ -557,7 +560,8 @@ async function moveInS3(
         Bucket: bucket,
         Key: newKey,
       });
-      url = await getSignedUrl(client, getObjectCommand, { expiresIn: 31536000 }); // 1 year
+      // Supabase requires signed URLs to expire within 1 week (604800 seconds = 7 days)
+      url = await getSignedUrl(client, getObjectCommand, { expiresIn: 604800 }); // 7 days (max for Supabase)
     }
 
     return {
